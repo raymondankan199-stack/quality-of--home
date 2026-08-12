@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#0B7A3E" />
-  <title>Quality of Home — Store</title>
+  <title>Home of Quality — Store</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://js.paystack.co/v1/inline.js"></script>
   <style>
@@ -441,7 +441,7 @@
     <div class="topbar">
       <div class="search-wrap">
         <span class="search-icon">🔍</span>
-        <input type="text" id="search-input" placeholder="Search on Quality of Home" />
+        <input type="text" id="search-input" placeholder="Search on Home of Quality" />
       </div>
       <button class="top-cart" onclick="openCart()">
         🛒 <span class="cart-badge" id="cart-count">0</span>
@@ -528,7 +528,7 @@
         <span>Wishlist</span>
         <span class="arrow">›</span>
       </div>
-      <div class="account-item" onclick="openWhatsApp('Hello Quality of Home, I need support')">
+      <div class="account-item" onclick="openWhatsApp('Hello Home of Quality, I need support')">
         <div class="ico">💬</div>
         <span>Live Chat / WhatsApp</span>
         <span class="arrow">›</span>
@@ -571,11 +571,11 @@
       <span style="cursor:pointer;font-size:1.2rem;" onclick="toggleChat()">✕</span>
     </div>
     <div class="chat-body">
-      <div class="chat-msg bot">Hello! 👋 Welcome to Quality of Home. How can we help you today?</div>
+      <div class="chat-msg bot">Hello! 👋 Welcome to Home of Quality. How can we help you today?</div>
       <div class="chat-msg bot">You can chat with us directly on WhatsApp for fast replies.</div>
     </div>
     <div class="chat-actions">
-      <button class="btn btn-green btn-full" onclick="openWhatsApp('Hello Quality of Home, I need help')">💬 Chat on WhatsApp</button>
+      <button class="btn btn-green btn-full" onclick="openWhatsApp('Hello Home of Quality, I need help')">💬 Chat on WhatsApp</button>
       <button class="btn btn-ghost btn-full" onclick="openWhatsApp('Hello, I want to place an order')">📦 Order Help</button>
       <button class="btn btn-ghost btn-full" onclick="openWhatsApp('Hello, I want to check my order status')">🔍 Track Order</button>
     </div>
@@ -597,7 +597,7 @@
   <div class="modal-overlay" id="auth-modal">
     <div class="modal">
       <h2 id="auth-title">Sign In</h2>
-      <p class="sub" id="auth-sub">Enter your details to continue</p>
+      <p class="sub" id="auth-sub">Sign in with your phone number</p>
       <div class="form-group" id="name-group">
         <label>Full Name</label>
         <input type="text" id="auth-name" placeholder="Your full name" />
@@ -605,6 +605,14 @@
       <div class="form-group">
         <label>Phone Number</label>
         <input type="tel" id="auth-phone" placeholder="e.g. 0533318842" />
+      </div>
+      <div class="form-group">
+        <label>Email (optional)</label>
+        <input type="email" id="auth-email" placeholder="you@email.com" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="auth-pass" placeholder="Create or enter password" />
       </div>
       <button class="btn btn-green btn-full" onclick="submitAuth()">Continue</button>
       <div class="auth-switch">
@@ -785,7 +793,7 @@
       return 'GH₵ ' + Number(n || 0).toLocaleString('en-GH');
     }
     function openWhatsApp(text) {
-      const url = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(text || 'Hello Quality of Home')}`;
+      const url = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(text || 'Hello Home of Quality')}`;
       window.open(url, '_blank');
     }
     function toggleChat() {
@@ -910,8 +918,17 @@
       document.getElementById('cart-count').textContent = cart.reduce((s, i) => s + i.qty, 0);
     }
     function addToCart(id) {
+      if (!currentUser) {
+        toast('Please sign in or create an account first');
+        openAuth('login');
+        return;
+      }
       const p = products.find(x => x.id === id);
       if (!p) return;
+      if (Number(p.stock) <= 0) {
+        toast('This item is out of stock');
+        return;
+      }
       const existing = cart.find(i => i.id === id);
       if (existing) existing.qty += 1;
       else cart.push({ id: p.id, name: p.name, price: p.price, image: p.image || '', qty: 1 });
@@ -1003,6 +1020,11 @@
 
     function toggleWish(id, e) {
       if (e) e.stopPropagation();
+      if (!currentUser) {
+        toast('Please sign in to save favorites');
+        openAuth('login');
+        return;
+      }
       if (wishlist.includes(id)) wishlist = wishlist.filter(x => x !== id);
       else wishlist.push(id);
       localStorage.setItem('qoh_wishlist', JSON.stringify(wishlist));
@@ -1061,7 +1083,7 @@
     function openAuth(mode) {
       authMode = mode || 'login';
       document.getElementById('auth-title').textContent = authMode === 'login' ? 'Sign In' : 'Create Account';
-      document.getElementById('auth-sub').textContent = authMode === 'login' ? 'Enter your phone to continue' : 'Create your Quality of Home account';
+      document.getElementById('auth-sub').textContent = authMode === 'login' ? 'Sign in with your phone number' : 'Create your Home of Quality account';
       document.getElementById('name-group').style.display = authMode === 'signup' ? 'block' : 'none';
       document.getElementById('auth-switch-text').textContent = authMode === 'login' ? "Don't have an account?" : 'Already have an account?';
       document.getElementById('auth-switch-link').textContent = authMode === 'login' ? 'Sign Up' : 'Sign In';
@@ -1072,36 +1094,62 @@
     async function submitAuth() {
       const name = document.getElementById('auth-name').value.trim();
       const phone = document.getElementById('auth-phone').value.trim();
+      const email = (document.getElementById('auth-email') || {}).value?.trim() || '';
+      const pass = (document.getElementById('auth-pass') || {}).value || '';
       if (!phone) return toast('Enter your phone number');
+      if (!pass || pass.length < 4) return toast('Enter a password (at least 4 characters)');
       if (authMode === 'signup' && !name) return toast('Enter your name');
       if (!supabaseClient) return toast('No connection');
+
+      // Local password store (phone -> password)
+      const passMap = JSON.parse(localStorage.getItem('qoh_passwords') || '{}');
+
       try {
         if (authMode === 'signup') {
           const { data: existing } = await supabaseClient.from('customers').select('*').eq('phone', phone).limit(1);
           if (existing && existing.length) {
-            saveUser(existing[0]);
-            toast('Account exists. Signed in!');
+            // Account exists — treat as login if password matches
+            if (passMap[phone] && passMap[phone] !== pass) {
+              return toast('Wrong password. Try again or reset via WhatsApp.');
+            }
+            passMap[phone] = pass;
+            localStorage.setItem('qoh_passwords', JSON.stringify(passMap));
+            saveUser({ ...existing[0], email: email || existing[0].email });
+            toast('Welcome back!');
           } else {
-            const { data, error } = await supabaseClient.from('customers').insert([{ name, phone, orders: 0, spent: 0 }]).select().single();
+            const row = { name, phone, orders: 0, spent: 0 };
+            const { data, error } = await supabaseClient.from('customers').insert([row]).select().single();
             if (error) throw error;
-            saveUser(data);
+            passMap[phone] = pass;
+            localStorage.setItem('qoh_passwords', JSON.stringify(passMap));
+            saveUser({ ...data, email });
             toast('Account created!');
           }
         } else {
           const { data, error } = await supabaseClient.from('customers').select('*').eq('phone', phone).limit(1);
           if (error) throw error;
-          if (data && data.length) {
-            saveUser(data[0]);
-            toast('Welcome back!');
-          } else {
+          if (!data || !data.length) {
             toast('No account found. Please sign up.');
             openAuth('signup');
             return;
           }
+          if (passMap[phone] && passMap[phone] !== pass) {
+            return toast('Wrong password');
+          }
+          // First login on this device without stored pass: set it
+          if (!passMap[phone]) {
+            passMap[phone] = pass;
+            localStorage.setItem('qoh_passwords', JSON.stringify(passMap));
+          }
+          saveUser({ ...data[0], email: email || data[0].email });
+          toast('Welcome back!');
         }
         closeAuth();
         updateAccountUI();
-      } catch (e) { toast('Something went wrong'); }
+      } catch (e) {
+        console.error(e);
+        toast('Something went wrong');
+      }
     }
     function saveUser(user) {
       currentUser = user;
@@ -1124,13 +1172,17 @@
     }
     function startCheckout() {
       if (!cart.length) return toast('Cart is empty');
+      if (!currentUser) {
+        toast('Please sign in to checkout');
+        closeCart();
+        openAuth('login');
+        return;
+      }
       closeCart();
       const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
       document.getElementById('co-total').textContent = formatMoney(total);
-      if (currentUser) {
-        document.getElementById('co-name').value = currentUser.name || '';
-        document.getElementById('co-phone').value = currentUser.phone || '';
-      }
+      document.getElementById('co-name').value = currentUser.name || '';
+      document.getElementById('co-phone').value = currentUser.phone || '';
       document.getElementById('checkout-modal').classList.add('open');
       setupAddressAutocomplete();
     }
@@ -1183,7 +1235,7 @@
       showOrderSuccess(orderId, total, itemsText, paymentStatus === 'Paid');
 
       // Always notify merchant on WhatsApp
-      const merchantMsg = `🛒 NEW ORDER — Quality of Home\n\nOrder #: ${orderId}\nName: ${name}\nPhone: ${phone}\nTotal: ${formatMoney(total)}\nPayment: ${payLabel}${paystackRef ? '\nPaystack Ref: ' + paystackRef : ''}\nStatus: ${paymentStatus || 'Unpaid'}\nDelivery: ${delivery === 'pickup' ? 'Pickup Station' : 'Home Delivery'}\nAddress: ${address}\n\nItems:\n${items.map(i => '• ' + i.name + ' x' + i.qty + ' — ' + formatMoney(i.price * i.qty)).join('\n')}`;
+      const merchantMsg = `🛒 NEW ORDER — Home of Quality\n\nOrder #: ${orderId}\nName: ${name}\nPhone: ${phone}\nTotal: ${formatMoney(total)}\nPayment: ${payLabel}${paystackRef ? '\nPaystack Ref: ' + paystackRef : ''}\nStatus: ${paymentStatus || 'Unpaid'}\nDelivery: ${delivery === 'pickup' ? 'Pickup Station' : 'Home Delivery'}\nAddress: ${address}\n\nItems:\n${items.map(i => '• ' + i.name + ' x' + i.qty + ' — ' + formatMoney(i.price * i.qty)).join('\n')}`;
       setTimeout(() => openWhatsApp(merchantMsg), 800);
     }
 
