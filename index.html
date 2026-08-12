@@ -1556,6 +1556,40 @@
         `<button class="cat-chip ${currentCat === c.id ? 'active' : ''}" onclick="setCategory('${c.id}')">${c.name}</button>`
       ).join('');
     }
+    
+    // Smart category match: maps menu names to real product categories / keywords
+    function productMatchesCategory(p, catId) {
+      if (!catId || catId === 'all') return true;
+      const cat = (p.category || '').toLowerCase();
+      const name = (p.name || '').toLowerCase();
+      const id = catId.toLowerCase();
+
+      // direct match
+      if (cat === id) return true;
+      if (cat.includes(id) || id.includes(cat)) return true;
+
+      // aliases
+      const aliases = {
+        phones: ['phone', 'iphone', 'samsung', 'tecno', 'infinix', 'tablet', 'android'],
+        laptops: ['laptop', 'macbook', 'computer', 'hp', 'dell', 'lenovo', 'computing'],
+        electronics: ['electronic', 'tv', 'speaker', 'headphone', 'blender', 'air-condition', 'iphone', 'phone'],
+        appliances: ['appliance', 'microwave', 'fridge', 'washer', 'blender', 'air-condition', 'fan'],
+        home: ['home', 'office', 'furniture', 'kitchen'],
+        fashion: ['shirt', 't-shirt', 'fashion', 'cloth', 'shoe'],
+        grocery: ['grocery', 'food', 'supermarket'],
+        beauty: ['beauty', 'cream', 'lotion', 'health'],
+        accessories: ['accessor', 'cable', 'charger', 'case', 'earbud'],
+        gaming: ['game', 'ps5', 'xbox', 'console'],
+        baby: ['baby', 'diaper'],
+        kitchen: ['kitchen', 'cook', 'microwave', 'blender'],
+        furniture: ['furniture', 'chair', 'table', 'sofa'],
+        other: ['other']
+      };
+
+      const keys = aliases[id] || [id];
+      return keys.some(k => cat.includes(k) || name.includes(k));
+    }
+
     function setCategory(id) {
       currentCat = id;
       renderCategories();
@@ -1564,7 +1598,7 @@
     function renderProducts() {
       let list = products;
       if (currentCat !== 'all') {
-        list = list.filter(p => (p.category || '').toLowerCase() === currentCat.toLowerCase());
+        list = list.filter(p => productMatchesCategory(p, currentCat));
       }
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
@@ -1779,13 +1813,13 @@
 
       if (filterList) {
         filterList.innerHTML = CATEGORIES.filter(c => c.id !== 'all').map(c =>
-          `<a href="#" onclick="filterByCategory('${c.id}');return false;">${c.icon} ${c.name}</a>`
+          `<a href="#" onclick="setCategory('${c.id}');goPage('home');return false;">${c.icon} ${c.name}</a>`
         ).join('');
       }
 
       if (listEl) {
         listEl.innerHTML = CATEGORIES.filter(c => c.id !== 'all').map(c => `
-          <div class="cat-page-item" onclick="filterByCategory('${c.id}')">
+          <div class="cat-page-item" onclick="setCategory('${c.id}');goPage('home')">
             <div class="ico">${c.icon}</div>
             <div><h3>${c.name}</h3><p>Browse ${c.name.toLowerCase()}</p></div>
           </div>`).join('');
@@ -1816,7 +1850,7 @@
 
       let items = (typeof allProducts !== 'undefined' ? allProducts : []);
       if (catId && catId !== 'all') {
-        items = items.filter(p => (p.category || '').toLowerCase() === catId.toLowerCase());
+        items = items.filter(p => productMatchesCategory(p, catId));
       }
       if (grid) {
         grid.innerHTML = items.slice(0, 20).map(p => {
