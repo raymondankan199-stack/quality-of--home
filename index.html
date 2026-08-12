@@ -192,6 +192,36 @@
       display: inline-block; background: var(--red); color: #fff;
       font-size: 0.65rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; margin-top: 2px;
     }
+
+    .promo-row {
+      display: flex; gap: 10px; padding: 4px 12px 14px;
+      overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    }
+    .promo-row::-webkit-scrollbar { display: none; }
+    .promo-card {
+      flex-shrink: 0; width: 150px; border-radius: 14px; padding: 14px 12px;
+      color: #fff; position: relative; overflow: hidden; cursor: pointer;
+      min-height: 110px; display: flex; flex-direction: column; justify-content: flex-end;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .promo-card h4 { font-size: 0.85rem; font-weight: 800; margin: 0 0 2px; position: relative; z-index: 1; }
+    .promo-card p { font-size: 0.72rem; opacity: 0.95; margin: 0; position: relative; z-index: 1; }
+    .promo-card .badge {
+      position: absolute; top: 10px; left: 10px; background: rgba(255,255,255,0.25);
+      font-size: 0.65rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; z-index: 1;
+    }
+    .top-deals-head {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 4px 16px 10px;
+    }
+    .top-deals-head h2 {
+      font-size: 1.05rem; font-weight: 800; color: #c2410c;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .top-deals-head a {
+      font-size: 0.85rem; color: var(--green); font-weight: 700; cursor: pointer;
+    }
+
     .cat-scroll {
       display: flex; gap: 8px; padding: 0 12px 14px;
       overflow-x: auto; -webkit-overflow-scrolling: touch;
@@ -576,6 +606,40 @@
       <button class="hero-arrow prev" onclick="heroPrev()">‹</button>
       <button class="hero-arrow next" onclick="heroNext()">›</button>
       <div class="hero-dots" id="hero-dots"></div>
+    </div>
+
+    <!-- Jumia-style promo / official deal cards -->
+    <div class="promo-row" id="promo-row">
+      <div class="promo-card" style="background: linear-gradient(135deg, #0B7A3E, #16a34a);" onclick="setCategory('Phones');">
+        <span class="badge">OFFICIAL</span>
+        <h4>Phones Store</h4>
+        <p>Up to 40% OFF</p>
+      </div>
+      <div class="promo-card" style="background: linear-gradient(135deg, #c2410c, #ea580c);" onclick="setCategory('Appliances');">
+        <span class="badge">OFFICIAL</span>
+        <h4>Appliances</h4>
+        <p>Up to 35% OFF</p>
+      </div>
+      <div class="promo-card" style="background: linear-gradient(135deg, #1d4ed8, #3b82f6);" onclick="setCategory('Electronics');">
+        <span class="badge">OFFICIAL</span>
+        <h4>Electronics</h4>
+        <p>Up to 30% OFF</p>
+      </div>
+      <div class="promo-card" style="background: linear-gradient(135deg, #7c3aed, #a78bfa);" onclick="setCategory('Fashion');">
+        <span class="badge">OFFICIAL</span>
+        <h4>Fashion</h4>
+        <p>Up to 25% OFF</p>
+      </div>
+      <div class="promo-card" style="background: linear-gradient(135deg, #b45309, #f59e0b);" onclick="setCategory('Grocery');">
+        <span class="badge">OFFICIAL</span>
+        <h4>Supermarket</h4>
+        <p>Up to 20% OFF</p>
+      </div>
+    </div>
+
+    <div class="top-deals-head">
+      <h2>🔥 Top Deals</h2>
+      <a onclick="setCategory('all'); document.getElementById('products')?.scrollIntoView({behavior:'smooth'})">See All ›</a>
     </div>
 
     <div class="flash" id="flash-section" style="display:none;">
