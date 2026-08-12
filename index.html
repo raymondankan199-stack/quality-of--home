@@ -503,24 +503,24 @@
   </div>
 
   <div id="page-account" class="page">
-    <div class="account-header">
-      <h2 id="account-name">Welcome</h2>
-      <p id="account-sub">Sign in to track orders & manage your account</p>
-    </div>
-    <div class="account-list">
-      <div class="account-item" onclick="openAuth('login')">
-        <div class="ico">👤</div>
-        <span id="login-text">Login / Sign Up</span>
-        <span class="arrow">›</span>
+    <div class="account-header" style="display:flex;justify-content:space-between;align-items:center;padding:20px 16px 24px;">
+      <div>
+        <h2 id="account-name" style="margin:0 0 4px;">Welcome</h2>
+        <p id="account-sub" style="margin:0;opacity:0.9;font-size:0.9rem;">Enter your account</p>
       </div>
+      <button id="account-login-btn" class="btn btn-yellow" style="padding:10px 20px;border-radius:8px;font-weight:700;" onclick="openAuth('login')">Login</button>
+    </div>
+
+    <div style="display:flex;gap:10px;padding:0 16px 14px;">
+      <button class="btn btn-green" style="flex:1;padding:12px;border-radius:10px;" onclick="openWhatsApp('Hello Home of Quality, I need live support')">💬 Live Chat</button>
+      <button class="btn" style="flex:1;padding:12px;border-radius:10px;background:#fff;border:1.5px solid #25D366;color:#128C7E;font-weight:700;" onclick="openWhatsApp('Hello Home of Quality')">WhatsApp</button>
+    </div>
+
+    <div class="account-list" style="margin-top:0;">
+      <div style="padding:10px 18px 4px;font-size:0.75rem;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">My Account</div>
       <div class="account-item" onclick="goPage('orders')">
         <div class="ico">📦</div>
-        <span>My Orders</span>
-        <span class="arrow">›</span>
-      </div>
-      <div class="account-item" onclick="goPage('cart')">
-        <div class="ico">🛒</div>
-        <span>My Cart</span>
+        <span>Orders</span>
         <span class="arrow">›</span>
       </div>
       <div class="account-item" onclick="goPage('wishlist')">
@@ -528,9 +528,9 @@
         <span>Wishlist</span>
         <span class="arrow">›</span>
       </div>
-      <div class="account-item" onclick="openWhatsApp('Hello Home of Quality, I need support')">
-        <div class="ico">💬</div>
-        <span>Live Chat / WhatsApp</span>
+      <div class="account-item" onclick="goPage('cart')">
+        <div class="ico">🛒</div>
+        <span>My Cart</span>
         <span class="arrow">›</span>
       </div>
       <div class="account-item" onclick="openWhatsApp('Hello, I want to trade-in my device')">
@@ -538,6 +538,51 @@
         <span>Trade-In</span>
         <span class="arrow">›</span>
       </div>
+      <div class="account-item" onclick="toast('Coming soon')">
+        <div class="ico">⭐</div>
+        <span>Ratings & Reviews</span>
+        <span class="arrow">›</span>
+      </div>
+      <div class="account-item" onclick="toast('Coming soon')">
+        <div class="ico">🕒</div>
+        <span>Recently Viewed</span>
+        <span class="arrow">›</span>
+      </div>
+
+      <div style="padding:14px 18px 4px;font-size:0.75rem;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Help & Support</div>
+      <div class="account-item" onclick="openWhatsApp('Hello Home of Quality, I need help')">
+        <div class="ico">ℹ️</div>
+        <span>Help & Support</span>
+        <span class="arrow">›</span>
+      </div>
+      <div class="account-item" onclick="openWhatsApp('Hello Home of Quality')">
+        <div class="ico">💬</div>
+        <span>Live Chat</span>
+        <span class="arrow">›</span>
+      </div>
+
+      <div style="padding:14px 18px 4px;font-size:0.75rem;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">My Settings</div>
+      <div class="account-item" onclick="toast('Manage payment when you checkout with Paystack')">
+        <div class="ico">💳</div>
+        <span>Payment Settings</span>
+        <span class="arrow">›</span>
+      </div>
+      <div class="account-item" onclick="openAddressBook()">
+        <div class="ico">📍</div>
+        <span>Address Book</span>
+        <span class="arrow">›</span>
+      </div>
+      <div class="account-item" onclick="toast('Notifications: you will get order updates via WhatsApp')">
+        <div class="ico">🔔</div>
+        <span>Notification Preferences</span>
+        <span class="arrow">›</span>
+      </div>
+      <div class="account-item" onclick="showPrivacy()">
+        <div class="ico">🔒</div>
+        <span>Privacy Policy</span>
+        <span class="arrow">›</span>
+      </div>
+
       <div class="account-item" id="logout-item" style="display:none;" onclick="logout()">
         <div class="ico">🚪</div>
         <span>Log Out</span>
@@ -1074,17 +1119,38 @@
     }
 
     function updateAccountUI() {
+      const loginBtn = document.getElementById('account-login-btn');
       if (currentUser) {
         document.getElementById('account-name').textContent = currentUser.name || 'Welcome back';
         document.getElementById('account-sub').textContent = currentUser.phone || '';
-        document.getElementById('login-text').textContent = 'My Profile';
-        document.getElementById('logout-item').style.display = 'flex';
+        if (loginBtn) {
+          loginBtn.textContent = 'Profile';
+          loginBtn.onclick = function() { toast('You are logged in as ' + (currentUser.name || currentUser.phone)); };
+        }
+        const lo = document.getElementById('logout-item');
+        if (lo) lo.style.display = 'flex';
       } else {
         document.getElementById('account-name').textContent = 'Welcome';
-        document.getElementById('account-sub').textContent = 'Sign in to track orders & manage account';
-        document.getElementById('login-text').textContent = 'Login / Sign Up';
-        document.getElementById('logout-item').style.display = 'none';
+        document.getElementById('account-sub').textContent = 'Enter your account';
+        if (loginBtn) {
+          loginBtn.textContent = 'Login';
+          loginBtn.onclick = function() { openAuth('login'); };
+        }
+        const lo = document.getElementById('logout-item');
+        if (lo) lo.style.display = 'none';
       }
+    }
+    function openAddressBook() {
+      if (!currentUser) { toast('Please sign in first'); openAuth('login'); return; }
+      const saved = localStorage.getItem('qoh_address_' + (currentUser.phone || '')) || '';
+      const addr = prompt('Your delivery address:', saved || '');
+      if (addr !== null) {
+        localStorage.setItem('qoh_address_' + currentUser.phone, addr.trim());
+        toast(addr.trim() ? 'Address saved' : 'Address cleared');
+      }
+    }
+    function showPrivacy() {
+      alert('Home of Quality Privacy Policy\n\nWe use your name, phone and address only to process orders and contact you about delivery.\n\nWe do not sell your data.\n\nPayments are processed securely via Paystack.\n\nContact: WhatsApp 0533318842');
     }
     function openAuth(mode) {
       authMode = mode || 'login';
