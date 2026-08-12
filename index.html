@@ -405,6 +405,28 @@
       font-size: 0.78rem; color: var(--muted);
     }
     footer a { color: var(--green); text-decoration: none; font-weight: 600; }
+    
+    .addr-wrap { position: relative; }
+    .addr-suggestions {
+      position: absolute; left: 0; right: 0; top: 100%; z-index: 50;
+      background: #fff; border: 1.5px solid var(--border); border-radius: 10px;
+      max-height: 220px; overflow-y: auto; display: none;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+    .addr-suggestions.open { display: block; }
+    .addr-item {
+      padding: 10px 12px; font-size: 0.88rem; cursor: pointer;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .addr-item:last-child { border-bottom: none; }
+    .addr-item:hover, .addr-item.active { background: var(--green-light); }
+    .addr-map {
+      margin-top: 10px; height: 160px; border-radius: 10px; overflow: hidden;
+      border: 1px solid var(--border); display: none; background: #eee;
+    }
+    .addr-map.open { display: block; }
+    .addr-map iframe { width: 100%; height: 100%; border: 0; }
+
     .promo-bar {
       background: var(--yellow); color: #111; text-align: center;
       padding: 8px 12px; font-size: 0.82rem; font-weight: 700;
@@ -612,7 +634,13 @@
       </div>
       <div class="form-group">
         <label>Delivery Address</label>
-        <textarea id="co-address" placeholder="House number, street, area, city"></textarea>
+        <div class="addr-wrap">
+          <textarea id="co-address" placeholder="Start typing area, street, or landmark in Ghana..." rows="2"></textarea>
+          <div class="addr-suggestions" id="addr-suggestions"></div>
+        </div>
+        <div class="addr-map" id="addr-map"></div>
+        <input type="hidden" id="co-lat" />
+        <input type="hidden" id="co-lng" />
       </div>
 
       <div class="form-group">
@@ -1082,6 +1110,7 @@
         document.getElementById('co-phone').value = currentUser.phone || '';
       }
       document.getElementById('checkout-modal').classList.add('open');
+      setupAddressAutocomplete();
     }
     function closeCheckout() { document.getElementById('checkout-modal').classList.remove('open'); }
 
@@ -1090,7 +1119,7 @@
       const itemLines = items.map(i => (i.name || 'Item') + ' x' + (i.qty || 1) + ' @ ' + (i.price || 0)).join(' | ');
       const details = [
         itemLines,
-        'Location: ' + address,
+        'Location: ' + address + (document.getElementById('co-lat').value ? ' (GPS: ' + document.getElementById('co-lat').value + ',' + document.getElementById('co-lng').value + ')' : ''),
         'Delivery: ' + (delivery === 'pickup' ? 'Pickup Station' : 'Home Delivery'),
         'Payment: ' + payLabel + (paymentStatus ? ' (' + paymentStatus + ')' : ''),
         paystackRef ? ('Paystack Ref: ' + paystackRef) : null,
@@ -1352,6 +1381,66 @@
       searchQuery = e.target.value.trim();
       renderProducts();
     });
+
+
+    // ===== ADDRESS AUTOCOMPLETE (OpenStreetMap) =====
+    let addrTimer = null;
+    function setupAddressAutocomplete() {
+      const input = document.getElementById('co-address');
+      const box = document.getElementById('addr-suggestions');
+      if (!input || !box) return;
+      input.oninput = function() {
+        const q = input.value.trim();
+        clearTimeout(addrTimer);
+        if (q.length < 3) { box.classList.remove('open'); box.innerHTML = ''; return; }
+        addrTimer = setTimeout(function() { searchAddress(q); }, 400);
+      };
+      input.onblur = function() { setTimeout(function(){ box.classList.remove('open'); }, 250); };
+    }
+
+    async function searchAddress(query) {
+      const box = document.getElementById('addr-suggestions');
+      try {
+        const url = 'https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=6&countrycodes=gh&q=' + encodeURIComponent(query);
+        const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+        const data = await res.json();
+        if (!data || !data.length) {
+          box.innerHTML = '<div class="addr-item">No places found. Type your full address.</div>';
+          box.classList.add('open');
+          return;
+        }
+        box.innerHTML = data.map(function(p) {
+          const name = String(p.display_name || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+          return '<div class="addr-item" data-lat="' + p.lat + '" data-lng="' + p.lon + '" data-name="' + name + '" onclick="pickAddress(this)">' + name + '</div>';
+        }).join('');
+        box.classList.add('open');
+      } catch (e) {
+        box.innerHTML = '<div class="addr-item">Could not search. Type address manually.</div>';
+        box.classList.add('open');
+      }
+    }
+
+    function pickAddress(el) {
+      const name = el.getAttribute('data-name');
+      const lat = el.getAttribute('data-lat');
+      const lng = el.getAttribute('data-lng');
+      document.getElementById('co-address').value = name;
+      document.getElementById('co-lat').value = lat || '';
+      document.getElementById('co-lng').value = lng || '';
+      document.getElementById('addr-suggestions').classList.remove('open');
+      showAddressMap(lat, lng);
+    }
+
+    function showAddressMap(lat, lng) {
+      const map = document.getElementById('addr-map');
+      if (!map || !lat || !lng) return;
+      const src = 'https://www.openstreetmap.org/export/embed.html?bbox=' +
+        (parseFloat(lng) - 0.012) + '%2C' + (parseFloat(lat) - 0.012) + '%2C' +
+        (parseFloat(lng) + 0.012) + '%2C' + (parseFloat(lat) + 0.012) +
+        '&layer=mapnik&marker=' + lat + '%2C' + lng;
+      map.innerHTML = '<iframe src="' + src + '" loading="lazy" title="Map"></iframe>';
+      map.classList.add('open');
+    }
 
     updateCartCount();
     updateAccountUI();
