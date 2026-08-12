@@ -535,6 +535,133 @@
       background: var(--yellow); color: #111; text-align: center;
       padding: 8px 12px; font-size: 0.82rem; font-weight: 700;
     }
+  
+    /* ===== SELL PAGE ===== */
+    .sell-hero {
+      background: linear-gradient(135deg, #0B7A3E, #059669);
+      color: #fff; padding: 36px 20px; text-align: center;
+    }
+    .sell-hero h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: 8px; }
+    .sell-hero p { opacity: 0.95; margin-bottom: 20px; font-size: 1rem; }
+    .sell-benefits {
+      display: grid; grid-template-columns: 1fr; gap: 12px;
+      padding: 20px 14px;
+    }
+    @media(min-width:600px){ .sell-benefits { grid-template-columns: repeat(3,1fr); } }
+    .sell-card {
+      background: #fff; border-radius: 14px; padding: 18px;
+      border: 1px solid var(--border); text-align: center;
+    }
+    .sell-card .icon { font-size: 2.2rem; margin-bottom: 10px; }
+    .sell-card h3 { font-size: 1rem; margin-bottom: 6px; }
+    .sell-card p { font-size: 0.85rem; color: var(--muted); }
+    .why-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      padding: 0 14px 20px;
+    }
+    .why-item {
+      background: var(--green); color: #fff;
+      border-radius: 12px; padding: 16px 12px; text-align: center;
+      font-weight: 700; font-size: 0.82rem;
+    }
+    .steps {
+      padding: 10px 14px 24px; display: grid; gap: 14px;
+    }
+    .step {
+      background: #fff; border-radius: 12px; padding: 14px;
+      border: 1px solid var(--border);
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .step-num {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--yellow); color: #111;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; flex-shrink: 0;
+    }
+    .testimonial {
+      background: #fff; margin: 0 14px 12px; padding: 16px;
+      border-radius: 12px; border: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+    .testimonial .who { margin-top: 8px; font-weight: 700; color: var(--green); font-size: 0.85rem; }
+
+  
+    /* ===== SITE FOOTER (Jumia style) ===== */
+    .site-footer {
+      background: #1a1a1a;
+      color: #ccc;
+      margin-top: 30px;
+      padding: 28px 16px 100px;
+      font-size: 0.82rem;
+    }
+    .site-footer h4 {
+      color: #fff;
+      font-size: 0.88rem;
+      margin-bottom: 12px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .site-footer a {
+      color: #bbb;
+      text-decoration: none;
+      display: block;
+      margin-bottom: 7px;
+    }
+    .site-footer a:hover { color: #F5C518; }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px 16px;
+      margin-bottom: 28px;
+    }
+    @media(min-width:700px){
+      .footer-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+    .footer-newsletter {
+      background: #222;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+    .footer-newsletter input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: none;
+      margin: 8px 0;
+      font-size: 0.9rem;
+    }
+    .footer-newsletter button {
+      width: 100%;
+      padding: 10px;
+      background: #F5C518;
+      color: #111;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .footer-contact p { margin-bottom: 4px; color: #aaa; }
+    .footer-social {
+      display: flex; gap: 12px; margin: 12px 0 20px;
+      font-size: 1.3rem;
+    }
+    .footer-payments {
+      display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+      margin: 10px 0 20px;
+    }
+    .footer-pay-badge {
+      background: #333; color: #fff; padding: 6px 10px;
+      border-radius: 6px; font-size: 0.75rem; font-weight: 600;
+    }
+    .footer-bottom {
+      border-top: 1px solid #333;
+      padding-top: 16px;
+      text-align: center;
+      color: #888;
+      font-size: 0.78rem;
+    }
+
   </style>
 </head>
 <body>
@@ -557,7 +684,11 @@
     </div>
   </div>
 
-  <div class="promo-bar">Free delivery on orders above GH₵ 500 · Call / WhatsApp: 0533318842</div>
+  <div class="promo-bar">
+    Free delivery on orders above GH₵ 500 · 
+    <a href="#" onclick="goPage('sell');return false;" style="color:#111;text-decoration:underline;font-weight:800;">Sell on Quality of Home</a>
+    · WhatsApp: 0533318842
+  </div>
 
   <div id="page-home" class="page active">
     <div class="topbar">
@@ -578,7 +709,7 @@
           <p>Phones, laptops, electronics & more — delivered across Ghana</p>
           <div class="hero-btns">
             <button class="btn btn-yellow" onclick="openTradeIn()">Trade-In</button>
-            <button class="btn btn-outline-white" onclick="openWhatsApp('Hello, I need help with my order')">WhatsApp</button>
+            <button class="btn btn-outline-white" onclick="goPage('sell')">Sell with Us</button>
           </div>
         </div>
         <div class="hero-slide" style="background: linear-gradient(135deg, #c2410c 0%, #ea580c 50%, #f59e0b 100%);">
@@ -657,6 +788,75 @@
       <span id="product-count">0 items</span>
     </div>
     <div class="products" id="products"></div>
+
+    <!-- SITE FOOTER -->
+    <div class="site-footer">
+      <div class="footer-newsletter">
+        <h4>NEW TO QUALITY OF HOME?</h4>
+        <p style="color:#aaa;margin-bottom:6px;">Subscribe for updates on latest offers</p>
+        <input type="email" id="newsletter-email" placeholder="Your email address" />
+        <button onclick="alert('Thanks for subscribing!');">Subscribe</button>
+      </div>
+
+      <div class="footer-grid">
+        <div>
+          <h4>NEED HELP?</h4>
+          <a href="#" onclick="openWhatsApp('Hello Quality of Home, I need help');return false;">Chat with us</a>
+          <a href="tel:0533318842">Order by Phone 0533318842</a>
+          <a href="#" onclick="openWhatsApp('Hello, I need support');return false;">Help Center</a>
+          <a href="#" onclick="openWhatsApp('Hello, contact request');return false;">Contact us</a>
+        </div>
+        <div>
+          <h4>USEFUL LINKS</h4>
+          <a href="#" onclick="goPage('home');return false;">How to buy</a>
+          <a href="#" onclick="goPage('orders');return false;">Track Order</a>
+          <a href="#" onclick="goPage('sell');return false;">Sell on Quality of Home</a>
+          <a href="#" onclick="openWhatsApp('Hello, I want to trade-in');return false;">Trade-In</a>
+        </div>
+        <div>
+          <h4>ABOUT US</h4>
+          <a href="#">About Quality of Home</a>
+          <a href="#">Terms and Conditions</a>
+          <a href="#">Privacy Notice</a>
+          <a href="#" onclick="goPage('sell');return false;">Become a Seller</a>
+        </div>
+        <div>
+          <h4>MAKE MONEY WITH US</h4>
+          <a href="#" onclick="goPage('sell');return false;">Sell on Quality of Home</a>
+          <a href="#" onclick="openWhatsApp('Hello, I want to be a vendor');return false;">Vendor Hub</a>
+          <a href="#" onclick="openWhatsApp('Hello, service charges question');return false;">Service charges</a>
+        </div>
+      </div>
+
+      <div class="footer-contact">
+        <h4>CONTACT US</h4>
+        <p><strong style="color:#fff;">Home of Quality</strong></p>
+        <p>Phone: 0533318842</p>
+        <p>WhatsApp: 0533318842</p>
+      </div>
+
+      <div style="margin-top:16px;">
+        <h4>JOIN US ON</h4>
+        <div class="footer-social">
+          <span>📘</span><span>📸</span><span>🐦</span><span>🎵</span>
+        </div>
+      </div>
+
+      <div>
+        <h4>PAYMENT METHODS</h4>
+        <div class="footer-payments">
+          <span class="footer-pay-badge">Paystack</span>
+          <span class="footer-pay-badge">Mobile Money</span>
+          <span class="footer-pay-badge">Cash on Delivery</span>
+          <span class="footer-pay-badge">Card</span>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        © 2026 Home of Quality · All rights reserved
+      </div>
+    </div>
+
   </div>
 
   <div id="page-categories" class="page">
@@ -807,6 +1007,97 @@
         <span style="color:#dc2626;">Close Account</span>
         <span class="arrow">›</span>
       </div>
+    </div>
+  </div>
+
+  
+  <!-- ========== SELL ON QUALITY OF HOME ========== -->
+  <div id="page-sell" class="page">
+    <div class="sell-hero">
+      <h1>MAKE MONEY</h1>
+      <p>Sell to customers across Ghana with Quality of Home</p>
+      <button class="btn btn-yellow" onclick="openWhatsApp && openWhatsApp('Hello Quality of Home, I want to become a seller / list my products')">
+        Start Selling on Quality of Home
+      </button>
+    </div>
+
+    <div class="sell-benefits">
+      <div class="sell-card">
+        <div class="icon">🚀</div>
+        <h3>Start Selling Easily</h3>
+        <p>Reach customers every day. Get your products in front of buyers without opening a physical shop.</p>
+      </div>
+      <div class="sell-card">
+        <div class="icon">💰</div>
+        <h3>Earn From Home</h3>
+        <p>Many sellers make good money monthly. E-commerce is the future — we help you grow.</p>
+      </div>
+      <div class="sell-card">
+        <div class="icon">🏠</div>
+        <h3>Sell Anywhere</h3>
+        <p>List your products and manage everything from your phone. No store rent needed.</p>
+      </div>
+    </div>
+
+    <div style="padding: 8px 14px 4px; font-weight:800; font-size:1.05rem;">Why Sell With Us</div>
+    <div class="why-grid">
+      <div class="why-item">Connect with buyers online</div>
+      <div class="why-item">Sell more products</div>
+      <div class="why-item">Seller support</div>
+      <div class="why-item">Delivery support</div>
+      <div class="why-item">Improve your revenue</div>
+      <div class="why-item">Simple training</div>
+    </div>
+
+    <div style="padding: 8px 14px 4px; font-weight:800; font-size:1.05rem;">How It Works</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div>
+          <strong>Register</strong>
+          <p style="font-size:0.85rem;color:var(--muted);margin-top:4px;">Message us on WhatsApp and submit your business / product details.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div>
+          <strong>Get approved</strong>
+          <p style="font-size:0.85rem;color:var(--muted);margin-top:4px;">We review and activate your seller account.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div>
+          <strong>List your products</strong>
+          <p style="font-size:0.85rem;color:var(--muted);margin-top:4px;">Upload your best products and start selling.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div>
+          <strong>Grow with us</strong>
+          <p style="font-size:0.85rem;color:var(--muted);margin-top:4px;">Get visibility from promotions and reach more customers.</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding: 8px 14px 4px; font-weight:800; font-size:1.05rem;">What Sellers Say</div>
+    <div class="testimonial">
+      “Quality of Home has helped me reach more customers. The process is simple and support is good.”
+      <div class="who">— Early Partner Seller</div>
+    </div>
+    <div class="testimonial">
+      “I can sell from home without stress. Listing products was easy.”
+      <div class="who">— Home-based Seller</div>
+    </div>
+
+    <div style="padding:10px 14px 30px;">
+      <button class="btn btn-green btn-full" style="width:100%;padding:12px;border:none;border-radius:10px;background:#0B7A3E;color:#fff;font-weight:700;font-size:0.95rem;" onclick="openWhatsApp && openWhatsApp('Hello Quality of Home, I want to start selling on your platform. Please guide me.')">
+        Start Selling Now
+      </button>
+      <button class="btn btn-ghost btn-full" style="width:100%;margin-top:10px;padding:12px;border:none;border-radius:10px;background:#f0f0f0;color:#333;font-weight:600;" onclick="goPage('home')">
+        Back to Store
+      </button>
     </div>
   </div>
 
