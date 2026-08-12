@@ -662,6 +662,92 @@
       font-size: 0.78rem;
     }
 
+  
+    /* ===== CATEGORY FILTERS (Jumia style) ===== */
+    .cat-layout {
+      display: flex;
+      gap: 0;
+      min-height: 60vh;
+    }
+    .cat-filters {
+      width: 42%;
+      max-width: 200px;
+      background: #fff;
+      border-right: 1px solid var(--border);
+      padding: 12px 10px 80px;
+      font-size: 0.82rem;
+      overflow-y: auto;
+    }
+    .cat-filters h4 {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: #333;
+      margin: 14px 0 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .cat-filters h4:first-child { margin-top: 0; }
+    .cat-filters label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      color: #444;
+    }
+    .cat-filters input[type="checkbox"],
+    .cat-filters input[type="radio"] {
+      accent-color: var(--green);
+    }
+    .cat-filters .price-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      margin-top: 6px;
+    }
+    .cat-filters .price-row input {
+      width: 100%;
+      padding: 6px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.8rem;
+    }
+    .cat-filters .apply-btn {
+      margin-top: 8px;
+      width: 100%;
+      padding: 8px;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    .cat-main {
+      flex: 1;
+      padding: 12px 10px 80px;
+      background: var(--bg);
+    }
+    .cat-main-title {
+      font-weight: 800;
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+    .cat-product-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .cat-sub-list a {
+      display: block;
+      color: #444;
+      text-decoration: none;
+      margin-bottom: 5px;
+      font-size: 0.8rem;
+    }
+    .cat-sub-list a:hover { color: var(--green); }
+
   </style>
 </head>
 <body>
@@ -863,7 +949,48 @@
     <div class="topbar">
       <div style="font-weight:800;font-size:1.15rem;padding-left:4px;">Categories</div>
     </div>
-    <div class="cat-page-list" id="cat-page-list"></div>
+    <div class="cat-layout">
+      <div class="cat-filters">
+        <h4>Category</h4>
+        <div class="cat-sub-list" id="cat-filter-list"></div>
+
+        <h4>Brand</h4>
+        <label><input type="checkbox" class="f-brand" value="Apple"> Apple</label>
+        <label><input type="checkbox" class="f-brand" value="Samsung"> Samsung</label>
+        <label><input type="checkbox" class="f-brand" value="Infinix"> Infinix</label>
+        <label><input type="checkbox" class="f-brand" value="Tecno"> Tecno</label>
+        <label><input type="checkbox" class="f-brand" value="Oraimo"> Oraimo</label>
+        <label><input type="checkbox" class="f-brand" value="Other"> Other</label>
+
+        <h4>Price (GH₵)</h4>
+        <div class="price-row">
+          <input type="number" id="f-price-min" placeholder="Min" min="0">
+          <span>-</span>
+          <input type="number" id="f-price-max" placeholder="Max" min="0">
+        </div>
+        <button class="apply-btn" onclick="applyCatFilters()">Apply</button>
+
+        <h4>Seller Score</h4>
+        <label><input type="radio" name="f-score" value="80"> 80% or more</label>
+        <label><input type="radio" name="f-score" value="60"> 60% or more</label>
+        <label><input type="radio" name="f-score" value="40"> 40% or more</label>
+        <label><input type="radio" name="f-score" value="20"> 20% or more</label>
+
+        <h4>Shipped From</h4>
+        <label><input type="checkbox" id="f-ghana"> Shipped from Ghana</label>
+
+        <h4>Delivery</h4>
+        <label><input type="checkbox" id="f-express"> Express Delivery</label>
+
+        <h4>Official Stores</h4>
+        <label><input type="checkbox" id="f-official"> Only Official Store</label>
+      </div>
+      <div class="cat-main">
+        <div class="cat-main-title" id="cat-main-title">All Categories</div>
+        <div class="cat-product-grid" id="cat-product-grid"></div>
+        <div class="cat-page-list" id="cat-page-list" style="margin-top:12px;"></div>
+      </div>
+    </div>
   </div>
 
   <div id="page-cart" class="page">
@@ -1645,11 +1772,87 @@
     }
 
     function renderCategoriesPage() {
-      document.getElementById('cat-page-list').innerHTML = CATEGORIES.filter(c => c.id !== 'all').map(c => `
-        <div class="cat-page-item" onclick="setCategory('${c.id}');goPage('home')">
-          <div class="ico">${c.icon}</div>
-          <div><h3>${c.name}</h3><p>Browse ${c.name.toLowerCase()}</p></div>
-        </div>`).join('');
+      const listEl = document.getElementById('cat-page-list');
+      const filterList = document.getElementById('cat-filter-list');
+      const grid = document.getElementById('cat-product-grid');
+      const title = document.getElementById('cat-main-title');
+
+      if (filterList) {
+        filterList.innerHTML = CATEGORIES.filter(c => c.id !== 'all').map(c =>
+          `<a href="#" onclick="filterByCategory('${c.id}');return false;">${c.icon} ${c.name}</a>`
+        ).join('');
+      }
+
+      if (listEl) {
+        listEl.innerHTML = CATEGORIES.filter(c => c.id !== 'all').map(c => `
+          <div class="cat-page-item" onclick="filterByCategory('${c.id}')">
+            <div class="ico">${c.icon}</div>
+            <div><h3>${c.name}</h3><p>Browse ${c.name.toLowerCase()}</p></div>
+          </div>`).join('');
+      }
+
+      // show some products in the grid
+      if (grid) {
+        const items = (typeof allProducts !== 'undefined' ? allProducts : []).slice(0, 8);
+        if (title) title.textContent = 'All Categories';
+        grid.innerHTML = items.map(p => {
+          const img = p.image ? `<img src="${p.image}" style="width:100%;height:100px;object-fit:cover;border-radius:8px;">` : '📦';
+          return `<div class="card" style="cursor:pointer" onclick="goPage('home')">
+            <div class="card-img" style="height:100px">${img}</div>
+            <div class="card-body" style="padding:8px">
+              <div style="font-size:0.8rem;font-weight:600">${(p.name||'').slice(0,40)}</div>
+              <div style="font-weight:800;color:var(--green);font-size:0.9rem;margin-top:4px">GH₵ ${Number(p.price||0).toLocaleString()}</div>
+            </div>
+          </div>`;
+        }).join('') || '<p style="color:#888;grid-column:1/-1">No products yet</p>';
+      }
+    }
+
+    function filterByCategory(catId) {
+      const title = document.getElementById('cat-main-title');
+      const grid = document.getElementById('cat-product-grid');
+      const cat = CATEGORIES.find(c => c.id === catId);
+      if (title) title.textContent = cat ? cat.name : catId;
+
+      let items = (typeof allProducts !== 'undefined' ? allProducts : []);
+      if (catId && catId !== 'all') {
+        items = items.filter(p => (p.category || '').toLowerCase() === catId.toLowerCase());
+      }
+      if (grid) {
+        grid.innerHTML = items.slice(0, 20).map(p => {
+          const img = p.image ? `<img src="${p.image}" style="width:100%;height:100px;object-fit:cover;border-radius:8px;">` : '📦';
+          return `<div class="card" style="cursor:pointer" onclick="setCategory('${catId}');goPage('home')">
+            <div class="card-img" style="height:100px">${img}</div>
+            <div class="card-body" style="padding:8px">
+              <div style="font-size:0.8rem;font-weight:600">${(p.name||'').slice(0,40)}</div>
+              <div style="font-weight:800;color:var(--green);font-size:0.9rem;margin-top:4px">GH₵ ${Number(p.price||0).toLocaleString()}</div>
+            </div>
+          </div>`;
+        }).join('') || '<p style="color:#888;grid-column:1/-1;padding:20px 0">No products in this category</p>';
+      }
+    }
+
+    function applyCatFilters() {
+      const min = parseFloat(document.getElementById('f-price-min')?.value || 0) || 0;
+      const max = parseFloat(document.getElementById('f-price-max')?.value || 0) || 0;
+      const grid = document.getElementById('cat-product-grid');
+      const title = document.getElementById('cat-main-title');
+      let items = (typeof allProducts !== 'undefined' ? allProducts : []).slice();
+      if (min > 0) items = items.filter(p => Number(p.price) >= min);
+      if (max > 0) items = items.filter(p => Number(p.price) <= max);
+      if (title) title.textContent = 'Filtered Products';
+      if (grid) {
+        grid.innerHTML = items.slice(0, 30).map(p => {
+          const img = p.image ? `<img src="${p.image}" style="width:100%;height:100px;object-fit:cover;border-radius:8px;">` : '📦';
+          return `<div class="card">
+            <div class="card-img" style="height:100px">${img}</div>
+            <div class="card-body" style="padding:8px">
+              <div style="font-size:0.8rem;font-weight:600">${(p.name||'').slice(0,40)}</div>
+              <div style="font-weight:800;color:var(--green);font-size:0.9rem;margin-top:4px">GH₵ ${Number(p.price||0).toLocaleString()}</div>
+            </div>
+          </div>`;
+        }).join('') || '<p style="color:#888;grid-column:1/-1">No products match filters</p>';
+      }
     }
 
     function updateAccountUI() {
