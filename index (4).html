@@ -57,54 +57,6 @@
       border: 1px solid var(--border); border-radius: 12px;
       background: #fff; cursor: pointer; font-size: 1.2rem;
     }
-
-    .menu-btn {
-      width: 42px; height: 42px; border: 1px solid var(--border); border-radius: 12px;
-      background: #fff; cursor: pointer; font-size: 1.35rem;
-      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    }
-    .side-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200;
-      display: none;
-    }
-    .side-overlay.open { display: block; }
-    .side-menu {
-      position: fixed; top: 0; left: 0; width: 82%; max-width: 320px; height: 100%;
-      background: #fff; z-index: 201; transform: translateX(-100%);
-      transition: transform 0.28s ease; display: flex; flex-direction: column;
-      box-shadow: 4px 0 24px rgba(0,0,0,0.15);
-    }
-    .side-menu.open { transform: translateX(0); }
-    .side-menu-header {
-      background: linear-gradient(135deg, #0B7A3E, #086532);
-      color: #fff; padding: 20px 16px; display: flex; align-items: center; gap: 12px;
-    }
-    .side-logo {
-      width: 44px; height: 44px; background: #fff; color: #0B7A3E;
-      border-radius: 12px; display: flex; align-items: center; justify-content: center;
-      font-weight: 900; font-size: 0.85rem;
-    }
-    .side-menu-header h3 { font-size: 1.05rem; font-weight: 800; margin: 0; }
-    .side-menu-header p { font-size: 0.78rem; opacity: 0.9; margin: 2px 0 0; }
-    .side-menu-body { flex: 1; overflow-y: auto; padding: 8px 0; }
-    .side-cat {
-      display: flex; align-items: center; gap: 14px;
-      padding: 13px 18px; cursor: pointer; font-weight: 600; font-size: 0.95rem;
-      border: none; background: none; width: 100%; text-align: left; color: var(--text);
-    }
-    .side-cat:active, .side-cat:hover { background: #f0fdf4; }
-    .side-cat .ico {
-      width: 36px; height: 36px; border-radius: 10px; background: #ecfdf5;
-      display: flex; align-items: center; justify-content: center; font-size: 1.15rem;
-    }
-    .side-menu-footer {
-      border-top: 1px solid var(--border); padding: 12px 16px; font-size: 0.85rem;
-    }
-    .side-menu-footer button {
-      width: 100%; padding: 12px; border-radius: 10px; border: none;
-      background: #0B7A3E; color: #fff; font-weight: 700; cursor: pointer; margin-bottom: 8px;
-    }
-
     .cart-badge {
       position: absolute; top: -4px; right: -4px;
       background: var(--green); color: #fff;
@@ -192,36 +144,6 @@
       display: inline-block; background: var(--red); color: #fff;
       font-size: 0.65rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; margin-top: 2px;
     }
-
-    .promo-row {
-      display: flex; gap: 10px; padding: 4px 12px 14px;
-      overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
-    }
-    .promo-row::-webkit-scrollbar { display: none; }
-    .promo-card {
-      flex-shrink: 0; width: 150px; border-radius: 14px; padding: 14px 12px;
-      color: #fff; position: relative; overflow: hidden; cursor: pointer;
-      min-height: 110px; display: flex; flex-direction: column; justify-content: flex-end;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    .promo-card h4 { font-size: 0.85rem; font-weight: 800; margin: 0 0 2px; position: relative; z-index: 1; }
-    .promo-card p { font-size: 0.72rem; opacity: 0.95; margin: 0; position: relative; z-index: 1; }
-    .promo-card .badge {
-      position: absolute; top: 10px; left: 10px; background: rgba(255,255,255,0.25);
-      font-size: 0.65rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; z-index: 1;
-    }
-    .top-deals-head {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 4px 16px 10px;
-    }
-    .top-deals-head h2 {
-      font-size: 1.05rem; font-weight: 800; color: #c2410c;
-      display: flex; align-items: center; gap: 6px;
-    }
-    .top-deals-head a {
-      font-size: 0.85rem; color: var(--green); font-weight: 700; cursor: pointer;
-    }
-
     .cat-scroll {
       display: flex; gap: 8px; padding: 0 12px 14px;
       overflow-x: auto; -webkit-overflow-scrolling: touch;
@@ -539,29 +461,10 @@
 </head>
 <body>
 
-  
-  <!-- Side category menu (Jumia-style, green HOQ) -->
-  <div class="side-overlay" id="side-overlay" onclick="closeSideMenu()"></div>
-  <div class="side-menu" id="side-menu">
-    <div class="side-menu-header">
-      <div class="side-logo">HOQ</div>
-      <div>
-        <h3>Home of Quality</h3>
-        <p>Shop by category</p>
-      </div>
-    </div>
-    <div class="side-menu-body" id="side-menu-body"></div>
-    <div class="side-menu-footer">
-      <button onclick="closeSideMenu(); openWhatsApp('Hello Home of Quality')">WhatsApp Support</button>
-      <div style="text-align:center;color:#888;font-size:0.75rem;">© 2026 Home of Quality</div>
-    </div>
-  </div>
-
   <div class="promo-bar">Free delivery on orders above GH₵ 500 · Call / WhatsApp: 0533318842</div>
 
   <div id="page-home" class="page active">
     <div class="topbar">
-      <button class="menu-btn" onclick="openSideMenu()" aria-label="Menu">☰</button>
       <div class="search-wrap">
         <span class="search-icon">🔍</span>
         <input type="text" id="search-input" placeholder="Search on Home of Quality" />
@@ -606,40 +509,6 @@
       <button class="hero-arrow prev" onclick="heroPrev()">‹</button>
       <button class="hero-arrow next" onclick="heroNext()">›</button>
       <div class="hero-dots" id="hero-dots"></div>
-    </div>
-
-    <!-- Jumia-style promo / official deal cards -->
-    <div class="promo-row" id="promo-row">
-      <div class="promo-card" style="background: linear-gradient(135deg, #0B7A3E, #16a34a);" onclick="setCategory('Phones');">
-        <span class="badge">OFFICIAL</span>
-        <h4>Phones Store</h4>
-        <p>Up to 40% OFF</p>
-      </div>
-      <div class="promo-card" style="background: linear-gradient(135deg, #c2410c, #ea580c);" onclick="setCategory('Appliances');">
-        <span class="badge">OFFICIAL</span>
-        <h4>Appliances</h4>
-        <p>Up to 35% OFF</p>
-      </div>
-      <div class="promo-card" style="background: linear-gradient(135deg, #1d4ed8, #3b82f6);" onclick="setCategory('Electronics');">
-        <span class="badge">OFFICIAL</span>
-        <h4>Electronics</h4>
-        <p>Up to 30% OFF</p>
-      </div>
-      <div class="promo-card" style="background: linear-gradient(135deg, #7c3aed, #a78bfa);" onclick="setCategory('Fashion');">
-        <span class="badge">OFFICIAL</span>
-        <h4>Fashion</h4>
-        <p>Up to 25% OFF</p>
-      </div>
-      <div class="promo-card" style="background: linear-gradient(135deg, #b45309, #f59e0b);" onclick="setCategory('Grocery');">
-        <span class="badge">OFFICIAL</span>
-        <h4>Supermarket</h4>
-        <p>Up to 20% OFF</p>
-      </div>
-    </div>
-
-    <div class="top-deals-head">
-      <h2>🔥 Top Deals</h2>
-      <a onclick="setCategory('all'); document.getElementById('products')?.scrollIntoView({behavior:'smooth'})">See All ›</a>
     </div>
 
     <div class="flash" id="flash-section" style="display:none;">
@@ -1021,21 +890,16 @@
 
     const CATEGORIES = [
       { id: 'all', name: 'All', icon: '🛒' },
-      { id: 'Grocery', name: 'Supermarket', icon: '🍎' },
-      { id: 'Phones', name: 'Phones & Tablets', icon: '📱' },
-      { id: 'Beauty', name: 'Health & Beauty', icon: '💄' },
-      { id: 'Home', name: 'Home & Office', icon: '🏠' },
-      { id: 'Appliances', name: 'Appliances', icon: '🧺' },
-      { id: 'Electronics', name: 'Electronics', icon: '📺' },
-      { id: 'Laptops', name: 'Computing', icon: '💻' },
-      { id: 'Fashion', name: 'Fashion', icon: '👕' },
-      { id: 'Sports', name: 'Sporting Goods', icon: '🏋️' },
-      { id: 'Baby', name: 'Baby Products', icon: '👶' },
-      { id: 'Gaming', name: 'Gaming', icon: '🎮' },
+      { id: 'Phones', name: 'Phones', icon: '📱' },
+      { id: 'Laptops', name: 'Laptops', icon: '💻' },
+      { id: 'Electronics', name: 'Electronics', icon: '🔌' },
       { id: 'Accessories', name: 'Accessories', icon: '🎧' },
+      { id: 'Appliances', name: 'Appliances', icon: '🏠' },
+      { id: 'Fashion', name: 'Fashion', icon: '👕' },
+      { id: 'Home', name: 'Home', icon: '🛋️' },
       { id: 'Furniture', name: 'Furniture', icon: '🪑' },
       { id: 'Kitchen', name: 'Kitchen', icon: '🍳' },
-      { id: 'Other', name: 'Other Categories', icon: '⋯' }
+      { id: 'Grocery', name: 'Grocery', icon: '🛒' }
     ];
 
     const STATUS_LABELS = {
@@ -1067,25 +931,6 @@
     }
     function toggleChat() {
       document.getElementById('chat-panel').classList.toggle('open');
-    }
-
-
-    function openSideMenu() {
-      const body = document.getElementById('side-menu-body');
-      if (body) {
-        body.innerHTML = CATEGORIES.filter(c => c.id !== 'all').map(c => `
-          <button class="side-cat" onclick="setCategory('${c.id}'); closeSideMenu(); goPage('home');">
-            <span class="ico">${c.icon || '📦'}</span>
-            <span>${c.name}</span>
-          </button>
-        `).join('');
-      }
-      document.getElementById('side-overlay').classList.add('open');
-      document.getElementById('side-menu').classList.add('open');
-    }
-    function closeSideMenu() {
-      document.getElementById('side-overlay').classList.remove('open');
-      document.getElementById('side-menu').classList.remove('open');
     }
 
     function goPage(page) {
