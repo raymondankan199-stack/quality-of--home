@@ -801,6 +801,12 @@
     }
 
     function goPage(page) {
+      // Require login for wishlist and orders
+      if ((page === 'wishlist' || page === 'orders') && !currentUser) {
+        toast(page === 'wishlist' ? 'Please sign in to view your wishlist' : 'Please sign in to view your orders');
+        openAuth('login');
+        return;
+      }
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       const el = document.getElementById('page-' + page);
       if (el) el.classList.add('active');
