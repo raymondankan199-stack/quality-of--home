@@ -201,8 +201,17 @@
     .promo-card {
       flex-shrink: 0; width: 150px; border-radius: 14px; padding: 14px 12px;
       color: #fff; position: relative; overflow: hidden; cursor: pointer;
-      min-height: 110px; display: flex; flex-direction: column; justify-content: flex-end;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      min-height: 120px; display: flex; flex-direction: column; justify-content: flex-end;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      background-size: cover !important;
+      background-position: center !important;
+      background-color: #333;
+    }
+    .promo-card::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.35) 55%, rgba(0,0,0,0.2) 100%);
+      z-index: 0;
     }
     .promo-card h4 { font-size: 0.85rem; font-weight: 800; margin: 0 0 2px; position: relative; z-index: 1; }
     .promo-card p { font-size: 0.72rem; opacity: 0.95; margin: 0; position: relative; z-index: 1; }
