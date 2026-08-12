@@ -557,12 +557,42 @@
   </div>
 
   <div id="page-account" class="page">
-    <div class="account-header" style="display:flex;justify-content:space-between;align-items:center;padding:20px 16px 24px;">
+    <div class="account-header" style="display:flex;justify-content:space-between;align-items:center;padding:20px 16px 18px;">
       <div>
         <h2 id="account-name" style="margin:0 0 4px;">Welcome</h2>
         <p id="account-sub" style="margin:0;opacity:0.9;font-size:0.9rem;">Enter your account</p>
       </div>
       <button id="account-login-btn" class="btn btn-yellow" style="padding:10px 20px;border-radius:8px;font-weight:700;" onclick="openAuth('login')">Login</button>
+    </div>
+
+    <!-- Logged-in overview cards (Jumia style) -->
+    <div id="account-overview" style="display:none;padding:0 12px 12px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px;">
+          <div style="font-size:0.7rem;font-weight:700;color:#888;margin-bottom:8px;letter-spacing:0.4px;">ACCOUNT DETAILS</div>
+          <div id="ov-name" style="font-weight:800;font-size:0.95rem;">—</div>
+          <div id="ov-email" style="font-size:0.8rem;color:#666;margin-top:2px;">—</div>
+          <div id="ov-phone" style="font-size:0.8rem;color:#666;margin-top:2px;">—</div>
+        </div>
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div style="font-size:0.7rem;font-weight:700;color:#888;letter-spacing:0.4px;">ADDRESS BOOK</div>
+            <button onclick="openAddressBook()" style="background:none;border:none;color:var(--green);font-size:0.85rem;font-weight:700;cursor:pointer;">Edit</button>
+          </div>
+          <div id="ov-address" style="font-size:0.8rem;color:#444;line-height:1.35;">No address saved yet</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px;">
+          <div style="font-size:0.7rem;font-weight:700;color:#888;margin-bottom:8px;letter-spacing:0.4px;">STORE CREDIT</div>
+          <div style="font-weight:700;color:var(--green);">GH₵ 0</div>
+        </div>
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px;">
+          <div style="font-size:0.7rem;font-weight:700;color:#888;margin-bottom:8px;letter-spacing:0.4px;">NEWSLETTER</div>
+          <div style="font-size:0.8rem;color:#555;">Get offers via WhatsApp</div>
+          <button onclick="toast('Newsletter preferences saved')" style="margin-top:6px;background:none;border:none;color:var(--green);font-size:0.8rem;font-weight:700;cursor:pointer;padding:0;">Edit preferences</button>
+        </div>
+      </div>
     </div>
 
     <div style="display:flex;gap:10px;padding:0 16px 14px;">
@@ -592,12 +622,12 @@
         <span>Trade-In</span>
         <span class="arrow">›</span>
       </div>
-      <div class="account-item" onclick="toast('Coming soon')">
+      <div class="account-item" onclick="toast('Ratings coming soon')">
         <div class="ico">⭐</div>
-        <span>Ratings & Reviews</span>
+        <span>Pending Reviews</span>
         <span class="arrow">›</span>
       </div>
-      <div class="account-item" onclick="toast('Coming soon')">
+      <div class="account-item" onclick="toast('Recently viewed coming soon')">
         <div class="ico">🕒</div>
         <span>Recently Viewed</span>
         <span class="arrow">›</span>
@@ -615,8 +645,8 @@
         <span class="arrow">›</span>
       </div>
 
-      <div style="padding:14px 18px 4px;font-size:0.75rem;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">My Settings</div>
-      <div class="account-item" onclick="toast('Manage payment when you checkout with Paystack')">
+      <div style="padding:14px 18px 4px;font-size:0.75rem;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Account Management</div>
+      <div class="account-item" onclick="toast('Payments are handled securely by Paystack at checkout')">
         <div class="ico">💳</div>
         <span>Payment Settings</span>
         <span class="arrow">›</span>
@@ -626,9 +656,9 @@
         <span>Address Book</span>
         <span class="arrow">›</span>
       </div>
-      <div class="account-item" onclick="toast('Notifications: you will get order updates via WhatsApp')">
+      <div class="account-item" onclick="toast('You will get order updates via WhatsApp')">
         <div class="ico">🔔</div>
-        <span>Notification Preferences</span>
+        <span>Newsletter Preferences</span>
         <span class="arrow">›</span>
       </div>
       <div class="account-item" onclick="showPrivacy()">
@@ -636,10 +666,14 @@
         <span>Privacy Policy</span>
         <span class="arrow">›</span>
       </div>
-
       <div class="account-item" id="logout-item" style="display:none;" onclick="logout()">
         <div class="ico">🚪</div>
         <span>Log Out</span>
+        <span class="arrow">›</span>
+      </div>
+      <div class="account-item" id="close-account-item" style="display:none;" onclick="closeAccount()">
+        <div class="ico">⚠️</div>
+        <span style="color:#dc2626;">Close Account</span>
         <span class="arrow">›</span>
       </div>
     </div>
@@ -1174,15 +1208,30 @@
 
     function updateAccountUI() {
       const loginBtn = document.getElementById('account-login-btn');
+      const overview = document.getElementById('account-overview');
       if (currentUser) {
         document.getElementById('account-name').textContent = currentUser.name || 'Welcome back';
         document.getElementById('account-sub').textContent = currentUser.phone || '';
         if (loginBtn) {
-          loginBtn.textContent = 'Profile';
-          loginBtn.onclick = function() { toast('You are logged in as ' + (currentUser.name || currentUser.phone)); };
+          loginBtn.textContent = 'Hi, ' + ((currentUser.name || 'User').split(' ')[0]);
+          loginBtn.onclick = function() { toast('Logged in as ' + (currentUser.name || currentUser.phone)); };
+        }
+        if (overview) overview.style.display = 'block';
+        const ovName = document.getElementById('ov-name');
+        const ovEmail = document.getElementById('ov-email');
+        const ovPhone = document.getElementById('ov-phone');
+        const ovAddr = document.getElementById('ov-address');
+        if (ovName) ovName.textContent = currentUser.name || '—';
+        if (ovEmail) ovEmail.textContent = currentUser.email || 'No email saved';
+        if (ovPhone) ovPhone.textContent = currentUser.phone || '—';
+        if (ovAddr) {
+          const saved = localStorage.getItem('qoh_address_' + (currentUser.phone || '')) || '';
+          ovAddr.textContent = saved || 'No address saved yet. Tap Edit to add one.';
         }
         const lo = document.getElementById('logout-item');
         if (lo) lo.style.display = 'flex';
+        const ca = document.getElementById('close-account-item');
+        if (ca) ca.style.display = 'flex';
       } else {
         document.getElementById('account-name').textContent = 'Welcome';
         document.getElementById('account-sub').textContent = 'Enter your account';
@@ -1190,21 +1239,36 @@
           loginBtn.textContent = 'Login';
           loginBtn.onclick = function() { openAuth('login'); };
         }
+        if (overview) overview.style.display = 'none';
         const lo = document.getElementById('logout-item');
         if (lo) lo.style.display = 'none';
+        const ca = document.getElementById('close-account-item');
+        if (ca) ca.style.display = 'none';
       }
+    }
+    function closeAccount() {
+      if (!confirm('Close your Home of Quality account? You can sign up again anytime.')) return;
+      if (currentUser && currentUser.phone) {
+        const passMap = JSON.parse(localStorage.getItem('qoh_passwords') || '{}');
+        delete passMap[currentUser.phone];
+        localStorage.setItem('qoh_passwords', JSON.stringify(passMap));
+        localStorage.removeItem('qoh_address_' + currentUser.phone);
+      }
+      logout();
+      toast('Account closed on this device');
     }
     function openAddressBook() {
       if (!currentUser) { toast('Please sign in first'); openAuth('login'); return; }
       const saved = localStorage.getItem('qoh_address_' + (currentUser.phone || '')) || '';
-      const addr = prompt('Your delivery address:', saved || '');
+      const addr = prompt('Your delivery address (name, area, city, phone):', saved || '');
       if (addr !== null) {
         localStorage.setItem('qoh_address_' + currentUser.phone, addr.trim());
         toast(addr.trim() ? 'Address saved' : 'Address cleared');
+        updateAccountUI();
       }
     }
     function showPrivacy() {
-      alert('Home of Quality Privacy Policy\n\nWe use your name, phone and address only to process orders and contact you about delivery.\n\nWe do not sell your data.\n\nPayments are processed securely via Paystack.\n\nContact: WhatsApp 0533318842');
+      alert('Home of Quality — Privacy Policy\n\n1. Information we collect\nName, phone number, email, delivery address, and order history.\n\n2. How we use it\nTo process orders, arrange delivery, and contact you about your purchases via WhatsApp or phone.\n\n3. Payments\nCard and mobile money payments are handled securely by Paystack. We do not store your full card details.\n\n4. Sharing\nWe do not sell your personal data. We only share what is needed with delivery partners to fulfil your order.\n\n5. Your choices\nYou can update your address in Account → Address Book, or close your account anytime.\n\n6. Contact\nWhatsApp / Call: 0533318842\n\nLast updated: August 2026');
     }
     function openAuth(mode) {
       authMode = mode || 'login';
