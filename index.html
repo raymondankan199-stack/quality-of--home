@@ -702,6 +702,28 @@
     </div>
   </div>
 
+  <!-- ORDER SUCCESS MODAL -->
+  <div class="modal-overlay" id="order-success-modal">
+    <div class="modal" style="text-align:center;">
+      <div style="font-size:3.2rem;margin-bottom:8px;">✅</div>
+      <h2 style="margin-bottom:4px;">Order Placed!</h2>
+      <p class="sub" style="margin-bottom:16px;">Thank you. We will contact you soon.</p>
+      <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:14px;padding:18px;text-align:left;margin-bottom:16px;">
+        <div style="font-size:0.78rem;color:#666;margin-bottom:2px;">Your Order Number</div>
+        <div id="success-order-id" style="font-size:1.6rem;font-weight:800;color:#0B7A3E;letter-spacing:0.5px;">#—</div>
+        <div style="font-size:0.78rem;color:#666;margin-top:14px;margin-bottom:2px;">Total</div>
+        <div id="success-total" style="font-size:1.15rem;font-weight:700;">GH₵ 0</div>
+        <div style="font-size:0.78rem;color:#666;margin-top:14px;margin-bottom:2px;">Items</div>
+        <div id="success-items" style="font-size:0.9rem;line-height:1.4;">—</div>
+      </div>
+      <p style="font-size:0.85rem;color:#555;margin-bottom:18px;">
+        Save this number. You can always find it in<br><strong>Account → My Orders</strong>
+      </p>
+      <button class="btn btn-green btn-full" onclick="closeOrderSuccess(); goPage('orders');">View My Orders</button>
+      <button class="btn btn-ghost btn-full" style="margin-top:10px;" onclick="closeOrderSuccess(); goPage('home');">Continue Shopping</button>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
   <script>
@@ -1154,12 +1176,25 @@
       cart = [];
       saveCart();
       closeCheckout();
-      toast(paymentStatus === 'Paid' ? 'Payment successful! Order placed.' : 'Order placed successfully!');
+
+      // Show clear order confirmation with Order Number
+      const orderId = order && order.id ? order.id : '—';
+      const itemsText = items.map(i => i.name + ' x' + i.qty).join(', ');
+      showOrderSuccess(orderId, total, itemsText, paymentStatus === 'Paid');
 
       // Always notify merchant on WhatsApp
-      const merchantMsg = `🛒 NEW ORDER — Quality of Home\n\nName: ${name}\nPhone: ${phone}\nTotal: ${formatMoney(total)}\nPayment: ${payLabel}${paystackRef ? '\nPaystack Ref: ' + paystackRef : ''}\nStatus: ${paymentStatus || 'Unpaid'}\nDelivery: ${delivery === 'pickup' ? 'Pickup Station' : 'Home Delivery'}\nAddress: ${address}\n\nItems:\n${items.map(i => '• ' + i.name + ' x' + i.qty + ' — ' + formatMoney(i.price * i.qty)).join('\n')}`;
-      setTimeout(() => openWhatsApp(merchantMsg), 600);
-      goPage('orders');
+      const merchantMsg = `🛒 NEW ORDER — Quality of Home\n\nOrder #: ${orderId}\nName: ${name}\nPhone: ${phone}\nTotal: ${formatMoney(total)}\nPayment: ${payLabel}${paystackRef ? '\nPaystack Ref: ' + paystackRef : ''}\nStatus: ${paymentStatus || 'Unpaid'}\nDelivery: ${delivery === 'pickup' ? 'Pickup Station' : 'Home Delivery'}\nAddress: ${address}\n\nItems:\n${items.map(i => '• ' + i.name + ' x' + i.qty + ' — ' + formatMoney(i.price * i.qty)).join('\n')}`;
+      setTimeout(() => openWhatsApp(merchantMsg), 800);
+    }
+
+    function showOrderSuccess(orderId, total, itemsText, paid) {
+      document.getElementById('success-order-id').textContent = '#' + orderId;
+      document.getElementById('success-total').textContent = formatMoney(total) + (paid ? ' (Paid)' : '');
+      document.getElementById('success-items').textContent = itemsText;
+      document.getElementById('order-success-modal').classList.add('open');
+    }
+    function closeOrderSuccess() {
+      document.getElementById('order-success-modal').classList.remove('open');
     }
 
     async function placeOrder() {
