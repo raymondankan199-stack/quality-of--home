@@ -989,7 +989,7 @@
     </div>
     <div class="side-menu-body" id="side-menu-body"></div>
     <div class="side-menu-footer">
-      <button onclick="closeSideMenu(); goPage('admin')" style="background:#111;margin-bottom:8px;">⚙️ Admin · Add Products</button>
+      <button id="admin-side-btn" onclick="closeSideMenu(); goPage('admin')" style="background:#111;margin-bottom:8px;display:none;">⚙️ Admin · Add Products</button>
       <button onclick="closeSideMenu(); openWhatsApp('Hello Home of Quality')">WhatsApp Support</button>
       <div style="text-align:center;color:#888;font-size:0.75rem;">© 2026 Home of Quality</div>
     </div>
@@ -1248,12 +1248,12 @@
   </div>
 
   <div id="page-account" class="page">
-    <div style="padding:12px 16px 0;">
+    <div id="admin-entry" style="padding:12px 16px 0;display:none;">
       <button onclick="goPage('admin')" style="width:100%;padding:14px;border:none;border-radius:12px;background:#0B7A3E;color:#fff;font-weight:800;font-size:1rem;cursor:pointer;">
         ⚙️ Admin · Add Products
       </button>
     </div>
-    <div class="account-header" style="display:flex;justify-content:space-between;align-items:center;padding:20px 16px 18px;">
+    <div class="account-header" style="display:flex;justify-content:space-between;align-items:center;padding:20px 16px 18px;" onclick="onAccountHeaderTap()">
       <div>
         <h2 id="account-name" style="margin:0 0 4px;">Welcome</h2>
         <p id="account-sub" style="margin:0;opacity:0.9;font-size:0.9rem;">Enter your account</p>
@@ -1817,7 +1817,55 @@
       document.getElementById('side-menu').classList.remove('open');
     }
 
+    
+    // ===== ADMIN LOCK (owner only) =====
+    const ADMIN_PIN = '8842'; // change this to your secret PIN
+    let accountTapCount = 0;
+    let accountTapTimer = null;
+
+    function isAdminUnlocked() {
+      return sessionStorage.getItem('qoh_admin') === '1';
+    }
+
+    function refreshAdminButtons() {
+      const show = isAdminUnlocked();
+      const entry = document.getElementById('admin-entry');
+      const side = document.getElementById('admin-side-btn');
+      if (entry) entry.style.display = show ? 'block' : 'none';
+      if (side) side.style.display = show ? 'block' : 'none';
+    }
+
+    function unlockAdmin() {
+      const pin = prompt('Enter Admin PIN:');
+      if (pin === null) return;
+      if (String(pin).trim() === ADMIN_PIN) {
+        sessionStorage.setItem('qoh_admin', '1');
+        refreshAdminButtons();
+        toast('Admin unlocked');
+        goPage('admin');
+      } else {
+        toast('Wrong PIN');
+      }
+    }
+
+    function onAccountHeaderTap() {
+      accountTapCount++;
+      clearTimeout(accountTapTimer);
+      accountTapTimer = setTimeout(() => { accountTapCount = 0; }, 2000);
+      if (accountTapCount >= 5) {
+        accountTapCount = 0;
+        unlockAdmin();
+      }
+    }
+
+    // expose unlock on long-press of logo area too via window
+    window.unlockAdmin = unlockAdmin;
+
     function goPage(page) {
+      if (page === 'admin' && sessionStorage.getItem('qoh_admin') !== '1') {
+        toast('Admin only');
+        return;
+      }
       // Require login for wishlist and orders
       if ((page === 'wishlist' || page === 'orders') && !currentUser) {
         toast(page === 'wishlist' ? 'Please sign in to view your wishlist' : 'Please sign in to view your orders');
