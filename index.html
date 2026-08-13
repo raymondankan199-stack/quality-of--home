@@ -846,10 +846,11 @@
     }
     .pd-overlay.open { display: flex; }
     .pd-sheet {
-      background: #fff; width: 100%; max-width: 520px; max-height: 92vh;
-      border-radius: 20px 20px 0 0; overflow: hidden;
+      background: #fff; width: 100%; max-width: 640px; max-height: 100vh; height: 100%;
+      border-radius: 0; overflow: hidden;
       display: flex; flex-direction: column;
       animation: pdUp 0.28s ease;
+      margin: 0 auto;
     }
     @keyframes pdUp {
       from { transform: translateY(40px); opacity: 0.6; }
@@ -910,6 +911,41 @@
       border: 2px solid transparent; cursor: pointer; flex-shrink: 0;
     }
     .pd-gallery img.active { border-color: var(--green); }
+
+  
+    .pd-overlay.open { align-items: stretch; }
+    .pd-sheet {
+      max-height: 100vh; height: 100%; border-radius: 0;
+      max-width: 100%;
+    }
+    .pd-img-wrap { height: 280px; background: #fff; }
+    .pd-brand { font-size: 0.8rem; color: var(--green); font-weight: 700; margin-bottom: 4px; }
+    .pd-stock { color: #16a34a; font-size: 0.85rem; font-weight: 600; margin: 6px 0; }
+    .pd-delivery {
+      background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px;
+      padding: 12px; margin-top: 14px;
+    }
+    .pd-delivery-item {
+      display: flex; gap: 10px; align-items: flex-start;
+      padding: 10px 0; border-bottom: 1px solid #eee;
+      font-size: 0.85rem;
+    }
+    .pd-delivery-item:last-child { border-bottom: none; }
+    .pd-delivery-item .ico { font-size: 1.2rem; flex-shrink: 0; }
+    .pd-seller {
+      background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+      padding: 14px; margin-top: 14px;
+    }
+    .pd-seller h4 { font-size: 0.9rem; margin-bottom: 8px; }
+    .pd-seller-score { font-size: 0.82rem; color: #555; line-height: 1.6; }
+    .pd-seller-score span { color: #16a34a; }
+    .pd-share {
+      display: flex; gap: 12px; margin-top: 12px; font-size: 0.85rem; color: #666;
+    }
+    .pd-share button {
+      background: #f3f4f6; border: none; border-radius: 8px;
+      padding: 8px 12px; cursor: pointer; font-size: 0.85rem;
+    }
 
   </style>
 </head>
@@ -1848,6 +1884,11 @@
 
       document.getElementById('pd-name').textContent = p.name || 'Product';
       document.getElementById('pd-cat').textContent = p.category || 'General';
+      const brandEl = document.getElementById('pd-brand');
+      if (brandEl) brandEl.textContent = p.brand || 'Home of Quality · Official Store';
+      const stockEl = document.getElementById('pd-stock');
+      if (stockEl) stockEl.textContent = (p.stock === 0) ? 'Out of stock' : 'In stock';
+
       document.getElementById('pd-price').textContent = formatMoney(p.price);
 
       const oldEl = document.getElementById('pd-old');
@@ -2866,6 +2907,7 @@
         <button class="pd-close" onclick="closeProductDetail()">×</button>
       </div>
       <div class="pd-body">
+        <div class="pd-brand" id="pd-brand">Home of Quality</div>
         <div class="pd-name" id="pd-name">Product</div>
         <div><span class="pd-cat" id="pd-cat">Category</span></div>
         <div class="product-rating" id="pd-rating"></div>
@@ -2873,13 +2915,56 @@
           <span id="pd-price">GH₵ 0</span>
           <span class="pd-old" id="pd-old" style="display:none;"></span>
         </div>
+        <div class="pd-stock" id="pd-stock">In stock</div>
         <div class="pd-gallery" id="pd-gallery"></div>
+
+        <div class="pd-actions">
+          <button class="btn" style="background:#f3f4f6;color:#111;" onclick="pdWhatsApp()">💬 Chat</button>
+          <button class="btn" style="background:var(--yellow);color:#111;" onclick="pdAddToCart()">🛒 Add to cart</button>
+        </div>
+
+        <div class="pd-delivery">
+          <div class="pd-delivery-item">
+            <div class="ico">📍</div>
+            <div>
+              <strong>Pickup Station</strong><br>
+              Ready for pickup in 1–3 days. Delivery fee may apply.
+            </div>
+          </div>
+          <div class="pd-delivery-item">
+            <div class="ico">🚚</div>
+            <div>
+              <strong>Door Delivery</strong><br>
+              Delivered across Ghana. Fees depend on your location.
+            </div>
+          </div>
+          <div class="pd-delivery-item">
+            <div class="ico">↩️</div>
+            <div>
+              <strong>Return Policy</strong><br>
+              Contact us within 7 days for eligible returns.
+            </div>
+          </div>
+        </div>
+
+        <div class="pd-seller">
+          <h4>SELLER INFORMATION</h4>
+          <div class="pd-seller-score">
+            <strong>Home of Quality</strong><br>
+            <span>★</span> Seller Score: Good<br>
+            <span>★</span> Shipping: Fast<br>
+            <span>★</span> Customer Rating: Good<br>
+            WhatsApp: 0533318842
+          </div>
+        </div>
+
         <div class="pd-section-title">Product details</div>
         <div class="pd-desc" id="pd-desc">No description available.</div>
         <div class="pd-meta" id="pd-meta"></div>
-        <div class="pd-actions">
-          <button class="btn" style="background:#f3f4f6;color:#111;" onclick="pdWhatsApp()">WhatsApp</button>
-          <button class="btn" style="background:var(--green);color:#fff;" onclick="pdAddToCart()">Add to Cart</button>
+
+        <div class="pd-share">
+          <button onclick="pdWhatsApp()">Share on WhatsApp</button>
+          <button onclick="closeProductDetail()">Close</button>
         </div>
       </div>
     </div>
