@@ -947,6 +947,25 @@
       padding: 8px 12px; cursor: pointer; font-size: 0.85rem;
     }
 
+  
+    .admin-form { padding: 14px; }
+    .admin-form .form-group { margin-bottom: 12px; }
+    .admin-form label { display: block; font-size: 0.82rem; font-weight: 700; margin-bottom: 4px; color: #333; }
+    .admin-form input, .admin-form select, .admin-form textarea {
+      width: 100%; padding: 11px 12px; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 0.95rem; background: #fff;
+    }
+    .admin-form textarea { min-height: 110px; resize: vertical; font-family: inherit; }
+    .admin-list { padding: 0 14px 80px; }
+    .admin-item {
+      background: #fff; border: 1px solid var(--border); border-radius: 12px;
+      padding: 12px; margin-bottom: 10px; display: flex; gap: 12px; align-items: center;
+    }
+    .admin-item img { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; background: #f3f4f6; }
+    .admin-item .info { flex: 1; min-width: 0; }
+    .admin-item .info h4 { font-size: 0.9rem; margin: 0 0 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .admin-item .info p { font-size: 0.78rem; color: var(--muted); margin: 0; }
+
   </style>
 </head>
 <body>
@@ -1360,6 +1379,58 @@
   </div>
 
   
+  
+  <!-- ========== ADMIN: ADD PRODUCTS ========== -->
+  <div id="page-admin" class="page">
+    <div class="topbar">
+      <div style="font-weight:800;font-size:1.1rem;padding-left:4px;">Admin · Products</div>
+    </div>
+    <div class="admin-form">
+      <p style="font-size:0.85rem;color:#666;margin-bottom:12px;">Add product with price, old price, and full details for customers.</p>
+      <div class="form-group">
+        <label>Product name *</label>
+        <input type="text" id="adm-name" placeholder="e.g. Nasco Chest Freezer 145L" />
+      </div>
+      <div class="form-group">
+        <label>Category *</label>
+        <select id="adm-category">
+          <option value="Electronics">Electronics</option>
+          <option value="Appliances">Appliances</option>
+          <option value="Phones">Phones</option>
+          <option value="Laptops">Laptops</option>
+          <option value="Home">Home</option>
+          <option value="Fashion">Fashion</option>
+          <option value="Grocery">Grocery</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>New price (GH₵) *</label>
+        <input type="number" id="adm-price" placeholder="e.g. 2059" min="0" step="0.01" />
+      </div>
+      <div class="form-group">
+        <label>Old price (GH₵) — optional</label>
+        <input type="number" id="adm-old-price" placeholder="e.g. 3299" min="0" step="0.01" />
+      </div>
+      <div class="form-group">
+        <label>Image URL</label>
+        <input type="url" id="adm-image" placeholder="https://..." />
+      </div>
+      <div class="form-group">
+        <label>Product details / description *</label>
+        <textarea id="adm-desc" placeholder="Write full details customers should know: size, features, brand, warranty, what is included..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Brand (optional)</label>
+        <input type="text" id="adm-brand" placeholder="e.g. Nasco" />
+      </div>
+      <button class="btn btn-green btn-full" style="width:100%;padding:13px;border:none;border-radius:12px;background:var(--green);color:#fff;font-weight:700;" onclick="adminSaveProduct()">Save product</button>
+      <button class="btn" style="width:100%;margin-top:8px;padding:12px;border:none;border-radius:12px;background:#f3f4f6;" onclick="goPage('account')">Back</button>
+    </div>
+    <div style="padding:8px 14px;font-weight:800;">Your products</div>
+    <div class="admin-list" id="admin-product-list"></div>
+  </div>
+
   <!-- ========== SELL ON QUALITY OF HOME ========== -->
   <div id="page-sell" class="page">
     <div class="sell-hero">
@@ -1754,6 +1825,7 @@
         n.classList.toggle('active', n.dataset.page === page);
       });
       if (page === 'cart') renderCartPage();
+      if (page === 'admin') renderAdminList();
       if (page === 'wishlist') renderWishlist();
       if (page === 'account') updateAccountUI();
       if (page === 'categories') renderCategoriesPage();
@@ -1986,6 +2058,81 @@
       const price = p ? formatMoney(p.price) : '';
       openWhatsApp('Hello Home of Quality, I am interested in: ' + name + ' (' + price + '). Please give me more details.');
     }
+
+    
+    function renderAdminList() {
+      const el = document.getElementById('admin-product-list');
+      if (!el) return;
+      if (!products.length) {
+        el.innerHTML = '<p style="color:#888;padding:8px 0;">No products yet. Add one above.</p>';
+        return;
+      }
+      el.innerHTML = products.map(p => `
+        <div class="admin-item">
+          ${p.image ? `<img src="${p.image}" alt="" />` : '<div style="width:56px;height:56px;background:#eee;border-radius:8px;"></div>'}
+          <div class="info">
+            <h4>${p.name || 'Product'}</h4>
+            <p>${p.category || ''} · ${formatMoney(p.price)}${p.original_price ? ' <s>' + formatMoney(p.original_price) + '</s>' : ''}</p>
+            <p style="color:#16a34a;">${(p.description || p.details || '').slice(0, 60)}${(p.description || p.details || '').length > 60 ? '…' : ''}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function adminSaveProduct() {
+      const name = (document.getElementById('adm-name')?.value || '').trim();
+      const category = document.getElementById('adm-category')?.value || 'Other';
+      const price = parseFloat(document.getElementById('adm-price')?.value || '0');
+      const oldPrice = parseFloat(document.getElementById('adm-old-price')?.value || '0');
+      const image = (document.getElementById('adm-image')?.value || '').trim();
+      const description = (document.getElementById('adm-desc')?.value || '').trim();
+      const brand = (document.getElementById('adm-brand')?.value || '').trim();
+
+      if (!name) { toast('Enter product name'); return; }
+      if (!(price > 0)) { toast('Enter a valid new price'); return; }
+      if (!description) { toast('Enter product details so customers can read about it'); return; }
+
+      const row = {
+        name,
+        category,
+        price,
+        original_price: oldPrice > price ? oldPrice : null,
+        image: image || null,
+        description,
+        brand: brand || null,
+        status: 'active'
+      };
+
+      const client = (typeof supabaseClient !== 'undefined' && supabaseClient) ? supabaseClient : (typeof supabase !== 'undefined' ? supabase : null);
+      if (!client) {
+        toast('No database connection');
+        return;
+      }
+
+      try {
+        const { data, error } = await client.from('products').insert([row]).select();
+        if (error) throw error;
+        toast('Product saved');
+        document.getElementById('adm-name').value = '';
+        document.getElementById('adm-price').value = '';
+        document.getElementById('adm-old-price').value = '';
+        document.getElementById('adm-image').value = '';
+        document.getElementById('adm-desc').value = '';
+        document.getElementById('adm-brand').value = '';
+        if (typeof loadProducts === 'function') await loadProducts();
+        else {
+          products = [...(data || []), ...products];
+          renderProducts();
+        }
+        renderAdminList();
+      } catch (e) {
+        console.error(e);
+        toast(e.message || 'Could not save product');
+      }
+    }
+
+    // when opening admin page, refresh list
+    const _goPageOrig = typeof goPage === 'function' ? goPage : null;
 
     function renderProducts() {
       let list = products;
