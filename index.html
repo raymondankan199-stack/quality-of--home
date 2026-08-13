@@ -838,6 +838,79 @@
       color: var(--muted);
     }
 
+  
+    /* ===== PRODUCT DETAIL ===== */
+    .pd-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 300;
+      display: none; align-items: flex-end; justify-content: center;
+    }
+    .pd-overlay.open { display: flex; }
+    .pd-sheet {
+      background: #fff; width: 100%; max-width: 520px; max-height: 92vh;
+      border-radius: 20px 20px 0 0; overflow: hidden;
+      display: flex; flex-direction: column;
+      animation: pdUp 0.28s ease;
+    }
+    @keyframes pdUp {
+      from { transform: translateY(40px); opacity: 0.6; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .pd-img-wrap {
+      position: relative; width: 100%; height: 260px;
+      background: #f3f4f6; flex-shrink: 0;
+    }
+    .pd-img-wrap img {
+      width: 100%; height: 100%; object-fit: contain; background: #fff;
+    }
+    .pd-close {
+      position: absolute; top: 12px; right: 12px;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(0,0,0,0.55); color: #fff; border: none;
+      font-size: 1.2rem; cursor: pointer; z-index: 2;
+    }
+    .pd-body {
+      padding: 16px 18px 24px; overflow-y: auto; flex: 1;
+    }
+    .pd-name { font-size: 1.25rem; font-weight: 800; margin-bottom: 6px; }
+    .pd-cat {
+      display: inline-block; background: var(--green-light); color: var(--green);
+      font-size: 0.75rem; font-weight: 700; padding: 3px 10px; border-radius: 20px;
+      margin-bottom: 10px;
+    }
+    .pd-price {
+      font-size: 1.4rem; font-weight: 800; color: var(--green); margin: 8px 0;
+    }
+    .pd-old {
+      font-size: 0.95rem; color: #999; text-decoration: line-through; margin-left: 8px; font-weight: 500;
+    }
+    .pd-section-title {
+      font-size: 0.9rem; font-weight: 800; margin: 16px 0 8px; color: #333;
+    }
+    .pd-desc {
+      font-size: 0.9rem; color: #555; line-height: 1.55;
+      white-space: pre-wrap;
+    }
+    .pd-meta {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px;
+    }
+    .pd-meta-item {
+      background: #f9fafb; border-radius: 10px; padding: 10px 12px;
+      font-size: 0.82rem;
+    }
+    .pd-meta-item strong { display: block; color: #111; margin-bottom: 2px; }
+    .pd-actions {
+      display: flex; gap: 10px; margin-top: 18px; padding-bottom: 8px;
+    }
+    .pd-actions .btn { flex: 1; padding: 13px; border-radius: 12px; font-weight: 700; border: none; cursor: pointer; font-size: 0.95rem; }
+    .pd-gallery {
+      display: flex; gap: 8px; overflow-x: auto; margin-top: 10px; padding-bottom: 4px;
+    }
+    .pd-gallery img {
+      width: 64px; height: 64px; object-fit: cover; border-radius: 10px;
+      border: 2px solid transparent; cursor: pointer; flex-shrink: 0;
+    }
+    .pd-gallery img.active { border-color: var(--green); }
+
   </style>
 </head>
 <body>
@@ -1759,6 +1832,100 @@
       if (typeof renderFlash === 'function') renderFlash();
     }
 
+    
+    let currentProductId = null;
+
+    function openProductDetail(id) {
+      const p = products.find(x => x.id == id);
+      if (!p) { toast('Product not found'); return; }
+      currentProductId = p.id;
+
+      const mainImg = document.getElementById('pd-main-img');
+      mainImg.src = p.image || '';
+      mainImg.alt = p.name || 'Product';
+      if (!p.image) mainImg.style.display = 'none';
+      else mainImg.style.display = 'block';
+
+      document.getElementById('pd-name').textContent = p.name || 'Product';
+      document.getElementById('pd-cat').textContent = p.category || 'General';
+      document.getElementById('pd-price').textContent = formatMoney(p.price);
+
+      const oldEl = document.getElementById('pd-old');
+      if (p.original_price && p.original_price > p.price) {
+        oldEl.textContent = formatMoney(p.original_price);
+        oldEl.style.display = 'inline';
+      } else {
+        oldEl.style.display = 'none';
+      }
+
+      // ratings
+      const avg = getAvgRating(p.id);
+      const label = getRatingLabel(p.id);
+      document.getElementById('pd-rating').innerHTML = `
+        <div class="stars" data-id="${p.id}">
+          ${[1,2,3,4,5].map(s => `<span class="${s <= avg ? 'on' : ''}" onclick="rateProduct(${p.id}, ${s}, event)">★</span>`).join('')}
+        </div>
+        <span class="rating-count">${label}</span>`;
+
+      // gallery (main image + any extra)
+      const gallery = document.getElementById('pd-gallery');
+      const imgs = [];
+      if (p.image) imgs.push(p.image);
+      if (p.image2) imgs.push(p.image2);
+      if (p.image3) imgs.push(p.image3);
+      if (p.images && Array.isArray(p.images)) imgs.push(...p.images);
+      const unique = [...new Set(imgs.filter(Boolean))];
+      if (unique.length > 1) {
+        gallery.innerHTML = unique.map((src, i) =>
+          `<img src="${src}" class="${i===0?'active':''}" onclick="document.getElementById('pd-main-img').src=this.src;document.querySelectorAll('#pd-gallery img').forEach(x=>x.classList.remove('active'));this.classList.add('active');" />`
+        ).join('');
+        gallery.style.display = 'flex';
+      } else {
+        gallery.innerHTML = '';
+        gallery.style.display = 'none';
+      }
+
+      // description
+      let desc = p.description || p.details || p.desc || '';
+      if (!desc) {
+        desc = (p.name || 'This product') + ' is available at Home of Quality.\n\n' +
+          'Category: ' + (p.category || 'General') + '\n' +
+          'Price: ' + formatMoney(p.price) + '\n\n' +
+          'Quality products delivered across Ghana. Contact us on WhatsApp for more information, delivery options, or to confirm stock.';
+      }
+      document.getElementById('pd-desc').textContent = desc;
+
+      // meta
+      const meta = document.getElementById('pd-meta');
+      meta.innerHTML = `
+        <div class="pd-meta-item"><strong>Category</strong>${p.category || 'General'}</div>
+        <div class="pd-meta-item"><strong>Availability</strong>${p.stock === 0 ? 'Out of stock' : 'In stock'}</div>
+        <div class="pd-meta-item"><strong>Delivery</strong>Across Ghana</div>
+        <div class="pd-meta-item"><strong>Payment</strong>MoMo · Card · COD</div>
+      `;
+
+      document.getElementById('pd-overlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeProductDetail() {
+      document.getElementById('pd-overlay').classList.remove('open');
+      document.body.style.overflow = '';
+      currentProductId = null;
+    }
+
+    function pdAddToCart() {
+      if (currentProductId == null) return;
+      addToCart(currentProductId);
+    }
+
+    function pdWhatsApp() {
+      const p = products.find(x => x.id == currentProductId);
+      const name = p ? p.name : 'a product';
+      const price = p ? formatMoney(p.price) : '';
+      openWhatsApp('Hello Home of Quality, I am interested in: ' + name + ' (' + price + '). Please give me more details.');
+    }
+
     function renderProducts() {
       let list = products;
       if (currentCat !== 'all') {
@@ -1785,11 +1952,11 @@
         const hasDiscount = p.original_price && p.original_price > p.price;
         const disc = hasDiscount ? Math.round((1 - p.price / p.original_price) * 100) : 0;
         return `
-          <div class="product-card">
+          <div class="product-card" onclick="openProductDetail(${p.id})">
             <div class="product-img-wrap">
               ${p.image ? `<img src="${p.image}" alt="${p.name}" />` : `<div class="ph">📦</div>`}
               ${hasDiscount ? `<span class="discount-badge">-${disc}%</span>` : ''}
-              <button class="wish-btn ${isWish ? 'active' : ''}" onclick="toggleWish(${p.id}, event)">${isWish ? '❤️' : '🤍'}</button>
+              <button class="wish-btn ${isWish ? 'active' : ''}" onclick="event.stopPropagation();toggleWish(${p.id}, event)">${isWish ? '❤️' : '🤍'}</button>
             </div>
             <div class="product-body">
               <div class="product-name">${p.name || 'Product'}</div>
@@ -1804,7 +1971,7 @@
                 <span class="product-price">${formatMoney(p.price)}</span>
                 ${hasDiscount ? `<span class="product-old">${formatMoney(p.original_price)}</span>` : ''}
               </div>
-              <button class="add-btn" onclick="addToCart(${p.id})">Add to Cart</button>
+              <button class="add-btn" onclick="event.stopPropagation();addToCart(${p.id})">Add to Cart</button>
             </div>
           </div>`;
       }).join('');
@@ -1817,7 +1984,7 @@
       document.getElementById('flash-body').innerHTML = withDiscount.map(p => {
         const disc = Math.round((1 - p.price / p.original_price) * 100);
         return `
-          <div class="flash-item" onclick="addToCart(${p.id})">
+          <div class="flash-item" onclick="event.stopPropagation();addToCart(${p.id})">
             ${p.image ? `<img src="${p.image}" />` : `<div class="ph">📦</div>`}
             <div class="flash-price">${formatMoney(p.price)}</div>
             <div class="flash-old">${formatMoney(p.original_price)}</div>
@@ -1965,12 +2132,12 @@
         <div class="product-card">
           <div class="product-img-wrap">
             ${p.image ? `<img src="${p.image}" />` : `<div class="ph">📦</div>`}
-            <button class="wish-btn active" onclick="toggleWish(${p.id}, event)">❤️</button>
+            <button class="wish-btn active" onclick="event.stopPropagation();toggleWish(${p.id}, event)">❤️</button>
           </div>
           <div class="product-body">
             <div class="product-name">${p.name}</div>
             <div class="product-price">${formatMoney(p.price)}</div>
-            <button class="add-btn" onclick="addToCart(${p.id})">Add to Cart</button>
+            <button class="add-btn" onclick="event.stopPropagation();addToCart(${p.id})">Add to Cart</button>
           </div>
         </div>`).join('')}</div>`;
     }
@@ -2690,5 +2857,33 @@
       el.textContent = `Ends in ${h}:${m}:${s}`;
     }, 1000);
   </script>
+
+  <!-- PRODUCT DETAIL SHEET -->
+  <div class="pd-overlay" id="pd-overlay" onclick="if(event.target===this)closeProductDetail()">
+    <div class="pd-sheet" id="pd-sheet">
+      <div class="pd-img-wrap">
+        <img id="pd-main-img" src="" alt="" />
+        <button class="pd-close" onclick="closeProductDetail()">×</button>
+      </div>
+      <div class="pd-body">
+        <div class="pd-name" id="pd-name">Product</div>
+        <div><span class="pd-cat" id="pd-cat">Category</span></div>
+        <div class="product-rating" id="pd-rating"></div>
+        <div class="pd-price">
+          <span id="pd-price">GH₵ 0</span>
+          <span class="pd-old" id="pd-old" style="display:none;"></span>
+        </div>
+        <div class="pd-gallery" id="pd-gallery"></div>
+        <div class="pd-section-title">Product details</div>
+        <div class="pd-desc" id="pd-desc">No description available.</div>
+        <div class="pd-meta" id="pd-meta"></div>
+        <div class="pd-actions">
+          <button class="btn" style="background:#f3f4f6;color:#111;" onclick="pdWhatsApp()">WhatsApp</button>
+          <button class="btn" style="background:var(--green);color:#fff;" onclick="pdAddToCart()">Add to Cart</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
