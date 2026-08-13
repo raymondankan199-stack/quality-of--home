@@ -1958,6 +1958,26 @@
     function pdAddToCart() {
       if (currentProductId == null) return;
       addToCart(currentProductId);
+      // keep detail open so they can continue, item is in cart for payment
+    }
+
+    
+    function pdChatOrder() {
+      if (currentProductId == null) return;
+      const p = products.find(x => x.id == currentProductId);
+      // Add to cart first so they can pay / arrange delivery
+      if (typeof addToCart === 'function') {
+        addToCart(currentProductId);
+      }
+      const name = p ? p.name : 'a product';
+      const price = p ? formatMoney(p.price) : '';
+      // Open WhatsApp with order message
+      if (typeof openWhatsApp === 'function') {
+        openWhatsApp('Hello Home of Quality, I want to order: ' + name + ' (' + price + '). Please confirm payment and delivery.');
+      }
+      // Go to cart so they can see item and checkout
+      closeProductDetail();
+      if (typeof goPage === 'function') goPage('cart');
     }
 
     function pdWhatsApp() {
@@ -2919,7 +2939,7 @@
         <div class="pd-gallery" id="pd-gallery"></div>
 
         <div class="pd-actions">
-          <button class="btn" style="background:#f3f4f6;color:#111;" onclick="pdWhatsApp()">💬 Chat</button>
+          <button class="btn" style="background:#f3f4f6;color:#111;" onclick="pdChatOrder()">💬 Chat & Order</button>
           <button class="btn" style="background:var(--yellow);color:#111;" onclick="pdAddToCart()">🛒 Add to cart</button>
         </div>
 
