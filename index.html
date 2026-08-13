@@ -989,6 +989,7 @@
     </div>
     <div class="side-menu-body" id="side-menu-body"></div>
     <div class="side-menu-footer">
+      <button onclick="closeSideMenu(); goPage('admin')" style="background:#111;margin-bottom:8px;">⚙️ Admin · Add Products</button>
       <button onclick="closeSideMenu(); openWhatsApp('Hello Home of Quality')">WhatsApp Support</button>
       <div style="text-align:center;color:#888;font-size:0.75rem;">© 2026 Home of Quality</div>
     </div>
@@ -1247,6 +1248,11 @@
   </div>
 
   <div id="page-account" class="page">
+    <div style="padding:12px 16px 0;">
+      <button onclick="goPage('admin')" style="width:100%;padding:14px;border:none;border-radius:12px;background:#0B7A3E;color:#fff;font-weight:800;font-size:1rem;cursor:pointer;">
+        ⚙️ Admin · Add Products
+      </button>
+    </div>
     <div class="account-header" style="display:flex;justify-content:space-between;align-items:center;padding:20px 16px 18px;">
       <div>
         <h2 id="account-name" style="margin:0 0 4px;">Welcome</h2>
