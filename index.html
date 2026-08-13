@@ -966,6 +966,72 @@
     .admin-item .info h4 { font-size: 0.9rem; margin: 0 0 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .admin-item .info p { font-size: 0.78rem; color: var(--muted); margin: 0; }
 
+  
+    /* ===== ABOUT / FAQ / ORDERS / PAY ===== */
+    .info-page { padding: 16px 16px 90px; }
+    .info-page h2 { font-size: 1.25rem; font-weight: 800; margin-bottom: 12px; }
+    .info-page h3 { font-size: 1rem; font-weight: 800; margin: 18px 0 8px; color: var(--green); }
+    .info-page p, .info-page li { font-size: 0.9rem; color: #444; line-height: 1.55; margin-bottom: 8px; }
+    .faq-item {
+      background: #fff; border: 1px solid var(--border); border-radius: 12px;
+      padding: 14px; margin-bottom: 10px;
+    }
+    .faq-item strong { display: block; margin-bottom: 6px; font-size: 0.92rem; }
+    .order-card {
+      background: #fff; border: 1px solid var(--border); border-radius: 14px;
+      padding: 14px; margin: 0 12px 12px;
+    }
+    .order-status {
+      display: inline-block; padding: 4px 10px; border-radius: 20px;
+      font-size: 0.75rem; font-weight: 700;
+    }
+    .st-pending { background: #FEF3C7; color: #92400E; }
+    .st-confirmed { background: #DBEAFE; color: #1E40AF; }
+    .st-onway { background: #E0E7FF; color: #3730A3; }
+    .st-delivered { background: #D1FAE5; color: #065F46; }
+    .st-pickup { background: #FCE7F3; color: #9D174D; }
+    .st-cancelled { background: #FEE2E2; color: #991B1B; }
+    .track-steps {
+      display: flex; justify-content: space-between; margin: 14px 0 6px;
+      position: relative; padding: 0 4px;
+    }
+    .track-steps::before {
+      content: ''; position: absolute; top: 12px; left: 10%; right: 10%;
+      height: 3px; background: #e5e7eb; z-index: 0;
+    }
+    .track-step { text-align: center; z-index: 1; flex: 1; }
+    .track-dot {
+      width: 24px; height: 24px; border-radius: 50%; margin: 0 auto 6px;
+      background: #e5e7eb; color: #999; font-size: 0.7rem;
+      display: flex; align-items: center; justify-content: center; font-weight: 800;
+    }
+    .track-step.done .track-dot { background: var(--green); color: #fff; }
+    .track-step.active .track-dot { background: var(--yellow); color: #111; }
+    .track-label { font-size: 0.65rem; color: #666; }
+    .pay-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0;
+    }
+    .pay-option {
+      border: 2px solid var(--border); border-radius: 12px; padding: 12px;
+      cursor: pointer; text-align: center; background: #fff; font-size: 0.82rem;
+    }
+    .pay-option.selected { border-color: var(--green); background: var(--green-light); }
+    .pay-option strong { display: block; margin-top: 4px; }
+    .related-row {
+      display: flex; gap: 10px; overflow-x: auto; padding: 8px 0 12px;
+    }
+    .related-card {
+      flex-shrink: 0; width: 120px; background: #fff; border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden; cursor: pointer;
+    }
+    .related-card img { width: 100%; height: 90px; object-fit: cover; }
+    .related-card .rb { padding: 8px; font-size: 0.75rem; }
+    .review-box {
+      background: #f9fafb; border-radius: 12px; padding: 12px; margin-bottom: 10px;
+      font-size: 0.85rem;
+    }
+    .review-box .who { font-weight: 700; color: var(--green); margin-top: 6px; font-size: 0.8rem; }
+
   </style>
 </head>
 <body>
@@ -1126,7 +1192,8 @@
         </div>
         <div>
           <h4>ABOUT US</h4>
-          <a href="#">About Quality of Home</a>
+          <a href="#" onclick="goPage('about');return false;">About Quality of Home</a>
+          <a href="#" onclick="goPage('faq');return false;">FAQ</a>
           <a href="#">Terms and Conditions</a>
           <a href="#">Privacy Notice</a>
           <a href="#" onclick="goPage('sell');return false;">Become a Seller</a>
@@ -1371,6 +1438,23 @@
         <span>Privacy Policy</span>
         <span class="arrow">›</span>
       </div>
+      
+      <div class="account-item" onclick="goPage('orders')">
+        <div class="ico">📦</div>
+        <span>My Orders & Tracking</span>
+        <span class="arrow">›</span>
+      </div>
+      <div class="account-item" onclick="goPage('about')">
+        <div class="ico">ℹ️</div>
+        <span>About Home of Quality</span>
+        <span class="arrow">›</span>
+      </div>
+      <div class="account-item" onclick="goPage('faq')">
+        <div class="ico">❓</div>
+        <span>FAQ · Help</span>
+        <span class="arrow">›</span>
+      </div>
+
       <div class="account-item" id="logout-item" style="display:none;" onclick="logout()">
         <div class="ico">🚪</div>
         <span>Log Out</span>
@@ -1387,6 +1471,42 @@
   
   
   <!-- ========== ADMIN: ADD PRODUCTS ========== -->
+  
+  <div id="page-about" class="page">
+    <div class="topbar"><div style="font-weight:800;font-size:1.15rem;padding-left:4px;">About Us</div></div>
+    <div class="info-page">
+      <h2>Home of Quality</h2>
+      <p>We sell quality phones, appliances, electronics and home products across Ghana. Our goal is simple: genuine products, fair prices, and reliable delivery.</p>
+      <h3>Why shop with us?</h3>
+      <ul>
+        <li>Quality-checked products</li>
+        <li>Delivery across Ghana</li>
+        <li>Paystack, Mobile Money & Cash on Delivery</li>
+        <li>WhatsApp support: 0533318842</li>
+        <li>Trade-in options available</li>
+      </ul>
+      <h3>Contact</h3>
+      <p>Phone / WhatsApp: <strong>0533318842</strong><br>Location: Circle, Accra<br>Founder: Raymond Ankan</p>
+      <button class="btn btn-green" style="width:100%;padding:12px;border:none;border-radius:12px;background:var(--green);color:#fff;font-weight:700;margin-top:12px;" onclick="openWhatsApp('Hello Home of Quality')">Chat on WhatsApp</button>
+      <button class="btn" style="width:100%;padding:12px;border:none;border-radius:12px;background:#f3f4f6;margin-top:8px;" onclick="goPage('faq')">Read FAQ</button>
+      <button class="btn" style="width:100%;padding:12px;border:none;border-radius:12px;background:#f3f4f6;margin-top:8px;" onclick="goPage('home')">Back to Store</button>
+    </div>
+  </div>
+
+  <div id="page-faq" class="page">
+    <div class="topbar"><div style="font-weight:800;font-size:1.15rem;padding-left:4px;">FAQ</div></div>
+    <div class="info-page">
+      <div class="faq-item"><strong>How do I order?</strong>Add items to cart, checkout, choose payment (Paystack, Mobile Money or Cash on Delivery), and confirm.</div>
+      <div class="faq-item"><strong>What payment methods do you accept?</strong>Paystack (card), Mobile Money (MTN, Vodafone, AirtelTigo), and Cash on Delivery where available.</div>
+      <div class="faq-item"><strong>How long is delivery?</strong>Usually 1–3 days in Accra. Other regions may take 2–5 days depending on location.</div>
+      <div class="faq-item"><strong>Can I pick up my order?</strong>Yes. Choose pickup when ordering and we will guide you on the station / location.</div>
+      <div class="faq-item"><strong>How do I track my order?</strong>Go to Account → My Orders. You will see status: Confirmed, On the way, Ready for pickup, or Delivered.</div>
+      <div class="faq-item"><strong>Returns?</strong>Contact us on WhatsApp within 7 days for eligible items. Product must be in good condition.</div>
+      <div class="faq-item"><strong>How do I contact support?</strong>WhatsApp / call <strong>0533318842</strong>.</div>
+      <button class="btn" style="width:100%;padding:12px;border:none;border-radius:12px;background:#f3f4f6;margin-top:12px;" onclick="goPage('home')">Back to Store</button>
+    </div>
+  </div>
+
   <div id="page-admin" class="page">
     <div class="topbar">
       <div style="font-weight:800;font-size:1.1rem;padding-left:4px;">Admin · Products</div>
@@ -1656,7 +1776,12 @@
       <div class="pay-option selected" onclick="selectPay(this,'paystack')">
         <input type="radio" name="pay" value="paystack" checked />
         <div class="pay-icon">💳</div>
-        <div class="pay-text"><strong>Paystack</strong><span>Card, MTN MoMo, Vodafone, AirtelTigo</span></div>
+        <div class="pay-text"><strong>Card / Paystack</strong><span>Visa, Mastercard</span></div>
+      </div>
+      <div class="pay-option" onclick="selectPay(this,'momo')">
+        <input type="radio" name="pay" value="momo" />
+        <div class="pay-icon">📱</div>
+        <div class="pay-text"><strong>Mobile Money</strong><span>MTN · Vodafone · AirtelTigo</span></div>
       </div>
       <div class="pay-option" onclick="selectPay(this,'cod')">
         <input type="radio" name="pay" value="cod" />
@@ -1861,6 +1986,97 @@
     // expose unlock on long-press of logo area too via window
     window.unlockAdmin = unlockAdmin;
 
+    
+    // ===== ORDERS & TRACKING =====
+    function getOrders() {
+      try { return JSON.parse(localStorage.getItem('qoh_orders') || '[]'); } catch(e) { return []; }
+    }
+    function saveOrders(list) {
+      localStorage.setItem('qoh_orders', JSON.stringify(list));
+    }
+    function statusClass(st) {
+      const s = (st || 'pending').toLowerCase();
+      if (s.includes('deliver')) return 'st-delivered';
+      if (s.includes('way') || s.includes('ship')) return 'st-onway';
+      if (s.includes('pickup') || s.includes('ready')) return 'st-pickup';
+      if (s.includes('confirm')) return 'st-confirmed';
+      if (s.includes('cancel')) return 'st-cancelled';
+      return 'st-pending';
+    }
+    function trackHtml(status) {
+      const steps = ['Confirmed', 'On the way', 'Ready/Pickup', 'Delivered'];
+      const s = (status || '').toLowerCase();
+      let active = 0;
+      if (s.includes('confirm') || s.includes('pending') || s.includes('paid')) active = 0;
+      if (s.includes('way') || s.includes('ship') || s.includes('process')) active = 1;
+      if (s.includes('pickup') || s.includes('ready')) active = 2;
+      if (s.includes('deliver')) active = 3;
+      return '<div class="track-steps">' + steps.map((label, i) => {
+        const cls = i < active ? 'done' : (i === active ? 'active' : '');
+        return `<div class="track-step ${cls}"><div class="track-dot">${i < active ? '✓' : (i+1)}</div><div class="track-label">${label}</div></div>`;
+      }).join('') + '</div>';
+    }
+    function renderOrdersPage() {
+      const el = document.getElementById('orders-content');
+      if (!el) return;
+      const orders = getOrders();
+      if (!orders.length) {
+        el.innerHTML = `<div class="empty"><div class="empty-icon">📦</div><h3>No orders yet</h3><p>Your orders and tracking will appear here</p>
+          <button class="btn btn-green" onclick="goPage('home')">Start shopping</button></div>`;
+        return;
+      }
+      el.innerHTML = orders.map(o => `
+        <div class="order-card" onclick='showOrderDetail(${JSON.stringify(o).replace(/'/g, "&#39;")})'>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <strong>#${o.id}</strong>
+            <span class="order-status ${statusClass(o.status)}">${o.status || 'Pending'}</span>
+          </div>
+          <div style="font-size:0.85rem;color:#666;margin-top:6px;">${o.date || ''} · ${formatMoney(o.total || 0)}</div>
+          <div style="font-size:0.82rem;margin-top:4px;">${(o.items || []).map(i => i.name).join(', ').slice(0, 80)}</div>
+          ${trackHtml(o.status)}
+        </div>
+      `).join('');
+    }
+    function showOrderDetail(o) {
+      const body = document.getElementById('order-modal-body');
+      if (!body) return;
+      document.getElementById('order-modal-sub').textContent = 'Order #' + o.id;
+      body.innerHTML = `
+        <div style="margin-bottom:10px;"><span class="order-status ${statusClass(o.status)}">${o.status}</span></div>
+        ${trackHtml(o.status)}
+        <p style="font-size:0.9rem;margin:10px 0;"><strong>Customer:</strong> ${o.name || ''} · ${o.phone || ''}</p>
+        <p style="font-size:0.9rem;"><strong>Address:</strong> ${o.address || '—'}</p>
+        <p style="font-size:0.9rem;"><strong>Payment:</strong> ${o.payment || '—'}</p>
+        <div style="margin-top:10px;">${(o.items||[]).map(i => `<div style="display:flex;justify-content:space-between;font-size:0.88rem;padding:4px 0;"><span>${i.name} × ${i.qty||1}</span><span>${formatMoney((i.price||0)*(i.qty||1))}</span></div>`).join('')}</div>
+        <p style="font-weight:800;margin-top:10px;">Total: ${formatMoney(o.total||0)}</p>
+        <button class="btn btn-green btn-full" style="margin-top:12px;width:100%;padding:12px;border:none;border-radius:10px;background:var(--green);color:#fff;" onclick="openWhatsApp('Hello, I need help with order #${o.id}')">Chat about this order</button>
+      `;
+      document.getElementById('order-modal').classList.add('open');
+    }
+    function closeOrderModal() {
+      const m = document.getElementById('order-modal');
+      if (m) m.classList.remove('open');
+    }
+    function createLocalOrder(payload) {
+      const orders = getOrders();
+      const id = 'QOH' + Date.now().toString().slice(-8);
+      const order = {
+        id,
+        date: new Date().toLocaleString(),
+        status: payload.payment === 'paystack' ? 'Confirmed' : 'Pending confirmation',
+        name: payload.name,
+        phone: payload.phone,
+        email: payload.email,
+        address: payload.address,
+        payment: payload.payment,
+        items: payload.items,
+        total: payload.total
+      };
+      orders.unshift(order);
+      saveOrders(orders);
+      return order;
+    }
+
     function goPage(page) {
       if (page === 'admin' && sessionStorage.getItem('qoh_admin') !== '1') {
         toast('Admin only');
@@ -1879,6 +2095,7 @@
         n.classList.toggle('active', n.dataset.page === page);
       });
       if (page === 'cart') renderCartPage();
+      if (page === 'orders') renderOrdersPage();
       if (page === 'admin') renderAdminList();
       if (page === 'wishlist') renderWishlist();
       if (page === 'account') updateAccountUI();
@@ -1997,6 +2214,20 @@
     
     let currentProductId = null;
 
+    
+    function submitProductReview(productId) {
+      const t = (document.getElementById('pd-review-text')?.value || '').trim();
+      if (!t) { toast('Write a short review first'); return; }
+      const key = 'qoh_reviews';
+      let all = {};
+      try { all = JSON.parse(localStorage.getItem(key) || '{}'); } catch(e) {}
+      if (!all[productId]) all[productId] = [];
+      all[productId].unshift({ text: t, at: new Date().toLocaleDateString() });
+      localStorage.setItem(key, JSON.stringify(all));
+      toast('Thanks for your review');
+      if (document.getElementById('pd-review-text')) document.getElementById('pd-review-text').value = '';
+    }
+
     function openProductDetail(id) {
       const p = products.find(x => x.id == id);
       if (!p) { toast('Product not found'); return; }
@@ -2071,6 +2302,34 @@
         <div class="pd-meta-item"><strong>Payment</strong>MoMo · Card · COD</div>
       `;
 
+      
+      // Related products
+      let relatedHost = document.getElementById('pd-related');
+      if (!relatedHost) {
+        relatedHost = document.createElement('div');
+        relatedHost.id = 'pd-related';
+        const desc = document.getElementById('pd-desc');
+        if (desc && desc.parentNode) desc.parentNode.appendChild(relatedHost);
+      }
+      const related = products.filter(x => x.id != p.id && (x.category || '') === (p.category || '')).slice(0, 6);
+      const more = related.length ? related : products.filter(x => x.id != p.id).slice(0, 6);
+      relatedHost.innerHTML = `
+        <div class="pd-section-title">You may also like</div>
+        <div class="related-row">${more.map(r => `
+          <div class="related-card" onclick="openProductDetail(${r.id})">
+            ${r.image ? `<img src="${r.image}" alt="" />` : '<div style="height:90px;background:#eee;"></div>'}
+            <div class="rb"><strong>${(r.name||'').slice(0,28)}</strong><br>${formatMoney(r.price)}</div>
+          </div>`).join('')}</div>
+        <div class="pd-section-title">Customer feedback</div>
+        <div class="review-box">“Good product, delivery was okay.” <div class="who">— Verified buyer</div></div>
+        <div class="review-box">“Quality is fine for the price. Will order again.” <div class="who">— Home of Quality customer</div></div>
+        <div class="review-box" style="background:#fff;border:1px dashed #ddd;">
+          <strong>Write a short review</strong>
+          <textarea id="pd-review-text" placeholder="Your experience..." style="width:100%;margin-top:8px;padding:8px;border-radius:8px;border:1px solid #ddd;min-height:60px;"></textarea>
+          <button class="btn btn-green" style="margin-top:8px;padding:8px 14px;border:none;border-radius:8px;background:var(--green);color:#fff;" onclick="submitProductReview(${p.id})">Submit review</button>
+        </div>
+      `;
+
       document.getElementById('pd-overlay').classList.add('open');
       document.body.style.overflow = 'hidden';
     }
@@ -2128,10 +2387,46 @@
             <h4>${p.name || 'Product'}</h4>
             <p>${p.category || ''} · ${formatMoney(p.price)}${p.original_price ? ' <s>' + formatMoney(p.original_price) + '</s>' : ''}</p>
             <p style="color:#16a34a;">${(p.description || p.details || '').slice(0, 60)}${(p.description || p.details || '').length > 60 ? '…' : ''}</p>
+            <div style="margin-top:6px;display:flex;gap:8px;">
+              <button onclick="adminEditProduct(${p.id})" style="padding:6px 10px;border:none;border-radius:8px;background:#e5e7eb;font-size:0.75rem;cursor:pointer;">Edit</button>
+              <button onclick="adminDeleteProduct(${p.id})" style="padding:6px 10px;border:none;border-radius:8px;background:#FEE2E2;color:#991B1B;font-size:0.75rem;cursor:pointer;">Delete</button>
+            </div>
           </div>
         </div>
       `).join('');
     }
+
+    function adminEditProduct(id) {
+      const p = products.find(x => x.id == id);
+      if (!p) return;
+      document.getElementById('adm-name').value = p.name || '';
+      document.getElementById('adm-category').value = p.category || 'Other';
+      document.getElementById('adm-price').value = p.price || '';
+      document.getElementById('adm-old-price').value = p.original_price || '';
+      document.getElementById('adm-image').value = p.image || '';
+      document.getElementById('adm-desc').value = p.description || p.details || '';
+      document.getElementById('adm-brand').value = p.brand || '';
+      window._editingProductId = id;
+      toast('Edit mode: change fields and press Save');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function adminDeleteProduct(id) {
+      if (!confirm('Delete this product?')) return;
+      const client = (typeof supabaseClient !== 'undefined' && supabaseClient) ? supabaseClient : null;
+      if (!client) { toast('No database connection'); return; }
+      try {
+        const { error } = await client.from('products').delete().eq('id', id);
+        if (error) throw error;
+        toast('Product deleted');
+        if (typeof loadProducts === 'function') await loadProducts();
+        renderAdminList();
+      } catch (e) {
+        console.error(e);
+        toast(e.message || 'Delete failed');
+      }
+    }
+
 
     async function adminSaveProduct() {
       const name = (document.getElementById('adm-name')?.value || '').trim();
@@ -2763,6 +3058,14 @@
     function closeCheckout() { document.getElementById('checkout-modal').classList.remove('open'); }
 
     async function createOrderRecord(name, phone, address, delivery, total, items, payLabel, paymentStatus, paystackRef) {
+      try {
+        createLocalOrder({
+          name, phone, address,
+          payment: payLabel + (paymentStatus ? ' · ' + paymentStatus : ''),
+          items, total,
+        });
+      } catch (e) {}
+
       // Real DB columns: customer, phone, total, status, date, items
       const itemLines = items.map(i => (i.name || 'Item') + ' x' + (i.qty || 1) + ' @ ' + (i.price || 0)).join(' | ');
       const details = [
@@ -2835,7 +3138,7 @@
 
       const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
       const items = cart.map(i => ({ id: i.id, name: i.name, price: i.price, qty: i.qty }));
-      const payLabel = selectedPay === 'paystack' ? 'Paystack' : 'Cash on Delivery';
+      const payLabel = selectedPay === 'cod' ? 'Cash on Delivery' : (selectedPay === 'momo' ? 'Mobile Money' : 'Paystack / Card');
       const btn = document.getElementById('place-order-btn');
 
       // Cash on Delivery
