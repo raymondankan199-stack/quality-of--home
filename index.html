@@ -590,8 +590,8 @@
       <span style="cursor:pointer;font-size:1.2rem;" onclick="toggleChat()">✕</span>
     </div>
     <div class="chat-body" id="chat-body">
-      <div class="chat-msg bot">Hello! 👋 Welcome to Quality of Home. I can help with products, prices, delivery, payment and trade-in.</div>
-      <div class="chat-msg bot">Type your question below. If you need a person, ask for WhatsApp.</div>
+      <div class="chat-msg bot">Hi 👋 How can I help you today?</div>
+      <div class="chat-msg bot">You can ask me anything about our products, prices, delivery, payment, or trade-in. I'm here to help.</div>
     </div>
     <div class="chat-actions">
       <div class="chat-quick">
@@ -827,79 +827,88 @@
     }
 
     function getAssistantReply(raw) {
-      const q = (raw || '').toLowerCase();
+      const q = (raw || '').toLowerCase().trim();
+      const original = (raw || '').trim();
 
-      // Escalate to human / WhatsApp
-      if (/(whatsapp|human|person|agent|real (person|human)|talk to (you|someone|a person)|speak to|customer care|call me)/i.test(q)) {
+      // Human / WhatsApp
+      if (/(whatsapp|human|person|agent|real (person|human)|talk to (you|someone|a person)|speak to|customer care|call me|i want to talk)/i.test(q)) {
         setTimeout(function() {
-          openWhatsApp('Hello Quality of Home, I was chatting in the app and need help with: ' + raw);
-        }, 600);
-        return 'No problem. Opening WhatsApp so you can chat with our team directly. If it does not open, tap WhatsApp Support at the bottom of the app.';
+          openWhatsApp('Hello Quality of Home, I was chatting in the app and need help with: ' + original);
+        }, 700);
+        return "Of course. I'll open WhatsApp so you can chat with our team. If it doesn't open, use WhatsApp Support at the bottom of the page.";
       }
 
       // Greetings
-      if (/^(hi|hello|hey|good (morning|afternoon|evening)|how far|please)\b/.test(q) || q.length < 3) {
-        return 'Hi! I can help with products, prices, delivery in Ghana, Paystack payment, orders and trade-in. What do you need?';
+      if (/^(hi+|hello+|hey+|good (morning|afternoon|evening)|how far|please|yo)\b/.test(q) || q === 'hi' || q === 'hello') {
+        return "Hi! How can I help you today? You can ask about a product, price, delivery, payment, or trade-in.";
+      }
+
+      // Thanks
+      if (/thank|thanks|cool|ok thanks|alright/.test(q) && q.length < 40) {
+        return "You're welcome! If you need anything else, just ask. I'm right here.";
       }
 
       // Delivery
-      if (/deliver|shipping|how long|when will|location|accra|kumasi|takoradi|free delivery/.test(q)) {
-        return 'We deliver across Ghana. Free delivery on orders above GH₵ 500. After you order, we confirm on WhatsApp and arrange delivery or pickup. Share your area if you want a rough timing.';
+      if (/deliver|shipping|how long|when will|arrive|location|accra|kumasi|takoradi|free delivery|send to/.test(q)) {
+        return "We deliver across Ghana. Orders above GH₵ 500 get free delivery. After you place an order, we confirm and arrange delivery or pickup. Tell me your area if you want more detail.";
       }
 
       // Payment
-      if (/pay|payment|momo|paystack|card|cash|cod|mobile money|mtn|vodafone|airtel/.test(q)) {
-        return 'You can pay with Paystack (card or mobile money) at checkout, or choose Cash on Delivery. Paystack is secure. If payment fails, try again or use Cash on Delivery.';
+      if (/pay|payment|momo|paystack|card|cash|cod|mobile money|mtn|vodafone|airtel|how do i pay/.test(q)) {
+        return "You can pay securely with Paystack (card or mobile money) at checkout, or choose Cash on Delivery. If a payment doesn't go through, you can try again or use Cash on Delivery.";
       }
 
-      // Orders / track
+      // Orders
       if (/order|track|status|where is my|my order/.test(q)) {
-        return 'To track an order: open Account → My Orders (sign in with your phone number). For urgent help, ask me for WhatsApp and I will connect you.';
+        return "To see your orders, go to Account → My Orders and sign in with your phone number. If something looks wrong, say \"WhatsApp\" and I'll connect you to the team.";
       }
 
       // Trade-in
-      if (/trade.?in|trade in|sell my|swap|exchange/.test(q)) {
-        return 'You can submit a Trade-In from the home page (yellow Trade-In button). Tell us the device and condition. We review and reply. You can also ask for WhatsApp to send photos.';
+      if (/trade.?in|trade in|sell my|swap|exchange|old phone/.test(q)) {
+        return "Yes, we do trade-ins. On the home page, tap the yellow Trade-In button, tell us the device and condition, and submit. You can also ask for WhatsApp if you want to send photos.";
       }
 
-      // Price / cheap / discount
-      if (/discount|flash|offer|promo|cheap|reduce|negotiate/.test(q)) {
-        return 'Check Flash Sales on the home page for discounted items. Prices shown are current. For bulk or special requests, ask for WhatsApp.';
+      // Discounts
+      if (/discount|flash|offer|promo|cheap|reduce|negotiate|best price/.test(q)) {
+        return "You can check Flash Sales on the home page for deals. The prices shown are current. For bulk or special requests, I can connect you on WhatsApp.";
       }
 
-      // Product search against loaded products
+      // Product-aware answers
       if (typeof products !== 'undefined' && products && products.length) {
         const words = q.replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(function(w){ return w.length > 2; });
         const matches = products.filter(function(p) {
           const name = (p.name || '').toLowerCase();
           const cat = (p.category || '').toLowerCase();
-          return words.some(function(w){ return name.indexOf(w) !== -1 || cat.indexOf(w) !== -1; })
-            || name.indexOf(q) !== -1;
+          return words.some(function(w){ return name.indexOf(w) !== -1 || cat.indexOf(w) !== -1; });
         }).slice(0, 5);
 
         if (matches.length) {
           const lines = matches.map(function(p) {
             return '• ' + (p.name || 'Item') + ' — GH₵ ' + Number(p.price || 0).toLocaleString('en-GH') + (p.category ? ' (' + p.category + ')' : '');
           });
-          return 'Here is what I found:\n' + lines.join('\n') + '\n\nTap a product on the home page to add it to cart. Need something else?';
+          return "Here's what I found for you:\n" + lines.join('\n') + "\n\nYou can add any of these to your cart from the home page. Want me to check something else?";
         }
 
-        if (/product|phone|laptop|blender|microwave|air.?cond|fridge|tv|fashion|shirt|what do you (have|sell)|available|stock/.test(q)) {
+        if (/product|phone|laptop|blender|microwave|air.?cond|fridge|tv|fashion|shirt|what do you (have|sell)|available|stock|show me|list/.test(q)) {
           const sample = products.slice(0, 6).map(function(p) {
             return '• ' + (p.name || 'Item') + ' — GH₵ ' + Number(p.price || 0).toLocaleString('en-GH');
           });
-          return 'We sell phones, laptops, electronics, appliances, fashion and more. Some items:\n' + sample.join('\n') + '\n\nType a product name (e.g. blender) and I will check.';
+          return "We sell phones, laptops, electronics, appliances, fashion and more. Here are some items available now:\n" + sample.join('\n') + "\n\nType a name (for example \"blender\") and I'll look it up for you.";
         }
       }
 
-      // Hours / about
-      if (/open|hour|when are you|about|who are you|quality of home/.test(q)) {
-        return 'Quality of Home is an online store for quality products in Ghana. Order in the app, pay with Paystack or cash on delivery, and we arrange delivery. Chat here anytime; use WhatsApp if you need a person.';
+      // About
+      if (/open|hour|when are you|about|who are you|quality of home|help me/.test(q)) {
+        return "I'm the Quality of Home assistant. I can help you find products, explain delivery and payment, and guide you through ordering. What would you like to do?";
       }
 
-      return 'I can help with products, prices, delivery, payment, orders and trade-in. Try asking “blender price” or “how does delivery work”. If you want a human, type “WhatsApp”.';
-    }
+      // How to order
+      if (/how (do|to|can) (i )?(order|buy|purchase)|place an order/.test(q)) {
+        return "It's easy: browse products on the home page, tap Add to Cart, then Checkout. Enter your details, choose Paystack or Cash on Delivery, and place the order. I can help if you get stuck.";
+      }
 
+      return "I can help with products, prices, delivery, payment, orders, and trade-in. Try asking something like \"Do you have a blender?\" or \"How does delivery work?\" If you'd rather talk to a person, just type WhatsApp.";
+    }
 
     function goPage(page) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
