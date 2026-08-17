@@ -368,6 +368,8 @@
     .status-processing { background: #F3E5F5; color: #7B1FA2; }
     .status-on_the_way { background: #E8F5E9; color: #2E7D32; }
     .status-ready_pickup { background: #FFF8E1; color: #F9A825; }
+    .status-paid, .status-confirmed { background: #E8F5E9; color: #2E7D32; }
+    .status-picked_up { background: #E3F2FD; color: #1565C0; }
     .status-delivered { background: #E8F5EE; color: #0B7A3E; }
     .status-cancelled { background: #FFEBEE; color: #C62828; }
     .order-body { padding: 12px 14px; }
@@ -1959,11 +1961,13 @@
 
     const STATUS_LABELS = {
       pending: 'Pending Confirmation',
-      confirmed: 'Confirmed',
+      paid: 'Payment Confirmed',
+      confirmed: 'Payment Confirmed',
       processing: 'Processing',
-      on_the_way: 'On the Way',
-      ready_pickup: 'Ready for Pickup',
-      delivered: 'Delivered',
+      on_the_way: 'Shipped / On the Way',
+      ready_pickup: 'Available for Pickup',
+      picked_up: 'Picked Up',
+      delivered: 'Delivered / Completed',
       cancelled: 'Cancelled'
     };
 
@@ -3396,21 +3400,45 @@
       }
     }
 
+    async function confirmPickedUp(orderId) {
+      if (!supabaseClient) return toast('No connection');
+      if (!confirm('Confirm that you have collected Order #' + orderId + '?')) return;
+      try {
+        const { error } = await supabaseClient.from('orders').update({ status: 'picked_up' }).eq('id', orderId);
+        if (error) throw error;
+        toast('Thank you! Order marked as picked up');
+        document.getElementById('order-modal').classList.remove('open');
+        loadOrders();
+      } catch (e) {
+        toast('Could not update. Please contact support on WhatsApp.');
+      }
+    }
     function viewOrderById(id) {
       const o = ordersById[id];
       if (o) viewOrder(o);
     }
     function viewOrder(o) {
       const status = (o.status || 'pending').toLowerCase().replace(/\s+/g, '_');
-      const steps = [
+      const isPickup = /pickup/i.test(String(o.items || '') + String(o.delivery || ''));
+      const steps = isPickup ? [
         { key: 'pending', title: 'Order Placed', desc: 'We received your order' },
-        { key: 'confirmed', title: 'Confirmed', desc: 'Order confirmed by seller' },
-        { key: 'processing', title: 'Processing', desc: 'Preparing your items' },
-        { key: 'on_the_way', title: 'On the Way', desc: 'Out for delivery' },
-        { key: 'ready_pickup', title: 'Ready for Pickup', desc: 'Available at pickup station' },
+        { key: 'confirmed', title: 'Payment Confirmed', desc: 'Payment received successfully' },
+        { key: 'processing', title: 'Processing', desc: 'We are preparing your items' },
+        { key: 'ready_pickup', title: 'Available for Pickup', desc: 'Ready at the pickup station' },
+        { key: 'picked_up', title: 'Picked Up', desc: 'Customer collected the order' },
+        { key: 'delivered', title: 'Completed', desc: 'Order finished' }
+      ] : [
+        { key: 'pending', title: 'Order Placed', desc: 'We received your order' },
+        { key: 'confirmed', title: 'Payment Confirmed', desc: 'Payment received successfully' },
+        { key: 'processing', title: 'Processing', desc: 'We are preparing your items' },
+        { key: 'on_the_way', title: 'Shipped / On the Way', desc: 'Out for delivery' },
         { key: 'delivered', title: 'Delivered', desc: 'Order completed' }
       ];
-      const order = ['pending','confirmed','processing','on_the_way','ready_pickup','delivered'];
+      const order = isPickup
+        ? ['pending','confirmed','processing','ready_pickup','picked_up','delivered']
+        : ['pending','confirmed','processing','on_the_way','delivered'];
+      // Map paid -> confirmed for progress
+      if (status === 'paid') status = 'confirmed';
       let currentIdx = order.indexOf(status);
       if (currentIdx < 0) currentIdx = 0;
       if (status === 'cancelled') currentIdx = -1;
@@ -3451,7 +3479,8 @@
             Phone: ${o.phone || '—'}
           </div>
         </div>
-        <button class="btn btn-green btn-full" style="margin-top:16px;" onclick="openWhatsApp('Hello, regarding Order #${o.id}')">Contact Support on WhatsApp</button>
+        ${status === 'ready_pickup' ? `<button class="btn btn-green btn-full" style="margin-top:16px;" onclick="confirmPickedUp(${o.id})">I have picked up my order</button>` : ''}
+        <button class="btn btn-ghost btn-full" style="margin-top:10px;" onclick="openWhatsApp('Hello, regarding Order #${o.id}')">Contact Support on WhatsApp</button>
       `;
       document.getElementById('order-modal').classList.add('open');
     }
