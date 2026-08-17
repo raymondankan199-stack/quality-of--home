@@ -1891,20 +1891,27 @@
     <div class="modal" style="text-align:center;">
       <div style="font-size:3.2rem;margin-bottom:8px;">✅</div>
       <h2 style="margin-bottom:4px;">Order Placed!</h2>
-      <p class="sub" style="margin-bottom:16px;">Thank you. We will contact you soon.</p>
+      <p class="sub" id="success-sub" style="margin-bottom:16px;">Thank you. We will contact you soon.</p>
       <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:14px;padding:18px;text-align:left;margin-bottom:16px;">
         <div style="font-size:0.78rem;color:#666;margin-bottom:2px;">Your Order Number</div>
-        <div id="success-order-id" style="font-size:1.6rem;font-weight:800;color:#0B7A3E;letter-spacing:0.5px;">#—</div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div id="success-order-id" style="font-size:1.6rem;font-weight:800;color:#0B7A3E;letter-spacing:0.5px;">#—</div>
+          <button onclick="copyOrderNumber()" style="border:1px solid #86efac;background:#fff;border-radius:8px;padding:6px 10px;font-size:0.75rem;font-weight:700;cursor:pointer;color:#0B7A3E;">Copy</button>
+        </div>
+        <div id="success-paid-badge" style="display:none;margin-top:10px;">
+          <span style="background:#0B7A3E;color:#fff;font-size:0.75rem;font-weight:700;padding:4px 10px;border-radius:20px;">✓ Paid</span>
+        </div>
         <div style="font-size:0.78rem;color:#666;margin-top:14px;margin-bottom:2px;">Total</div>
         <div id="success-total" style="font-size:1.15rem;font-weight:700;">GH₵ 0</div>
         <div style="font-size:0.78rem;color:#666;margin-top:14px;margin-bottom:2px;">Items</div>
         <div id="success-items" style="font-size:0.9rem;line-height:1.4;">—</div>
       </div>
       <p style="font-size:0.85rem;color:#555;margin-bottom:18px;">
-        Save this number. You can always find it in<br><strong>Account → My Orders</strong>
+        Save this number. Find it anytime in<br><strong>Account → Orders</strong>
       </p>
       <button class="btn btn-green btn-full" onclick="closeOrderSuccess(); goPage('orders');">View My Orders</button>
-      <button class="btn btn-ghost btn-full" style="margin-top:10px;" onclick="closeOrderSuccess(); goPage('home');">Continue Shopping</button>
+      <button class="btn btn-ghost btn-full" style="margin-top:10px;" onclick="closeOrderSuccess(); openWhatsApp('Hello, I just placed Order ' + (document.getElementById('success-order-id').textContent || ''))">WhatsApp Support</button>
+      <button class="btn btn-ghost btn-full" style="margin-top:8px;" onclick="closeOrderSuccess(); goPage('home');">Continue Shopping</button>
     </div>
   </div>
 
@@ -3206,12 +3213,26 @@
 
     function showOrderSuccess(orderId, total, itemsText, paid) {
       document.getElementById('success-order-id').textContent = '#' + orderId;
-      document.getElementById('success-total').textContent = formatMoney(total) + (paid ? ' (Paid)' : '');
-      document.getElementById('success-items').textContent = itemsText;
+      document.getElementById('success-total').textContent = formatMoney(total);
+      document.getElementById('success-items').textContent = itemsText || '—';
+      const badge = document.getElementById('success-paid-badge');
+      const sub = document.getElementById('success-sub');
+      if (paid) {
+        if (badge) badge.style.display = 'block';
+        if (sub) sub.textContent = 'Payment received. We will process your order soon.';
+      } else {
+        if (badge) badge.style.display = 'none';
+        if (sub) sub.textContent = 'Thank you. We will contact you to confirm.';
+      }
       document.getElementById('order-success-modal').classList.add('open');
     }
     function closeOrderSuccess() {
       document.getElementById('order-success-modal').classList.remove('open');
+    }
+    function copyOrderNumber() {
+      const t = document.getElementById('success-order-id').textContent || '';
+      if (navigator.clipboard) navigator.clipboard.writeText(t).then(() => toast('Order number copied')).catch(() => toast(t));
+      else toast(t);
     }
 
     async function placeOrder() {
@@ -3289,6 +3310,7 @@
       handler.openIframe();
     }
 
+    let ordersById = {};
     async function loadOrders() {
       const el = document.getElementById('orders-content');
       if (!currentUser || !currentUser.phone) {
@@ -3306,54 +3328,78 @@
         return;
       }
       try {
+        // Fetch recent orders then filter for this customer
+        // (phone column may not exist on orders table)
         const { data, error } = await supabaseClient
           .from('orders')
           .select('*')
-          .eq('phone', currentUser.phone)
-          .order('id', { ascending: false });
+          .order('id', { ascending: false })
+          .limit(50);
         if (error) throw error;
-        if (!data || !data.length) {
+        const phone = String(currentUser.phone || '').replace(/\s/g, '');
+        const name = String(currentUser.name || '').trim().toLowerCase();
+        const mine = (data || []).filter(o => {
+          const cust = String(o.customer || '').toLowerCase();
+          const items = String(o.items || '');
+          const oPhone = String(o.phone || '').replace(/\s/g, '');
+          if (oPhone && (oPhone === phone || oPhone.endsWith(phone.slice(-9)))) return true;
+          if (name && cust && cust === name) return true;
+          if (phone && items.includes(phone)) return true;
+          if (phone.length >= 9 && items.includes(phone.slice(-9))) return true;
+          return false;
+        });
+        if (!mine.length) {
           el.innerHTML = `
             <div class="center-empty">
               <div class="empty-icon">📦</div>
               <h3>No orders yet</h3>
-              <p>Your orders will appear here</p>
+              <p>Orders you place will appear here</p>
               <button class="btn btn-green" onclick="goPage('home')">Start Shopping</button>
             </div>`;
           return;
         }
-        el.innerHTML = data.map(o => {
+        ordersById = {};
+        el.innerHTML = mine.map(o => {
+          ordersById[o.id] = o;
           const status = (o.status || 'pending').toLowerCase().replace(/\s+/g, '_');
           const statusClass = 'status-' + (STATUS_LABELS[status] ? status : 'pending');
           const label = STATUS_LABELS[status] || o.status || 'Pending';
-          const itemsText = (typeof o.items === 'string' ? o.items : JSON.stringify(o.items || '')) || '';
+          const raw = (typeof o.items === 'string' ? o.items : '') || '';
+          const mainItem = raw.split('|')[0].trim() || 'Order items';
+          const isPaid = /Paid|Paystack/i.test(raw);
+          const dateStr = o.created_at ? new Date(o.created_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }) : (o.date || '');
           return `
             <div class="order-card">
               <div class="order-header">
                 <div>
                   <div class="order-id">Order #${o.id}</div>
-                  <div class="order-date">${o.created_at ? new Date(o.created_at).toLocaleDateString('en-GB') : (o.date || '')}</div>
+                  <div class="order-date">${dateStr}</div>
                 </div>
-                <span class="status-badge ${statusClass}">${label}</span>
+                <div style="text-align:right;">
+                  <span class="status-badge ${statusClass}">${label}</span>
+                  ${isPaid ? '<div style="font-size:0.7rem;color:#0B7A3E;font-weight:700;margin-top:4px;">✓ Paid</div>' : ''}
+                </div>
               </div>
               <div class="order-body">
-                <div style="font-size:0.85rem;margin-bottom:6px;word-break:break-word;">${itemsText}</div>
+                <div style="font-size:0.9rem;font-weight:600;margin-bottom:6px;">${mainItem}</div>
                 <div class="order-total">Total: ${formatMoney(o.total)}</div>
-                <div style="font-size:0.8rem;color:var(--muted);margin-top:4px;">
-                  ${o.customer || ''} · ${o.phone || ''}
-                </div>
-                <div class="order-actions">
-                  <button class="btn btn-green" onclick='viewOrder(${JSON.stringify(o).replace(/'/g, "&#39;")})'>Track Order</button>
+                <div class="order-actions" style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+                  <button class="btn btn-green" onclick="viewOrderById(${o.id})">Track Order</button>
                   <button class="btn btn-ghost" onclick="openWhatsApp('Hello, I need help with Order #${o.id}')">Chat Support</button>
                 </div>
               </div>
             </div>`;
         }).join('');
       } catch (e) {
-        el.innerHTML = '<div class="center-empty"><p>Could not load orders</p></div>';
+        console.error(e);
+        el.innerHTML = '<div class="center-empty"><p>Could not load orders. Pull to refresh or try again.</p></div>';
       }
     }
 
+    function viewOrderById(id) {
+      const o = ordersById[id];
+      if (o) viewOrder(o);
+    }
     function viewOrder(o) {
       const status = (o.status || 'pending').toLowerCase().replace(/\s+/g, '_');
       const steps = [
