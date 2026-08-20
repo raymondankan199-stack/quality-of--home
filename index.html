@@ -68,7 +68,7 @@
 
     .banner-slider {
       margin: 10px 12px 8px; border-radius: 12px; overflow: hidden; position: relative;
-      height: 220px; background: #0a2a6b;
+      height: 220px; background: linear-gradient(120deg, #E1BEE7, #BBDEFB);
       box-shadow: 0 4px 16px rgba(0,0,0,0.12);
     }
     @media (min-width: 700px) {
@@ -120,12 +120,29 @@
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-8px); }
     }
-    .banner-slide.s1 { background: linear-gradient(120deg, #0D47A1 0%, #1976D2 40%, #26A69A 100%); }
-    .banner-slide.s2 { background: linear-gradient(120deg, #1B5E20 0%, #43A047 45%, #29B6F6 100%); }
-    .banner-slide.s3 { background: linear-gradient(120deg, #E65100 0%, #FF9800 50%, #FFEB3B 100%); color: #1a1a1a; }
+    .banner-slide.s1 { background: linear-gradient(125deg, #B3E5FC 0%, #81D4FA 25%, #CE93D8 55%, #F8BBD0 100%); color: #1a1a1a; }
+    .banner-slide.s2 { background: linear-gradient(125deg, #C8E6C9 0%, #A5D6A7 30%, #80DEEA 60%, #B39DDB 100%); color: #1a1a1a; }
+    .banner-slide.s3 { background: linear-gradient(125deg, #FFE0B2 0%, #FFCC80 30%, #F8BBD0 65%, #E1BEE7 100%); color: #1a1a1a; }
     .banner-slide.s3 .banner-copy b,
     .banner-slide.s3 .banner-copy span { text-shadow: none; }
     .banner-slide.s3 .banner-cta { background: #111; color: #fff; }
+
+    .banner-slide.s1 .banner-copy b,
+    .banner-slide.s1 .banner-copy span,
+    .banner-slide.s2 .banner-copy b,
+    .banner-slide.s2 .banner-copy span {
+      text-shadow: none; color: #1a1a1a;
+    }
+    .banner-slide.s1 .banner-cta,
+    .banner-slide.s2 .banner-cta {
+      background: #111; color: #fff;
+    }
+    .banner-slide .tag {
+      background: rgba(255,255,255,0.55) !important;
+      border-color: rgba(0,0,0,0.08) !important;
+      color: #333;
+    }
+
 
     .banner-bubbles {
       position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden;
