@@ -64,6 +64,70 @@
       min-width: 18px; height: 18px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
     }
+
+    .banner-slider {
+      margin: 12px; border-radius: 16px; overflow: hidden; position: relative;
+      height: 150px; background: #111;
+    }
+    .banner-track {
+      display: flex; width: 300%; height: 100%;
+      animation: bannerSlide 12s ease-in-out infinite;
+    }
+    .banner-slide {
+      width: 33.333%; height: 100%; flex-shrink: 0;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 18px 20px; color: #fff; position: relative;
+    }
+    .banner-slide b { font-size: 1.15rem; font-weight: 800; display: block; margin-bottom: 4px; }
+    .banner-slide span { font-size: 0.88rem; opacity: 0.95; }
+    .banner-slide.s1 { background: linear-gradient(135deg, #0B7A3E, #054d26); }
+    .banner-slide.s2 { background: linear-gradient(135deg, #E53935, #FF6A00); }
+    .banner-slide.s3 { background: linear-gradient(135deg, #1565C0, #0D47A1); }
+    @keyframes bannerSlide {
+      0%, 28% { transform: translateX(0); }
+      33%, 61% { transform: translateX(-33.333%); }
+      66%, 94% { transform: translateX(-66.666%); }
+      100% { transform: translateX(0); }
+    }
+    .ticker {
+      margin: 0 12px 12px; background: #fff; border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden; height: 36px; display: flex; align-items: center;
+    }
+    .ticker-label {
+      background: var(--green); color: #fff; font-size: 0.72rem; font-weight: 800;
+      padding: 0 10px; height: 100%; display: flex; align-items: center; flex-shrink: 0;
+    }
+    .ticker-track-wrap { overflow: hidden; flex: 1; }
+    .ticker-track {
+      display: inline-block; white-space: nowrap; padding-left: 100%;
+      animation: tickerMove 22s linear infinite; font-size: 0.82rem; font-weight: 600; color: #333;
+    }
+    @keyframes tickerMove {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+    .h-scroll {
+      display: flex; gap: 10px; overflow-x: auto; padding: 0 12px 14px;
+      -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory;
+    }
+    .h-scroll .product-card {
+      min-width: 150px; max-width: 150px; scroll-snap-align: start;
+      animation: cardIn 0.45s ease both;
+    }
+    .h-scroll .product-img-wrap { height: 110px; }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .product-card {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .product-card:active { transform: scale(0.98); }
+    .rail { margin-bottom: 6px; }
+    .section-head .see-all {
+      color: var(--green); font-weight: 700; font-size: 0.8rem; cursor: pointer; background: none; border: none;
+    }
+
     .hero {
       margin: 12px;
       background: linear-gradient(135deg, #0B7A3E 0%, #086532 55%, #054d26 100%);
@@ -476,14 +540,36 @@
       </button>
     </div>
 
-    <div class="hero">
-      <h1>Quality products for your home</h1>
-      <p>Phones, laptops, electronics & more — delivered across Ghana</p>
-      <div class="hero-btns">
-        <button class="btn btn-yellow" onclick="openTradeIn()">Trade-In</button>
-        <button class="btn btn-outline-white" onclick="openWhatsApp('Hello, I need help with my order')">WhatsApp</button>
+    <div class="banner-slider" aria-label="Promotions">
+      <div class="banner-track">
+        <div class="banner-slide s1">
+          <b>Quality products for your home</b>
+          <span>Phones, laptops, electronics & more — delivered across Ghana</span>
+        </div>
+        <div class="banner-slide s2">
+          <b>⚡ Flash deals live now</b>
+          <span>Grab discounts before they end — scroll to Flash Sales</span>
+        </div>
+        <div class="banner-slide s3">
+          <b>Free delivery over GH₵ 500</b>
+          <span>Pay with Paystack or Cash on Delivery</span>
+        </div>
       </div>
     </div>
+
+    <div class="ticker">
+      <div class="ticker-label">LIVE</div>
+      <div class="ticker-track-wrap">
+        <div class="ticker-track" id="ticker-track">Quality of Home · New listings daily · Free delivery over GH₵ 500 · Trade-In available · Paystack &amp; Cash on Delivery · &nbsp;&nbsp;&nbsp; Quality of Home · New listings daily · Free delivery over GH₵ 500 · Trade-In available · Paystack &amp; Cash on Delivery ·</div>
+      </div>
+    </div>
+
+    <div style="padding:0 12px 8px;display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-yellow" style="padding:8px 14px;font-size:0.82rem;" onclick="openTradeIn()">Trade-In</button>
+      <button class="btn btn-green" style="padding:8px 14px;font-size:0.82rem;" onclick="openWhatsApp('Hello, I need help with my order')">WhatsApp</button>
+    </div>
+
+    <div class="cat-scroll" id="cat-scroll"></div>
 
     <div class="flash" id="flash-section" style="display:none;">
       <div class="flash-header">
@@ -493,10 +579,18 @@
       <div class="flash-body" id="flash-body"></div>
     </div>
 
-    <div class="cat-scroll" id="cat-scroll"></div>
+    <div class="rail" id="fresh-rail">
+      <div class="section-head">
+        <h2>Fresh Listings</h2>
+        <button type="button" class="see-all" onclick="setCategory('all')">See all</button>
+      </div>
+      <div class="h-scroll" id="fresh-scroll"></div>
+    </div>
+
+    <div id="category-rails"></div>
 
     <div class="section-head">
-      <h2>All Products</h2>
+      <h2 id="main-list-title">All Products</h2>
       <span id="product-count">0 items</span>
     </div>
     <div class="products" id="products"></div>
@@ -1067,6 +1161,9 @@
         renderCategories();
         renderProducts();
         renderFlash();
+        renderFresh();
+        renderCategoryRails();
+        updateTicker();
       } catch (e) {
         container.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><h3>Error loading</h3><p>Please try again later</p></div>';
       }
@@ -1079,8 +1176,21 @@
     }
     function setCategory(id) {
       currentCat = id;
+      searchQuery = '';
+      var si = document.getElementById('search-input');
+      if (si) si.value = '';
       renderCategories();
       renderProducts();
+      renderFresh();
+      renderCategoryRails();
+      var title = document.getElementById('main-list-title');
+      if (title) {
+        if (id === 'all') title.textContent = 'All Products';
+        else title.textContent = id;
+      }
+      var home = document.getElementById('page-home');
+      if (home && !home.classList.contains('active')) goPage('home');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     function renderProducts() {
       let list = products;
@@ -1126,6 +1236,78 @@
           </div>`;
       }).join('');
     }
+    
+    function productCardHtml(p, i) {
+      const isWish = wishlist.includes(p.id);
+      const hasDiscount = p.original_price && p.original_price > p.price;
+      const disc = hasDiscount ? Math.round((1 - p.price / p.original_price) * 100) : 0;
+      const delay = Math.min((i || 0) * 0.05, 0.4);
+      return `
+        <div class="product-card" style="animation-delay:${delay}s">
+          <div class="product-img-wrap">
+            ${p.image ? `<img src="${p.image}" alt="${(p.name||'').replace(/"/g,'')}" />` : `<div class="ph">📦</div>`}
+            ${hasDiscount ? `<span class="discount-badge">-${disc}%</span>` : ''}
+            <button class="wish-btn ${isWish ? 'active' : ''}" onclick="toggleWish(${p.id}, event)">${isWish ? '❤️' : '🤍'}</button>
+          </div>
+          <div class="product-body">
+            <div class="product-name">${p.name || 'Product'}</div>
+            <div class="product-cat">${p.category || ''}</div>
+            <div class="price-row">
+              <span class="product-price">${formatMoney(p.price)}</span>
+              ${hasDiscount ? `<span class="product-old">${formatMoney(p.original_price)}</span>` : ''}
+            </div>
+            <button class="add-btn" onclick="addToCart(${p.id})">Add to Cart</button>
+          </div>
+        </div>`;
+    }
+
+    function renderFresh() {
+      const el = document.getElementById('fresh-scroll');
+      const rail = document.getElementById('fresh-rail');
+      if (!el || !rail) return;
+      if (currentCat !== 'all') { rail.style.display = 'none'; return; }
+      rail.style.display = 'block';
+      const list = (products || []).slice(0, 12);
+      if (!list.length) { el.innerHTML = ''; return; }
+      el.innerHTML = list.map(function(p, i){ return productCardHtml(p, i); }).join('');
+    }
+
+    function renderCategoryRails() {
+      const wrap = document.getElementById('category-rails');
+      if (!wrap) return;
+      if (currentCat !== 'all') { wrap.innerHTML = ''; return; }
+      const cats = CATEGORIES.filter(function(c){ return c.id !== 'all'; });
+      let html = '';
+      cats.forEach(function(c) {
+        const list = (products || []).filter(function(p){
+          return (p.category || '').toLowerCase() === c.id.toLowerCase();
+        }).slice(0, 10);
+        if (!list.length) return;
+        html += `
+          <div class="rail">
+            <div class="section-head">
+              <h2>${c.icon || ''} ${c.name}</h2>
+              <button type="button" class="see-all" onclick="setCategory('${c.id}')">See all</button>
+            </div>
+            <div class="h-scroll">
+              ${list.map(function(p, i){ return productCardHtml(p, i); }).join('')}
+            </div>
+          </div>`;
+      });
+      wrap.innerHTML = html;
+    }
+
+    function updateTicker() {
+      const el = document.getElementById('ticker-track');
+      if (!el) return;
+      const names = (products || []).slice(0, 8).map(function(p){ return p.name; }).filter(Boolean);
+      const base = names.length
+        ? ('Just in: ' + names.join(' · ') + ' · Free delivery over GH₵ 500 · Trade-In open · ')
+        : 'Quality of Home · New listings daily · Free delivery over GH₵ 500 · Trade-In available · ';
+      el.innerHTML = base + base;
+    }
+
+
     function renderFlash() {
       const withDiscount = products.filter(p => p.original_price && p.original_price > p.price).slice(0, 6);
       const section = document.getElementById('flash-section');
