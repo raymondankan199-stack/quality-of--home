@@ -2666,7 +2666,7 @@
       clearTimeout(window._tyTimer);
     }
 
-    function placeOrder() {
+    async function placeOrder() {
       if (placing) return;
       const name = document.getElementById('co-name').value.trim();
       const phone = document.getElementById('co-phone').value.trim();
