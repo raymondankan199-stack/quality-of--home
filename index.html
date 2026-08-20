@@ -64,6 +64,70 @@
       min-width: 18px; height: 18px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
     }
+
+    .banner-slider {
+      margin: 12px; border-radius: 16px; overflow: hidden; position: relative;
+      height: 150px; background: #111;
+    }
+    .banner-track {
+      display: flex; width: 300%; height: 100%;
+      animation: bannerSlide 12s ease-in-out infinite;
+    }
+    .banner-slide {
+      width: 33.333%; height: 100%; flex-shrink: 0;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 18px 20px; color: #fff; position: relative;
+    }
+    .banner-slide b { font-size: 1.15rem; font-weight: 800; display: block; margin-bottom: 4px; }
+    .banner-slide span { font-size: 0.88rem; opacity: 0.95; }
+    .banner-slide.s1 { background: linear-gradient(135deg, #0B7A3E, #054d26); }
+    .banner-slide.s2 { background: linear-gradient(135deg, #E53935, #FF6A00); }
+    .banner-slide.s3 { background: linear-gradient(135deg, #1565C0, #0D47A1); }
+    @keyframes bannerSlide {
+      0%, 28% { transform: translateX(0); }
+      33%, 61% { transform: translateX(-33.333%); }
+      66%, 94% { transform: translateX(-66.666%); }
+      100% { transform: translateX(0); }
+    }
+    .ticker {
+      margin: 0 12px 12px; background: #fff; border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden; height: 36px; display: flex; align-items: center;
+    }
+    .ticker-label {
+      background: var(--green); color: #fff; font-size: 0.72rem; font-weight: 800;
+      padding: 0 10px; height: 100%; display: flex; align-items: center; flex-shrink: 0;
+    }
+    .ticker-track-wrap { overflow: hidden; flex: 1; }
+    .ticker-track {
+      display: inline-block; white-space: nowrap; padding-left: 100%;
+      animation: tickerMove 22s linear infinite; font-size: 0.82rem; font-weight: 600; color: #333;
+    }
+    @keyframes tickerMove {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+    .h-scroll {
+      display: flex; gap: 10px; overflow-x: auto; padding: 0 12px 14px;
+      -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory;
+    }
+    .h-scroll .product-card {
+      min-width: 150px; max-width: 150px; scroll-snap-align: start;
+      animation: cardIn 0.45s ease both;
+    }
+    .h-scroll .product-img-wrap { height: 110px; }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .product-card {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .product-card:active { transform: scale(0.98); }
+    .rail { margin-bottom: 6px; }
+    .section-head .see-all {
+      color: var(--green); font-weight: 700; font-size: 0.8rem; cursor: pointer; background: none; border: none;
+    }
+
     .hero {
       margin: 12px;
       background: linear-gradient(135deg, #0B7A3E 0%, #086532 55%, #054d26 100%);
@@ -446,6 +510,15 @@
     .addr-map.open { display: block; }
     .addr-map iframe { width: 100%; height: 100%; border: 0; }
 
+    
+    .legal-page { padding: 16px 16px 40px; max-width: 720px; margin: 0 auto; }
+    .legal-page h2 { font-size: 1.25rem; margin: 0 0 8px; }
+    .legal-page .updated { font-size: 0.8rem; color: var(--muted); margin-bottom: 16px; }
+    .legal-page h3 { font-size: 1rem; margin: 18px 0 8px; color: var(--green-dark); }
+    .legal-page p, .legal-page li { font-size: 0.9rem; color: #333; line-height: 1.55; margin-bottom: 8px; }
+    .legal-page ul { padding-left: 18px; margin-bottom: 10px; }
+    .legal-page a { color: var(--green); font-weight: 600; }
+
     .promo-bar {
       background: var(--yellow); color: #111; text-align: center;
       padding: 8px 12px; font-size: 0.82rem; font-weight: 700;
@@ -467,14 +540,36 @@
       </button>
     </div>
 
-    <div class="hero">
-      <h1>Quality products for your home</h1>
-      <p>Phones, laptops, electronics & more — delivered across Ghana</p>
-      <div class="hero-btns">
-        <button class="btn btn-yellow" onclick="openTradeIn()">Trade-In</button>
-        <button class="btn btn-outline-white" onclick="openWhatsApp('Hello, I need help with my order')">WhatsApp</button>
+    <div class="banner-slider" aria-label="Promotions">
+      <div class="banner-track">
+        <div class="banner-slide s1">
+          <b>Quality products for your home</b>
+          <span>Phones, laptops, electronics & more — delivered across Ghana</span>
+        </div>
+        <div class="banner-slide s2">
+          <b>⚡ Flash deals live now</b>
+          <span>Grab discounts before they end — scroll to Flash Sales</span>
+        </div>
+        <div class="banner-slide s3">
+          <b>Free delivery over GH₵ 500</b>
+          <span>Pay with Paystack or Cash on Delivery</span>
+        </div>
       </div>
     </div>
+
+    <div class="ticker">
+      <div class="ticker-label">LIVE</div>
+      <div class="ticker-track-wrap">
+        <div class="ticker-track" id="ticker-track">Quality of Home · New listings daily · Free delivery over GH₵ 500 · Trade-In available · Paystack &amp; Cash on Delivery · &nbsp;&nbsp;&nbsp; Quality of Home · New listings daily · Free delivery over GH₵ 500 · Trade-In available · Paystack &amp; Cash on Delivery ·</div>
+      </div>
+    </div>
+
+    <div style="padding:0 12px 8px;display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-yellow" style="padding:8px 14px;font-size:0.82rem;" onclick="openTradeIn()">Trade-In</button>
+      <button class="btn btn-green" style="padding:8px 14px;font-size:0.82rem;" onclick="openWhatsApp('Hello, I need help with my order')">WhatsApp</button>
+    </div>
+
+    <div class="cat-scroll" id="cat-scroll"></div>
 
     <div class="flash" id="flash-section" style="display:none;">
       <div class="flash-header">
@@ -484,10 +579,18 @@
       <div class="flash-body" id="flash-body"></div>
     </div>
 
-    <div class="cat-scroll" id="cat-scroll"></div>
+    <div class="rail" id="fresh-rail">
+      <div class="section-head">
+        <h2>Fresh Listings</h2>
+        <button type="button" class="see-all" onclick="setCategory('all')">See all</button>
+      </div>
+      <div class="h-scroll" id="fresh-scroll"></div>
+    </div>
+
+    <div id="category-rails"></div>
 
     <div class="section-head">
-      <h2>All Products</h2>
+      <h2 id="main-list-title">All Products</h2>
       <span id="product-count">0 items</span>
     </div>
     <div class="products" id="products"></div>
@@ -557,11 +660,125 @@
         <span>Trade-In</span>
         <span class="arrow">›</span>
       </div>
+      <div class="account-item" onclick="goPage('privacy')">
+        <div class="ico">🔒</div>
+        <span>Privacy Policy</span>
+        <span class="arrow">›</span>
+      </div>
+      <div class="account-item" onclick="goPage('terms')">
+        <div class="ico">📄</div>
+        <span>Terms of Use</span>
+        <span class="arrow">›</span>
+      </div>
       <div class="account-item" id="logout-item" style="display:none;" onclick="logout()">
         <div class="ico">🚪</div>
         <span>Log Out</span>
         <span class="arrow">›</span>
       </div>
+    </div>
+  </div>
+
+
+  <div id="page-privacy" class="page">
+    <div class="topbar">
+      <button class="btn btn-ghost" style="padding:8px 12px;" onclick="goPage('account')">← Back</button>
+      <div style="font-weight:800;font-size:1.05rem;">Privacy Policy</div>
+    </div>
+    <div class="legal-page">
+      <h2>Privacy Policy</h2>
+      <p class="updated">Quality of Home · Accra, Ghana · Last updated: August 2026</p>
+      <h3>1. Who we are</h3>
+      <p>Quality of Home (“we”, “us”) operates an online store selling products for delivery in Ghana. This notice explains what personal information we collect and how we use it when you use our website or app.</p>
+      <h3>2. Information we collect</h3>
+      <p>We may collect and store:</p>
+      <ul>
+        <li><strong>Identity &amp; contact:</strong> name, phone number, email (if you provide it)</li>
+        <li><strong>Delivery details:</strong> address, area, and location you choose at checkout</li>
+        <li><strong>Order data:</strong> products ordered, amounts, payment method, order status</li>
+        <li><strong>Trade-in details:</strong> device description and notes you submit</li>
+        <li><strong>Technical data:</strong> basic device/browser information needed to run the site</li>
+        <li><strong>Chat messages:</strong> questions you send to the in-app assistant</li>
+      </ul>
+      <p>Payment card and Mobile Money secrets are processed by <strong>Paystack</strong>. We do not store your full card number or MoMo PIN on our servers.</p>
+      <h3>3. How we use your information</h3>
+      <ul>
+        <li>To create and manage your account</li>
+        <li>To process and deliver your orders</li>
+        <li>To confirm payments and prevent fraud</li>
+        <li>To respond to trade-in requests and support messages</li>
+        <li>To improve our products, prices, and customer experience</li>
+        <li>To contact you about your order via phone or WhatsApp when needed</li>
+        <li>To meet legal or regulatory obligations in Ghana</li>
+      </ul>
+      <h3>4. How we share information</h3>
+      <p>We only share what is needed to run the service:</p>
+      <ul>
+        <li><strong>Paystack</strong> — to process payments securely</li>
+        <li><strong>Delivery partners</strong> — name, phone, and address to deliver your order</li>
+        <li><strong>Service providers</strong> — hosting and database used to store order data</li>
+        <li><strong>Authorities</strong> — if required by law</li>
+      </ul>
+      <p>We do not sell your personal information to other companies for their marketing.</p>
+      <h3>5. WhatsApp</h3>
+      <p>If you choose to contact us on WhatsApp, that chat is also subject to WhatsApp’s own terms and privacy policy. We use WhatsApp to confirm orders and provide support.</p>
+      <h3>6. Data security</h3>
+      <p>We take reasonable technical and organisational steps to protect your data. No online system is 100% secure, but we work to keep access limited and payments handled by trusted providers.</p>
+      <h3>7. How long we keep data</h3>
+      <p>We keep order and customer records as long as needed for delivery, support, accounting, and legal requirements. You may ask us to update or remove information where the law allows.</p>
+      <h3>8. Your rights</h3>
+      <p>Subject to Ghanaian law, you may request to:</p>
+      <ul>
+        <li>Access the personal data we hold about you</li>
+        <li>Correct inaccurate information</li>
+        <li>Ask us to delete data we no longer need</li>
+        <li>Withdraw consent where processing is based on consent</li>
+      </ul>
+      <p>Contact us using the details below to make a request.</p>
+      <h3>9. Children</h3>
+      <p>Our store is intended for adults. If you believe a child has provided personal data, please contact us so we can remove it.</p>
+      <h3>10. Changes</h3>
+      <p>We may update this Privacy Policy from time to time. The “Last updated” date at the top will change when we do.</p>
+      <h3>11. Contact</h3>
+      <p>Quality of Home · Accra, Ghana<br>WhatsApp / phone: <strong>0533318842</strong><br>For privacy questions, message us on WhatsApp with the subject “Privacy”.</p>
+      <button class="btn btn-green btn-full" style="margin-top:16px;" onclick="goPage('account')">Back to Account</button>
+    </div>
+  </div>
+
+  <div id="page-terms" class="page">
+    <div class="topbar">
+      <button class="btn btn-ghost" style="padding:8px 12px;" onclick="goPage('account')">← Back</button>
+      <div style="font-weight:800;font-size:1.05rem;">Terms of Use</div>
+    </div>
+    <div class="legal-page">
+      <h2>Terms of Use</h2>
+      <p class="updated">Quality of Home · Accra, Ghana · Last updated: August 2026</p>
+      <h3>1. About these terms</h3>
+      <p>By using the Quality of Home website or app, you agree to these Terms of Use and our Privacy Policy. If you do not agree, please do not use the service.</p>
+      <h3>2. Our role</h3>
+      <p>Quality of Home sells products online for delivery or pickup in Ghana. Product details and prices are shown in the app and may change. We aim to keep information accurate but may correct errors.</p>
+      <h3>3. Your account</h3>
+      <p>You must provide accurate name and phone details. You are responsible for activity under your account. Do not use another person’s details without permission.</p>
+      <h3>4. Orders</h3>
+      <ul>
+        <li>An order is an offer to buy. We may accept or decline an order (for example if stock is unavailable or payment fails).</li>
+        <li>Order total is shown at checkout in Ghana Cedis (GHS).</li>
+        <li>You must provide a reachable phone number and a clear delivery address or pickup preference.</li>
+      </ul>
+      <h3>5. Payments</h3>
+      <p>Payments may be made via Paystack (card or mobile money) or Cash on Delivery where offered. Paystack is operated by a third party under its own terms. Successful online payment is confirmed before we fulfil the order where applicable.</p>
+      <h3>6. Delivery</h3>
+      <p>Delivery times depend on your location and product availability. Free delivery may apply above a stated order amount. Risk in goods passes on delivery or when collected at pickup, unless otherwise required by law.</p>
+      <h3>7. Returns &amp; refunds</h3>
+      <p>If an item is damaged, incorrect, or not as described, contact us promptly on WhatsApp with your order details and photos. We will review and arrange a fair remedy (replacement, repair guidance, or refund) according to the case and applicable law.</p>
+      <h3>8. Trade-in</h3>
+      <p>Trade-in requests are assessments, not final offers, until we confirm in writing (including WhatsApp). Device condition affects value. We may accept or decline a trade-in.</p>
+      <h3>9. Acceptable use</h3>
+      <p>You must not misuse the site (fraud, abuse, attacks, false orders, or illegal activity). We may suspend access if we reasonably believe these terms are breached.</p>
+      <h3>10. Limitation of liability</h3>
+      <p>To the extent allowed by Ghanaian law, we are not liable for indirect losses (such as lost profits) arising from use of the service. Nothing in these terms excludes liability that cannot be excluded by law.</p>
+      <h3>11. Contact</h3>
+      <p>Quality of Home · Accra, Ghana · WhatsApp / phone: <strong>0533318842</strong></p>
+      <button class="btn btn-green btn-full" style="margin-top:16px;" onclick="goPage('account')">Back to Account</button>
     </div>
   </div>
 
@@ -944,6 +1161,9 @@
         renderCategories();
         renderProducts();
         renderFlash();
+        renderFresh();
+        renderCategoryRails();
+        updateTicker();
       } catch (e) {
         container.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><h3>Error loading</h3><p>Please try again later</p></div>';
       }
@@ -956,8 +1176,21 @@
     }
     function setCategory(id) {
       currentCat = id;
+      searchQuery = '';
+      var si = document.getElementById('search-input');
+      if (si) si.value = '';
       renderCategories();
       renderProducts();
+      renderFresh();
+      renderCategoryRails();
+      var title = document.getElementById('main-list-title');
+      if (title) {
+        if (id === 'all') title.textContent = 'All Products';
+        else title.textContent = id;
+      }
+      var home = document.getElementById('page-home');
+      if (home && !home.classList.contains('active')) goPage('home');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     function renderProducts() {
       let list = products;
@@ -1003,6 +1236,78 @@
           </div>`;
       }).join('');
     }
+    
+    function productCardHtml(p, i) {
+      const isWish = wishlist.includes(p.id);
+      const hasDiscount = p.original_price && p.original_price > p.price;
+      const disc = hasDiscount ? Math.round((1 - p.price / p.original_price) * 100) : 0;
+      const delay = Math.min((i || 0) * 0.05, 0.4);
+      return `
+        <div class="product-card" style="animation-delay:${delay}s">
+          <div class="product-img-wrap">
+            ${p.image ? `<img src="${p.image}" alt="${(p.name||'').replace(/"/g,'')}" />` : `<div class="ph">📦</div>`}
+            ${hasDiscount ? `<span class="discount-badge">-${disc}%</span>` : ''}
+            <button class="wish-btn ${isWish ? 'active' : ''}" onclick="toggleWish(${p.id}, event)">${isWish ? '❤️' : '🤍'}</button>
+          </div>
+          <div class="product-body">
+            <div class="product-name">${p.name || 'Product'}</div>
+            <div class="product-cat">${p.category || ''}</div>
+            <div class="price-row">
+              <span class="product-price">${formatMoney(p.price)}</span>
+              ${hasDiscount ? `<span class="product-old">${formatMoney(p.original_price)}</span>` : ''}
+            </div>
+            <button class="add-btn" onclick="addToCart(${p.id})">Add to Cart</button>
+          </div>
+        </div>`;
+    }
+
+    function renderFresh() {
+      const el = document.getElementById('fresh-scroll');
+      const rail = document.getElementById('fresh-rail');
+      if (!el || !rail) return;
+      if (currentCat !== 'all') { rail.style.display = 'none'; return; }
+      rail.style.display = 'block';
+      const list = (products || []).slice(0, 12);
+      if (!list.length) { el.innerHTML = ''; return; }
+      el.innerHTML = list.map(function(p, i){ return productCardHtml(p, i); }).join('');
+    }
+
+    function renderCategoryRails() {
+      const wrap = document.getElementById('category-rails');
+      if (!wrap) return;
+      if (currentCat !== 'all') { wrap.innerHTML = ''; return; }
+      const cats = CATEGORIES.filter(function(c){ return c.id !== 'all'; });
+      let html = '';
+      cats.forEach(function(c) {
+        const list = (products || []).filter(function(p){
+          return (p.category || '').toLowerCase() === c.id.toLowerCase();
+        }).slice(0, 10);
+        if (!list.length) return;
+        html += `
+          <div class="rail">
+            <div class="section-head">
+              <h2>${c.icon || ''} ${c.name}</h2>
+              <button type="button" class="see-all" onclick="setCategory('${c.id}')">See all</button>
+            </div>
+            <div class="h-scroll">
+              ${list.map(function(p, i){ return productCardHtml(p, i); }).join('')}
+            </div>
+          </div>`;
+      });
+      wrap.innerHTML = html;
+    }
+
+    function updateTicker() {
+      const el = document.getElementById('ticker-track');
+      if (!el) return;
+      const names = (products || []).slice(0, 8).map(function(p){ return p.name; }).filter(Boolean);
+      const base = names.length
+        ? ('Just in: ' + names.join(' · ') + ' · Free delivery over GH₵ 500 · Trade-In open · ')
+        : 'Quality of Home · New listings daily · Free delivery over GH₵ 500 · Trade-In available · ';
+      el.innerHTML = base + base;
+    }
+
+
     function renderFlash() {
       const withDiscount = products.filter(p => p.original_price && p.original_price > p.price).slice(0, 6);
       const section = document.getElementById('flash-section');
