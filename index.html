@@ -1461,8 +1461,19 @@
       if (input) input.value = term;
       currentCat = 'all';
       goPage('home');
+      // hide promos, show results
+      ['banner-slider', 'flash-section', 'fresh-rail'].forEach(function(cid) {
+        var el = document.getElementById(cid) || document.querySelector('.' + cid);
+        if (el) el.style.display = 'none';
+      });
+      var fb = document.querySelector('.flash-bar');
+      if (fb) fb.style.display = 'none';
       if (typeof renderProducts === 'function') renderProducts();
       if (typeof renderCategories === 'function') renderCategories();
+      setTimeout(function() {
+        var target = document.getElementById('main-list-title') || document.getElementById('products');
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 80);
     }
 
     const CATEGORIES = [
@@ -1630,6 +1641,16 @@
       document.querySelectorAll('.nav-item').forEach(n => {
         n.classList.toggle('active', n.dataset.page === page);
       });
+      if (page === 'home' && currentCat === 'all' && !searchQuery) {
+        ['banner-slider', 'flash-section', 'fresh-rail'].forEach(function(cid) {
+          var el = document.getElementById(cid) || document.querySelector('.' + cid);
+          if (el) el.style.display = '';
+        });
+        var fb = document.querySelector('.flash-bar');
+        if (fb) fb.style.display = '';
+        var rails = document.getElementById('category-rails');
+        if (rails) rails.style.display = '';
+      }
       if (page === 'cart') renderCartPage();
       if (page === 'wishlist') renderWishlist();
       if (page === 'account') updateAccountUI();
@@ -1671,22 +1692,44 @@
       ).join('');
     }
     function setCategory(id) {
-      currentCat = id;
+      currentCat = id || 'all';
       searchQuery = '';
       var si = document.getElementById('search-input');
       if (si) si.value = '';
-      renderCategories();
-      renderProducts();
-      renderFresh();
-      renderCategoryRails();
-      var title = document.getElementById('main-list-title');
-      if (title) {
-        if (id === 'all') title.textContent = 'All Products';
-        else title.textContent = id;
-      }
+
+      // Always open home product list (not stay on categories page)
       var home = document.getElementById('page-home');
       if (home && !home.classList.contains('active')) goPage('home');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // Hide promo sections so customer sees products directly
+      var hide = currentCat !== 'all';
+      ['banner-slider', 'flash-section', 'fresh-rail'].forEach(function(cid) {
+        var el = document.getElementById(cid) || document.querySelector('.' + cid);
+        if (el) el.style.display = hide ? 'none' : '';
+      });
+      // flash-bar
+      var fb = document.querySelector('.flash-bar');
+      if (fb) fb.style.display = hide ? 'none' : '';
+      // quick actions / cat chips stay
+      var rails = document.getElementById('category-rails');
+      if (rails) rails.style.display = hide ? 'none' : '';
+
+      renderCategories();
+      renderProducts();
+      if (typeof renderFresh === 'function') renderFresh();
+      if (typeof renderCategoryRails === 'function') renderCategoryRails();
+
+      var title = document.getElementById('main-list-title');
+      if (title) {
+        title.textContent = (currentCat === 'all') ? 'All Products' : (currentCat + ' — All items');
+      }
+
+      // Scroll straight to product list
+      setTimeout(function() {
+        var target = document.getElementById('main-list-title') || document.getElementById('products');
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        else window.scrollTo({ top: 180, behavior: 'smooth' });
+      }, 80);
     }
     
     
@@ -1807,9 +1850,27 @@
     }, true);
 
     function renderProducts() {
-      let list = products;
-      if (currentCat !== 'all') {
-        list = list.filter(p => (p.category || '').toLowerCase() === currentCat.toLowerCase());
+      let list = products || [];
+      if (currentCat && currentCat !== 'all') {
+        const cat = currentCat.toLowerCase();
+        const aliases = {
+          phones: ['phone', 'phones', 'mobile', 'smartphone', 'tablet'],
+          laptops: ['laptop', 'laptops', 'computer', 'computing', 'pc'],
+          electronics: ['electronics', 'electronic', 'tv', 'audio', 'gadget'],
+          appliances: ['appliance', 'appliances', 'fridge', 'freezer', 'blender', 'microwave', 'ac', 'cooker'],
+          accessories: ['accessory', 'accessories', 'headset', 'power bank', 'case'],
+          home: ['home', 'office', 'furniture'],
+          fashion: ['fashion', 'clothing', 'shoe'],
+          kitchen: ['kitchen', 'cooker', 'kettle'],
+          grocery: ['grocery', 'supermarket', 'food']
+        };
+        const keys = aliases[cat] || [cat];
+        list = list.filter(p => {
+          const pc = (p.category || '').toLowerCase();
+          const pn = (p.name || '').toLowerCase();
+          if (pc === cat || pc.includes(cat) || cat.includes(pc)) return true;
+          return keys.some(k => pc.includes(k) || pn.includes(k));
+        });
       }
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
