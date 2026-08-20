@@ -65,35 +65,68 @@
       display: flex; align-items: center; justify-content: center;
     }
 
+
     .banner-slider {
-      margin: 12px; border-radius: 16px; overflow: hidden; position: relative;
-      height: 190px; background: #111;
+      margin: 10px 12px 8px; border-radius: 12px; overflow: hidden; position: relative;
+      height: 220px; background: #0a2a6b;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    }
+    @media (min-width: 700px) {
+      .banner-slider { height: 280px; }
     }
     .banner-track {
       display: flex; width: 300%; height: 100%;
-      animation: bannerSlide 12s ease-in-out infinite;
+      animation: bannerSlide 10s ease-in-out infinite;
     }
     .banner-slide {
       width: 33.333%; height: 100%; flex-shrink: 0;
-      display: flex; flex-direction: column; justify-content: center;
+      display: flex; align-items: center; justify-content: space-between;
       padding: 18px 20px; color: #fff; position: relative;
+      overflow: hidden; box-sizing: border-box;
     }
-    .banner-slide b { font-size: 1.15rem; font-weight: 800; display: block; margin-bottom: 4px; }
-    .banner-slide span { font-size: 0.88rem; opacity: 0.95; }
-    .banner-slide.s1 { background: linear-gradient(135deg, #1565C0 0%, #42A5F5 45%, #81C784 100%); }
-    .banner-slide.s2 { background: linear-gradient(135deg, #0B7A3E 0%, #43A047 50%, #4FC3F7 100%); }
-    .banner-slide.s3 { background: linear-gradient(135deg, #FF6A00 0%, #FF9800 45%, #FFEB3B 100%); }
-    
-
-    
-
-    
-
-    
-    .banner-slide {
-      overflow: hidden;
-      position: relative;
+    .banner-slide .banner-copy { position: relative; z-index: 2; max-width: 58%; }
+    .banner-slide .banner-copy .tag {
+      display: inline-block; background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.35); border-radius: 4px;
+      font-size: 0.68rem; font-weight: 800; letter-spacing: 0.04em;
+      padding: 3px 8px; margin-bottom: 8px; text-transform: uppercase;
     }
+    .banner-slide .banner-copy b {
+      font-size: 1.35rem; font-weight: 900; display: block; line-height: 1.15;
+      margin-bottom: 6px; text-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    }
+    @media (min-width: 700px) {
+      .banner-slide .banner-copy b { font-size: 1.85rem; }
+    }
+    .banner-slide .banner-copy span {
+      font-size: 0.88rem; opacity: 0.95; display: block; margin-bottom: 12px;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    .banner-slide .banner-cta {
+      display: inline-block; background: #fff; color: #111;
+      font-weight: 800; font-size: 0.82rem; padding: 9px 16px;
+      border-radius: 6px; border: none; cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .banner-visual {
+      position: relative; z-index: 2; font-size: 3.2rem;
+      line-height: 1; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.2));
+      animation: visualFloat 3.5s ease-in-out infinite;
+    }
+    @media (min-width: 700px) {
+      .banner-visual { font-size: 4.5rem; }
+    }
+    @keyframes visualFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .banner-slide.s1 { background: linear-gradient(120deg, #0D47A1 0%, #1976D2 40%, #26A69A 100%); }
+    .banner-slide.s2 { background: linear-gradient(120deg, #1B5E20 0%, #43A047 45%, #29B6F6 100%); }
+    .banner-slide.s3 { background: linear-gradient(120deg, #E65100 0%, #FF9800 50%, #FFEB3B 100%); color: #1a1a1a; }
+    .banner-slide.s3 .banner-copy b,
+    .banner-slide.s3 .banner-copy span { text-shadow: none; }
+    .banner-slide.s3 .banner-cta { background: #111; color: #fff; }
+
     .banner-bubbles {
       position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden;
     }
@@ -125,37 +158,61 @@
       }
       12% { opacity: 0.85; }
       25% {
-        transform: translateY(-40px) translateX(6px) scale(1, 0.95);
+        transform: translateY(-50px) translateX(6px) scale(1, 0.95);
         border-radius: 55% 45% 60% 40% / 50% 60% 40% 50%;
       }
       50% {
-        transform: translateY(-85px) translateX(-8px) scale(1.05, 1);
+        transform: translateY(-100px) translateX(-8px) scale(1.05, 1);
         border-radius: 42% 58% 50% 50% / 48% 42% 58% 52%;
         opacity: 0.7;
       }
       75% {
-        transform: translateY(-125px) translateX(5px) scale(0.95, 1.08);
+        transform: translateY(-150px) translateX(5px) scale(0.95, 1.08);
         border-radius: 60% 40% 45% 55% / 42% 55% 45% 58%;
         opacity: 0.45;
       }
       100% {
-        transform: translateY(-200px) translateX(-4px) scale(1.15, 1.05);
+        transform: translateY(-230px) translateX(-4px) scale(1.15, 1.05);
         border-radius: 50% 50% 50% 50%;
         opacity: 0;
       }
     }
-    .banner-slide b,
-    .banner-slide > span {
-      position: relative; z-index: 2;
-      text-shadow: 0 1px 4px rgba(0,0,0,0.3);
-    }
-
     @keyframes bannerSlide {
       0%, 28% { transform: translateX(0); }
       33%, 61% { transform: translateX(-33.333%); }
       66%, 94% { transform: translateX(-66.666%); }
       100% { transform: translateX(0); }
     }
+
+    .flash-bar {
+      margin: 0 12px 12px; background: #E53935; color: #fff;
+      border-radius: 8px; padding: 10px 12px;
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      font-weight: 800; font-size: 0.85rem;
+      box-shadow: 0 2px 8px rgba(229,57,53,0.3);
+    }
+    .flash-bar .fb-left { display: flex; align-items: center; gap: 8px; }
+    .flash-bar .fb-timer {
+      background: rgba(0,0,0,0.25); padding: 4px 10px; border-radius: 6px;
+      font-variant-numeric: tabular-nums; letter-spacing: 0.02em;
+    }
+    .flash-bar button {
+      background: #fff; color: #E53935; border: none; border-radius: 6px;
+      padding: 6px 10px; font-weight: 800; font-size: 0.75rem; cursor: pointer;
+    }
+
+    .quick-actions {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+      padding: 0 12px 12px;
+    }
+    .quick-actions .qa {
+      background: #fff; border: 1px solid var(--border); border-radius: 10px;
+      padding: 10px 8px; text-align: center; cursor: pointer;
+      font-size: 0.72rem; font-weight: 700; color: #333;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .quick-actions .qa .qa-ico { font-size: 1.25rem; display: block; margin-bottom: 4px; }
+
     .ticker {
       margin: 0 12px 12px; background: #fff; border: 1px solid var(--border);
       border-radius: 10px; overflow: hidden; height: 36px; display: flex; align-items: center;
@@ -607,36 +664,60 @@
       </button>
     </div>
 
+    
     <div class="banner-slider" aria-label="Promotions">
       <div class="banner-track">
         <div class="banner-slide s1">
           <div class="banner-bubbles" aria-hidden="true"><i style="width:28px;height:28px;left:5%;animation-duration:7.5s;animation-delay:0.0s;"></i><i style="width:22px;height:22px;left:12%;animation-duration:9.0s;animation-delay:0.9s;"></i><i style="width:34px;height:34px;left:20%;animation-duration:8.0s;animation-delay:1.6s;"></i><i style="width:24px;height:24px;left:28%;animation-duration:10.0s;animation-delay:0.4s;"></i><i style="width:30px;height:30px;left:36%;animation-duration:7.2s;animation-delay:2.3s;"></i><i style="width:20px;height:20px;left:44%;animation-duration:11.0s;animation-delay:1.2s;"></i><i style="width:36px;height:36px;left:52%;animation-duration:8.5s;animation-delay:0.7s;"></i><i style="width:23px;height:23px;left:60%;animation-duration:9.5s;animation-delay:3.0s;"></i><i style="width:29px;height:29px;left:68%;animation-duration:7.0s;animation-delay:1.9s;"></i><i style="width:26px;height:26px;left:76%;animation-duration:10.5s;animation-delay:0.3s;"></i><i style="width:32px;height:32px;left:84%;animation-duration:8.2s;animation-delay:3.4s;"></i><i style="width:21px;height:21px;left:91%;animation-duration:9.2s;animation-delay:2.1s;"></i><i style="width:25px;height:25px;left:8%;animation-duration:12.0s;animation-delay:4.0s;"></i><i style="width:31px;height:31px;left:48%;animation-duration:6.8s;animation-delay:4.3s;"></i><i style="width:27px;height:27px;left:80%;animation-duration:10.8s;animation-delay:4.8s;"></i></div>
-          <b>Quality products for your home</b>
-          <span>Phones, laptops, electronics & more — delivered across Ghana</span>
+          <div class="banner-copy">
+            <div class="tag">Official store</div>
+            <b>Quality products for your home</b>
+            <span>Phones, laptops, electronics & more — delivered across Ghana</span>
+            <button type="button" class="banner-cta" onclick="setCategory('all')">Shop Now</button>
+          </div>
+          <div class="banner-visual">🏠📱</div>
         </div>
         <div class="banner-slide s2">
           <div class="banner-bubbles" aria-hidden="true"><i style="width:28px;height:28px;left:5%;animation-duration:7.5s;animation-delay:0.6s;"></i><i style="width:22px;height:22px;left:12%;animation-duration:9.0s;animation-delay:1.5s;"></i><i style="width:34px;height:34px;left:20%;animation-duration:8.0s;animation-delay:2.2s;"></i><i style="width:24px;height:24px;left:28%;animation-duration:10.0s;animation-delay:1.0s;"></i><i style="width:30px;height:30px;left:36%;animation-duration:7.2s;animation-delay:2.9s;"></i><i style="width:20px;height:20px;left:44%;animation-duration:11.0s;animation-delay:1.7999999999999998s;"></i><i style="width:36px;height:36px;left:52%;animation-duration:8.5s;animation-delay:1.2999999999999998s;"></i><i style="width:23px;height:23px;left:60%;animation-duration:9.5s;animation-delay:3.6s;"></i><i style="width:29px;height:29px;left:68%;animation-duration:7.0s;animation-delay:2.5s;"></i><i style="width:26px;height:26px;left:76%;animation-duration:10.5s;animation-delay:0.8999999999999999s;"></i><i style="width:32px;height:32px;left:84%;animation-duration:8.2s;animation-delay:4.0s;"></i><i style="width:21px;height:21px;left:91%;animation-duration:9.2s;animation-delay:2.7s;"></i><i style="width:25px;height:25px;left:8%;animation-duration:12.0s;animation-delay:4.6s;"></i><i style="width:31px;height:31px;left:48%;animation-duration:6.8s;animation-delay:4.8999999999999995s;"></i><i style="width:27px;height:27px;left:80%;animation-duration:10.8s;animation-delay:5.3999999999999995s;"></i></div>
-          <b>⚡ Flash deals live now</b>
-          <span>Grab discounts before they end — scroll to Flash Sales</span>
+          <div class="banner-copy">
+            <div class="tag">Limited offer</div>
+            <b>Flash deals live now</b>
+            <span>Grab discounts before they end — check Flash Sales below</span>
+            <button type="button" class="banner-cta" onclick="document.getElementById('flash-section')?.scrollIntoView({behavior:'smooth'})">See Deals</button>
+          </div>
+          <div class="banner-visual">⚡🛒</div>
         </div>
         <div class="banner-slide s3">
           <div class="banner-bubbles" aria-hidden="true"><i style="width:28px;height:28px;left:5%;animation-duration:7.5s;animation-delay:1.2s;"></i><i style="width:22px;height:22px;left:12%;animation-duration:9.0s;animation-delay:2.1s;"></i><i style="width:34px;height:34px;left:20%;animation-duration:8.0s;animation-delay:2.8s;"></i><i style="width:24px;height:24px;left:28%;animation-duration:10.0s;animation-delay:1.6s;"></i><i style="width:30px;height:30px;left:36%;animation-duration:7.2s;animation-delay:3.5s;"></i><i style="width:20px;height:20px;left:44%;animation-duration:11.0s;animation-delay:2.4s;"></i><i style="width:36px;height:36px;left:52%;animation-duration:8.5s;animation-delay:1.9s;"></i><i style="width:23px;height:23px;left:60%;animation-duration:9.5s;animation-delay:4.2s;"></i><i style="width:29px;height:29px;left:68%;animation-duration:7.0s;animation-delay:3.0999999999999996s;"></i><i style="width:26px;height:26px;left:76%;animation-duration:10.5s;animation-delay:1.5s;"></i><i style="width:32px;height:32px;left:84%;animation-duration:8.2s;animation-delay:4.6s;"></i><i style="width:21px;height:21px;left:91%;animation-duration:9.2s;animation-delay:3.3s;"></i><i style="width:25px;height:25px;left:8%;animation-duration:12.0s;animation-delay:5.2s;"></i><i style="width:31px;height:31px;left:48%;animation-duration:6.8s;animation-delay:5.5s;"></i><i style="width:27px;height:27px;left:80%;animation-duration:10.8s;animation-delay:6.0s;"></i></div>
-          <b>Free delivery over GH₵ 500</b>
-          <span>Pay with Paystack or Cash on Delivery</span>
+          <div class="banner-copy">
+            <div class="tag">Delivery</div>
+            <b>Free delivery over GH₵ 500</b>
+            <span>Pay with Paystack or Cash on Delivery</span>
+            <button type="button" class="banner-cta" onclick="setCategory('all')">Start Shopping</button>
+          </div>
+          <div class="banner-visual">🚚✨</div>
         </div>
       </div>
     </div>
 
-    <div class="ticker">
-      <div class="ticker-label">LIVE</div>
-      <div class="ticker-track-wrap">
-        <div class="ticker-track" id="ticker-track">Quality of Home · New listings daily · Free delivery over GH₵ 500 · Trade-In available · Paystack &amp; Cash on Delivery · &nbsp;&nbsp;&nbsp; Quality of Home · New listings daily · Free delivery over GH₵ 500 · Trade-In available · Paystack &amp; Cash on Delivery ·</div>
+    <div class="flash-bar">
+      <div class="fb-left">
+        <span>⚡ Flash Sales</span>
+        <span class="fb-timer" id="flash-timer">Time Left: --:--:--</span>
       </div>
+      <button type="button" onclick="setCategory('all')">See All</button>
     </div>
 
-    <div style="padding:0 12px 8px;display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="btn btn-yellow" style="padding:8px 14px;font-size:0.82rem;" onclick="openTradeIn()">Trade-In</button>
-      <button class="btn btn-green" style="padding:8px 14px;font-size:0.82rem;" onclick="openWhatsApp('Hello, I need help with my order')">WhatsApp</button>
+    <div class="quick-actions">
+      <div class="qa" onclick="openWhatsApp('Hello Quality of Home, I need help')">
+        <span class="qa-ico">💬</span>WhatsApp
+      </div>
+      <div class="qa" onclick="openTradeIn()">
+        <span class="qa-ico">🔄</span>Trade-In
+      </div>
+      <div class="qa" onclick="goPage('orders')">
+        <span class="qa-ico">📦</span>Track Order
+      </div>
     </div>
 
     <div class="cat-scroll" id="cat-scroll"></div>
@@ -644,7 +725,7 @@
     <div class="flash" id="flash-section" style="display:none;">
       <div class="flash-header">
         <div class="flash-title">⚡ Flash Sales</div>
-        <div class="flash-timer" id="flash-timer">Ends in 08:45:12</div>
+        <div class="flash-timer" id="flash-timer-old">Ends in 08:45:12</div>
       </div>
       <div class="flash-body" id="flash-body"></div>
     </div>
