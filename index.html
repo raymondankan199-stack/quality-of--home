@@ -452,11 +452,14 @@
     .page { display: none; min-height: calc(100vh - 64px); }
     .page.active { display: block; }
     .account-header {
-      background: linear-gradient(135deg, var(--green), var(--green-dark));
-      color: #fff; padding: 28px 18px 24px;
+      background: rgba(255,255,255,0.35);
+      -webkit-backdrop-filter: blur(16px) saturate(160%);
+      backdrop-filter: blur(16px) saturate(160%);
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+      color: #111; padding: 28px 18px 24px;
     }
     .account-header h2 { font-size: 1.3rem; margin-bottom: 4px; }
-    .account-header p { opacity: 0.9; font-size: 0.9rem; }
+    .account-header p { opacity: 0.75; font-size: 0.9rem; color: #333; }
     .account-list { background: #fff; margin-top: -12px; border-radius: 16px 16px 0 0; padding: 8px 0; }
     .account-item {
       display: flex; align-items: center; gap: 14px;
@@ -704,6 +707,30 @@
       background: var(--yellow); color: #111; text-align: center;
       padding: 8px 12px; font-size: 0.82rem; font-weight: 700;
     }
+  
+    /* Neutral bottom nav — no brand colours */
+    .bottom-nav .nav-item,
+    .bottom-nav .nav-item .icon {
+      color: #333 !important;
+      filter: grayscale(1);
+    }
+    .bottom-nav .nav-item.active {
+      color: #111 !important;
+      background: rgba(255,255,255,0.45) !important;
+      border: 1px solid rgba(0,0,0,0.14) !important;
+      filter: none;
+    }
+    .bottom-nav .nav-item.active .icon {
+      filter: grayscale(1);
+      color: #111 !important;
+    }
+    .section-head .see-all {
+      color: #333 !important;
+    }
+    .cat-chip, .cat-chip.active {
+      color: #222 !important;
+    }
+
   </style>
 </head>
 <body>
