@@ -807,10 +807,11 @@
   
     /* Product Detail */
     .pd-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 400;
-      display: none; align-items: stretch; justify-content: center;
+      position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.55) !important;
+      z-index: 99999 !important; display: none; align-items: stretch; justify-content: center;
     }
-    .pd-overlay.open { display: flex; }
+    .pd-overlay.open { display: flex !important; }
+    .product-card, .flash-item { cursor: pointer; -webkit-tap-highlight-color: rgba(0,0,0,0.08); }
     .pd-sheet {
       background: #fff; width: 100%; max-width: 560px; height: 100%;
       overflow: hidden; display: flex; flex-direction: column;
@@ -1549,58 +1550,89 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     
+    
     let currentProductId = null;
 
     function openProductDetail(id) {
-      const p = products.find(x => x.id == id);
-      if (!p) {
-        if (typeof toast === 'function') toast('Product not found');
-        return;
-      }
-      currentProductId = p.id;
-      const img = document.getElementById('pd-main-img');
-      if (p.image) {
-        img.src = p.image;
-        img.style.display = 'block';
-        img.alt = p.name || 'Product';
-      } else {
-        img.removeAttribute('src');
-        img.style.display = 'none';
-      }
-      document.getElementById('pd-name').textContent = p.name || 'Product';
-      document.getElementById('pd-cat').textContent = p.category || 'General';
-      const priceText = (typeof formatMoney === 'function') ? formatMoney(p.price) : ('GH₵ ' + p.price);
-      document.getElementById('pd-price').textContent = priceText;
-      const oldEl = document.getElementById('pd-old');
-      if (p.original_price && Number(p.original_price) > Number(p.price)) {
-        oldEl.textContent = (typeof formatMoney === 'function') ? formatMoney(p.original_price) : ('GH₵ ' + p.original_price);
-        oldEl.style.display = 'inline';
-      } else {
-        oldEl.style.display = 'none';
-      }
-      document.getElementById('pd-stock').textContent = (p.stock === 0) ? 'Out of stock' : 'In stock';
+      try {
+        id = Number(id);
+        const list = (typeof products !== 'undefined' && products) ? products : [];
+        const p = list.find(x => Number(x.id) === id);
+        if (!p) {
+          if (typeof toast === 'function') toast('Product not found');
+          return;
+        }
+        currentProductId = p.id;
 
-      let desc = p.description || p.details || p.desc || '';
-      if (!desc) {
-        desc = (p.name || 'This product') + ' is available at Quality of Home / Home of Quality.\n\n'
-          + 'Category: ' + (p.category || 'General') + '\n'
-          + 'Price: ' + priceText + '\n\n'
-          + 'Quality products delivered across Ghana. Chat us on WhatsApp for more details, stock confirmation, and delivery.';
-      }
-      document.getElementById('pd-desc').textContent = desc;
-      document.getElementById('pd-meta').innerHTML =
-        '<div class="pd-meta-item"><strong>Category</strong>' + (p.category || 'General') + '</div>' +
-        '<div class="pd-meta-item"><strong>Availability</strong>' + ((p.stock === 0) ? 'Out of stock' : 'In stock') + '</div>' +
-        '<div class="pd-meta-item"><strong>Delivery</strong>Across Ghana</div>' +
-        '<div class="pd-meta-item"><strong>Payment</strong>MoMo · Card · COD</div>';
+        const img = document.getElementById('pd-main-img');
+        if (img) {
+          if (p.image) {
+            img.src = p.image;
+            img.style.display = 'block';
+            img.alt = p.name || 'Product';
+          } else {
+            img.removeAttribute('src');
+            img.style.display = 'none';
+          }
+        }
 
-      document.getElementById('pd-overlay').classList.add('open');
-      document.body.style.overflow = 'hidden';
+        const setText = (eid, val) => {
+          const el = document.getElementById(eid);
+          if (el) el.textContent = val;
+        };
+
+        setText('pd-name', p.name || 'Product');
+        setText('pd-cat', p.category || 'General');
+        const priceText = (typeof formatMoney === 'function') ? formatMoney(p.price) : ('GH₵ ' + p.price);
+        setText('pd-price', priceText);
+
+        const oldEl = document.getElementById('pd-old');
+        if (oldEl) {
+          if (p.original_price && Number(p.original_price) > Number(p.price)) {
+            oldEl.textContent = (typeof formatMoney === 'function') ? formatMoney(p.original_price) : ('GH₵ ' + p.original_price);
+            oldEl.style.display = 'inline';
+          } else {
+            oldEl.style.display = 'none';
+          }
+        }
+        setText('pd-stock', (p.stock === 0) ? 'Out of stock' : 'In stock');
+
+        let desc = p.description || p.details || p.desc || '';
+        if (!desc) {
+          desc = (p.name || 'This product') + ' is available at Quality of Home.\n\n'
+            + 'Category: ' + (p.category || 'General') + '\n'
+            + 'Price: ' + priceText + '\n\n'
+            + 'Delivery across Ghana. Chat on WhatsApp for more details.';
+        }
+        setText('pd-desc', desc);
+
+        const meta = document.getElementById('pd-meta');
+        if (meta) {
+          meta.innerHTML =
+            '<div class="pd-meta-item"><strong>Category</strong>' + (p.category || 'General') + '</div>' +
+            '<div class="pd-meta-item"><strong>Availability</strong>' + ((p.stock === 0) ? 'Out of stock' : 'In stock') + '</div>' +
+            '<div class="pd-meta-item"><strong>Delivery</strong>Across Ghana</div>' +
+            '<div class="pd-meta-item"><strong>Payment</strong>MoMo · Card · COD</div>';
+        }
+
+        const overlay = document.getElementById('pd-overlay');
+        if (overlay) {
+          overlay.classList.add('open');
+          overlay.style.display = 'flex';
+        }
+        document.body.style.overflow = 'hidden';
+      } catch (err) {
+        console.error('openProductDetail', err);
+        if (typeof toast === 'function') toast('Could not open product');
+      }
     }
 
     function closeProductDetail() {
       const el = document.getElementById('pd-overlay');
-      if (el) el.classList.remove('open');
+      if (el) {
+        el.classList.remove('open');
+        el.style.display = 'none';
+      }
       document.body.style.overflow = '';
       currentProductId = null;
     }
@@ -1611,13 +1643,29 @@
     }
 
     function pdWhatsApp() {
-      const p = products.find(x => x.id == currentProductId);
+      const list = (typeof products !== 'undefined' && products) ? products : [];
+      const p = list.find(x => Number(x.id) === Number(currentProductId));
       const name = p ? p.name : 'a product';
       const price = p && typeof formatMoney === 'function' ? formatMoney(p.price) : '';
       const msg = 'Hello Quality of Home, I am interested in: ' + name + (price ? ' (' + price + ')' : '') + '. Please give me more details.';
       if (typeof openWhatsApp === 'function') openWhatsApp(msg);
       else window.open('https://wa.me/233533318842?text=' + encodeURIComponent(msg), '_blank');
     }
+
+    // Global + tap fallback (works even if onclick is blocked)
+    window.openProductDetail = openProductDetail;
+    window.closeProductDetail = closeProductDetail;
+    document.addEventListener('click', function(e) {
+      const card = e.target.closest('.product-card, .flash-item');
+      if (!card) return;
+      if (e.target.closest('.wish-btn, .add-btn, button')) return;
+      const onclick = card.getAttribute('onclick') || '';
+      const m = onclick.match(/openProductDetail\((\d+)\)/);
+      if (m) {
+        e.preventDefault();
+        openProductDetail(m[1]);
+      }
+    }, true);
 
     function renderProducts() {
       let list = products;
@@ -1670,7 +1718,7 @@
       const disc = hasDiscount ? Math.round((1 - p.price / p.original_price) * 100) : 0;
       const delay = Math.min((i || 0) * 0.05, 0.4);
       return `
-        <div class="product-card" style="animation-delay:${delay}s" onclick="openProductDetail(${p.id})">
+        <div class="product-card" data-id="${p.id}" style="animation-delay:${delay}s" onclick="openProductDetail(${p.id})">
           <div class="product-img-wrap">
             ${p.image ? `<img src="${p.image}" alt="${(p.name||'').replace(/"/g,'')}" />` : `<div class="ph">📦</div>`}
             ${hasDiscount ? `<span class="discount-badge">-${disc}%</span>` : ''}
