@@ -118,12 +118,18 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     }
     .banner-visual {
-      position: relative; z-index: 2; font-size: 3.2rem;
-      line-height: 1; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.2));
+      position: relative; z-index: 2;
+      width: 42%; max-width: 180px; height: 160px;
+      display: flex; align-items: center; justify-content: center;
       animation: visualFloat 3.5s ease-in-out infinite;
     }
+    .banner-visual img {
+      width: 100%; height: 100%; object-fit: contain;
+      filter: drop-shadow(0 8px 16px rgba(0,0,0,0.25));
+      border-radius: 12px;
+    }
     @media (min-width: 700px) {
-      .banner-visual { font-size: 4.5rem; }
+      .banner-visual { max-width: 240px; height: 200px; }
     }
     @keyframes visualFloat {
       0%, 100% { transform: translateY(0); }
@@ -881,7 +887,7 @@
             <span>Phones, laptops, electronics & more — delivered across Ghana</span>
             <button type="button" class="banner-cta" onclick="setCategory('all')">Shop Now</button>
           </div>
-          <div class="banner-visual">🏠📱</div>
+          <div class="banner-visual"><img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&q=80" alt="Smartphone" /></div>
         </div>
         <div class="banner-slide s2">
           <div class="banner-bubbles" aria-hidden="true"><i style="width:28px;height:28px;left:5%;animation-duration:7.5s;animation-delay:0.6s;"></i><i style="width:22px;height:22px;left:12%;animation-duration:9.0s;animation-delay:1.5s;"></i><i style="width:34px;height:34px;left:20%;animation-duration:8.0s;animation-delay:2.2s;"></i><i style="width:24px;height:24px;left:28%;animation-duration:10.0s;animation-delay:1.0s;"></i><i style="width:30px;height:30px;left:36%;animation-duration:7.2s;animation-delay:2.9s;"></i><i style="width:20px;height:20px;left:44%;animation-duration:11.0s;animation-delay:1.7999999999999998s;"></i><i style="width:36px;height:36px;left:52%;animation-duration:8.5s;animation-delay:1.2999999999999998s;"></i><i style="width:23px;height:23px;left:60%;animation-duration:9.5s;animation-delay:3.6s;"></i><i style="width:29px;height:29px;left:68%;animation-duration:7.0s;animation-delay:2.5s;"></i><i style="width:26px;height:26px;left:76%;animation-duration:10.5s;animation-delay:0.8999999999999999s;"></i><i style="width:32px;height:32px;left:84%;animation-duration:8.2s;animation-delay:4.0s;"></i><i style="width:21px;height:21px;left:91%;animation-duration:9.2s;animation-delay:2.7s;"></i><i style="width:25px;height:25px;left:8%;animation-duration:12.0s;animation-delay:4.6s;"></i><i style="width:31px;height:31px;left:48%;animation-duration:6.8s;animation-delay:4.8999999999999995s;"></i><i style="width:27px;height:27px;left:80%;animation-duration:10.8s;animation-delay:5.3999999999999995s;"></i></div>
@@ -891,7 +897,7 @@
             <span>Grab discounts before they end — check Flash Sales below</span>
             <button type="button" class="banner-cta" onclick="document.getElementById('flash-section')?.scrollIntoView({behavior:'smooth'})">See Deals</button>
           </div>
-          <div class="banner-visual">⚡🛒</div>
+          <div class="banner-visual"><img src="https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?w=400&q=80" alt="Home appliances" /></div>
         </div>
         <div class="banner-slide s3">
           <div class="banner-bubbles" aria-hidden="true"><i style="width:28px;height:28px;left:5%;animation-duration:7.5s;animation-delay:1.2s;"></i><i style="width:22px;height:22px;left:12%;animation-duration:9.0s;animation-delay:2.1s;"></i><i style="width:34px;height:34px;left:20%;animation-duration:8.0s;animation-delay:2.8s;"></i><i style="width:24px;height:24px;left:28%;animation-duration:10.0s;animation-delay:1.6s;"></i><i style="width:30px;height:30px;left:36%;animation-duration:7.2s;animation-delay:3.5s;"></i><i style="width:20px;height:20px;left:44%;animation-duration:11.0s;animation-delay:2.4s;"></i><i style="width:36px;height:36px;left:52%;animation-duration:8.5s;animation-delay:1.9s;"></i><i style="width:23px;height:23px;left:60%;animation-duration:9.5s;animation-delay:4.2s;"></i><i style="width:29px;height:29px;left:68%;animation-duration:7.0s;animation-delay:3.0999999999999996s;"></i><i style="width:26px;height:26px;left:76%;animation-duration:10.5s;animation-delay:1.5s;"></i><i style="width:32px;height:32px;left:84%;animation-duration:8.2s;animation-delay:4.6s;"></i><i style="width:21px;height:21px;left:91%;animation-duration:9.2s;animation-delay:3.3s;"></i><i style="width:25px;height:25px;left:8%;animation-duration:12.0s;animation-delay:5.2s;"></i><i style="width:31px;height:31px;left:48%;animation-duration:6.8s;animation-delay:5.5s;"></i><i style="width:27px;height:27px;left:80%;animation-duration:10.8s;animation-delay:6.0s;"></i></div>
@@ -901,7 +907,7 @@
             <span>Pay with Paystack or Cash on Delivery</span>
             <button type="button" class="banner-cta" onclick="setCategory('all')">Start Shopping</button>
           </div>
-          <div class="banner-visual">🚚✨</div>
+          <div class="banner-visual"><img src="https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=400&q=80" alt="Delivery" /></div>
         </div>
       </div>
     </div>
