@@ -2009,7 +2009,9 @@
         const overlay = document.getElementById('pd-overlay');
         if (overlay) {
           overlay.classList.add('open');
-          overlay.style.display = 'flex';
+          overlay.style.cssText = 'display:flex !important; position:fixed !important; inset:0 !important; z-index:99999 !important; background:rgba(0,0,0,0.55); align-items:stretch; justify-content:center;';
+        } else {
+          alert((p.name || 'Product') + '\n' + ((typeof formatMoney==='function')?formatMoney(p.price):p.price));
         }
         document.body.style.overflow = 'hidden';
       } catch (err) {
@@ -2047,16 +2049,44 @@
     window.openProductDetail = openProductDetail;
     window.closeProductDetail = closeProductDetail;
     document.addEventListener('click', function(e) {
-      const card = e.target.closest('.product-card, .flash-item');
-      if (!card) return;
-      if (e.target.closest('.wish-btn, .add-btn, button')) return;
-      const onclick = card.getAttribute('onclick') || '';
-      const m = onclick.match(/openProductDetail\((\d+)\)/);
-      if (m) {
+      try {
+        if (e.target.closest('.wish-btn, .add-btn, button.pd-close, .pd-btn-cart, .pd-btn-wa')) return;
+        const card = e.target.closest('.product-card, .flash-item');
+        if (!card) return;
+        // Don't steal clicks from nested interactive controls already handled
+        if (e.target.closest('a')) return;
+        var id = card.getAttribute('data-id');
+        if (!id) {
+          var oc = card.getAttribute('onclick') || '';
+          var m = oc.match(/openProductDetail\((\d+)\)/);
+          if (m) id = m[1];
+        }
+        if (!id) return;
         e.preventDefault();
-        openProductDetail(m[1]);
-      }
+        e.stopPropagation();
+        if (typeof window.openProductDetail === 'function') window.openProductDetail(id);
+        else if (typeof openProductDetail === 'function') openProductDetail(id);
+      } catch (err) { console.error(err); }
     }, true);
+
+    // Also bind after each products render
+    function bindProductCardClicks() {
+      document.querySelectorAll('.product-card[data-id], .flash-item').forEach(function(card) {
+        if (card._pdBound) return;
+        card._pdBound = true;
+        card.style.cursor = 'pointer';
+        card.addEventListener('click', function(e) {
+          if (e.target.closest('.wish-btn, .add-btn, button')) return;
+          var id = card.getAttribute('data-id');
+          if (!id) {
+            var oc = card.getAttribute('onclick') || '';
+            var m = oc.match(/openProductDetail\((\d+)\)/);
+            if (m) id = m[1];
+          }
+          if (id && typeof openProductDetail === 'function') openProductDetail(id);
+        });
+      });
+    }
 
     function renderProducts() {
       let list = products || [];
@@ -2121,6 +2151,8 @@
       }).join('');
     }
     
+      try { bindProductCardClicks(); } catch(e) {}
+
     function productCardHtml(p, i) {
       const isWish = wishlist.includes(p.id);
       const hasDiscount = p.original_price && p.original_price > p.price;
@@ -2200,7 +2232,7 @@
       document.getElementById('flash-body').innerHTML = withDiscount.map(p => {
         const disc = Math.round((1 - p.price / p.original_price) * 100);
         return `
-          <div class="flash-item" onclick="openProductDetail(${p.id})">
+          <div class="flash-item" data-id="${p.id}" onclick="openProductDetail(${p.id})">
             ${p.image ? `<img src="${p.image}" />` : `<div class="ph">📦</div>`}
             <div class="flash-price">${formatMoney(p.price)}</div>
             <div class="flash-old">${formatMoney(p.original_price)}</div>
