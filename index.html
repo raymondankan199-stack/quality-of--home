@@ -991,6 +991,113 @@
     .breadcrumb-bar.show { display: block; }
     .breadcrumb-bar span { color: #0B7A3E; font-weight: 600; }
 
+  
+    /* Thank-you celebration */
+    .ty-overlay {
+      position: fixed; inset: 0; z-index: 100000;
+      display: none; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.45);
+      padding: 20px;
+    }
+    .ty-overlay.show { display: flex; }
+    .ty-card {
+      position: relative;
+      width: 100%; max-width: 340px;
+      background: rgba(255,255,255,0.28);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      backdrop-filter: blur(24px) saturate(180%);
+      border: 1.5px solid rgba(255,215,0,0.55);
+      border-radius: 24px;
+      padding: 28px 22px 22px;
+      text-align: center;
+      box-shadow:
+        0 0 40px rgba(255,215,0,0.35),
+        0 0 80px rgba(255,200,0,0.15),
+        inset 0 1px 1px rgba(255,255,255,0.7),
+        0 20px 50px rgba(0,0,0,0.25);
+      animation: tyPop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+      overflow: hidden;
+    }
+    @keyframes tyPop {
+      0% { transform: scale(0.5); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .ty-card::before {
+      content: '';
+      position: absolute; inset: -2px;
+      border-radius: 24px;
+      padding: 2px;
+      background: linear-gradient(135deg, #FFD700, #FFF8DC, #FFA500, #FFD700, #FFE55C);
+      background-size: 300% 300%;
+      animation: tyGold 3s linear infinite;
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+    @keyframes tyGold {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+    .ty-emoji {
+      font-size: 3rem; line-height: 1; margin-bottom: 8px;
+      animation: tyBounce 1.2s ease infinite;
+    }
+    @keyframes tyBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+    .ty-card h2 {
+      font-size: 1.35rem; font-weight: 900; color: #111;
+      margin-bottom: 6px; position: relative; z-index: 1;
+    }
+    .ty-card .ty-gold {
+      background: linear-gradient(90deg, #B8860B, #FFD700, #FFA500, #FFD700);
+      -webkit-background-clip: text; background-clip: text;
+      color: transparent; font-weight: 900;
+    }
+    .ty-card p {
+      font-size: 0.92rem; color: #333; line-height: 1.45;
+      margin-bottom: 8px; position: relative; z-index: 1;
+    }
+    .ty-card .ty-sub {
+      font-size: 0.8rem; color: #555; margin-bottom: 16px;
+    }
+    .ty-btn {
+      display: inline-block; border: none; cursor: pointer;
+      background: linear-gradient(135deg, #FFD700, #F5C518, #E0A800);
+      color: #111; font-weight: 800; font-size: 0.95rem;
+      padding: 12px 28px; border-radius: 14px;
+      box-shadow: 0 4px 16px rgba(255,200,0,0.4);
+      position: relative; z-index: 1;
+    }
+    .ty-btn:active { transform: scale(0.97); }
+    .ty-bubbles {
+      position: absolute; inset: 0; pointer-events: none; overflow: hidden; border-radius: 24px;
+    }
+    .ty-bubbles i {
+      position: absolute; bottom: -20px; border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #FFF8DC, #FFD700 40%, rgba(255,165,0,0.3));
+      opacity: 0.7;
+      animation: tyBubble linear infinite;
+    }
+    @keyframes tyBubble {
+      0% { transform: translateY(0) scale(0.6); opacity: 0; }
+      15% { opacity: 0.8; }
+      100% { transform: translateY(-280px) scale(1.1); opacity: 0; }
+    }
+    .ty-spark {
+      position: absolute; width: 6px; height: 6px; border-radius: 50%;
+      background: #FFD700; box-shadow: 0 0 8px #FFD700;
+      animation: tySpark 1.5s ease-out forwards;
+      pointer-events: none;
+    }
+    @keyframes tySpark {
+      0% { transform: translate(0,0) scale(1); opacity: 1; }
+      100% { transform: translate(var(--sx), var(--sy)) scale(0); opacity: 0; }
+    }
+
   </style>
 </head>
 <body>
@@ -2518,6 +2625,7 @@
       saveCart();
       closeCheckout();
       toast(paymentStatus === 'Paid' ? 'Payment successful! Order placed.' : 'Order placed successfully!');
+      setTimeout(function(){ showThankYouCelebration(); }, 400);
 
       // Always notify merchant on WhatsApp
       const merchantMsg = `🛒 NEW ORDER — Quality of Home\n\nName: ${name}\nPhone: ${phone}\nTotal: ${formatMoney(total)}\nPayment: ${payLabel}${paystackRef ? '\nPaystack Ref: ' + paystackRef : ''}\nStatus: ${paymentStatus || 'Unpaid'}\nDelivery: ${delivery === 'pickup' ? 'Pickup Station' : 'Home Delivery'}\nAddress: ${address}\n\nItems:\n${items.map(i => '• ' + i.name + ' x' + i.qty + ' — ' + formatMoney(i.price * i.qty)).join('\n')}`;
@@ -2525,7 +2633,55 @@
       goPage('orders');
     }
 
-    async function placeOrder() {
+    async 
+    function showThankYouCelebration() {
+      const overlay = document.getElementById('ty-overlay');
+      if (!overlay) return;
+      const bubbles = document.getElementById('ty-bubbles');
+      if (bubbles) {
+        bubbles.innerHTML = '';
+        for (let i = 0; i < 14; i++) {
+          const b = document.createElement('i');
+          const size = 8 + Math.random() * 16;
+          b.style.width = size + 'px';
+          b.style.height = size + 'px';
+          b.style.left = (Math.random() * 90 + 5) + '%';
+          b.style.animationDuration = (2.5 + Math.random() * 2.5) + 's';
+          b.style.animationDelay = (Math.random() * 1.5) + 's';
+          bubbles.appendChild(b);
+        }
+      }
+      // golden sparks
+      const card = overlay.querySelector('.ty-card');
+      if (card) {
+        card.querySelectorAll('.ty-spark').forEach(s => s.remove());
+        for (let i = 0; i < 18; i++) {
+          const s = document.createElement('span');
+          s.className = 'ty-spark';
+          s.style.left = '50%';
+          s.style.top = '40%';
+          const ang = (Math.PI * 2 * i) / 18;
+          const dist = 60 + Math.random() * 80;
+          s.style.setProperty('--sx', (Math.cos(ang) * dist) + 'px');
+          s.style.setProperty('--sy', (Math.sin(ang) * dist) + 'px');
+          s.style.animationDelay = (Math.random() * 0.3) + 's';
+          card.appendChild(s);
+        }
+      }
+      overlay.classList.add('show');
+      document.body.style.overflow = 'hidden';
+      // auto close after 8s
+      clearTimeout(window._tyTimer);
+      window._tyTimer = setTimeout(closeThankYou, 8000);
+    }
+    function closeThankYou() {
+      const overlay = document.getElementById('ty-overlay');
+      if (overlay) overlay.classList.remove('show');
+      document.body.style.overflow = '';
+      clearTimeout(window._tyTimer);
+    }
+
+    function placeOrder() {
       if (placing) return;
       const name = document.getElementById('co-name').value.trim();
       const phone = document.getElementById('co-phone').value.trim();
@@ -2843,6 +2999,19 @@
         <div class="pd-section">Delivery & payment</div>
         <div class="pd-desc">Delivery across Ghana. Pickup available. Pay with Mobile Money, Card (Paystack), or Cash on Delivery.</div>
       </div>
+    </div>
+  </div>
+
+
+  <div class="ty-overlay" id="ty-overlay" onclick="if(event.target===this)closeThankYou()">
+    <div class="ty-card" role="dialog" aria-label="Thank you">
+      <div class="ty-bubbles" id="ty-bubbles" aria-hidden="true"></div>
+      <div class="ty-emoji">🎉</div>
+      <h2>Congratulations!</h2>
+      <p class="ty-gold" style="font-size:1.05rem;margin-bottom:6px;">Thank you for shopping with us</p>
+      <p>Your order is in. We’re happy you chose <strong>Home of Quality</strong>.</p>
+      <p class="ty-sub">Come back again soon — quality products, always.</p>
+      <button type="button" class="ty-btn" onclick="closeThankYou()">Continue shopping</button>
     </div>
   </div>
 
