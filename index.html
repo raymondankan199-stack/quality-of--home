@@ -1904,7 +1904,15 @@
         renderCategoryRails();
         updateTicker();
       } catch (e) {
-        container.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><h3>Error loading</h3><p>Please try again later</p></div>';
+        console.error('loadProducts', e);
+        try {
+          // last resort: show whatever we have
+          if (products && products.length) {
+            renderProducts();
+            return;
+          }
+        } catch (e2) {}
+        if (container) container.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><h3>Error loading</h3><p>Please refresh the page</p><button class="btn btn-green" onclick="loadProducts()">Retry</button></div>';
       }
     }
 
@@ -2229,8 +2237,10 @@
         const q = searchQuery.toLowerCase();
         list = list.filter(p => (p.name || '').toLowerCase().includes(q) || (p.category || '').toLowerCase().includes(q));
       }
-      document.getElementById('product-count').textContent = list.length + (list.length === 1 ? ' item' : ' items');
+      const countEl = document.getElementById('product-count');
+      if (countEl) countEl.textContent = list.length + (list.length === 1 ? ' item' : ' items');
       const container = document.getElementById('products');
+      if (!container) return;
       if (!list.length) {
         container.innerHTML = `
           <div class="empty">
@@ -2246,27 +2256,42 @@
     }
 
     function productCardHtml(p, i) {
-      const isWish = wishlist.includes(p.id);
-      const hasDiscount = p.original_price && p.original_price > p.price;
-      const disc = hasDiscount ? Math.round((1 - p.price / p.original_price) * 100) : 0;
-      const delay = Math.min((i || 0) * 0.05, 0.4);
-      return `
-        <div class="product-card" data-id="${p.id}" style="animation-delay:${delay}s" onclick="openProductDetail(${p.id})">
-          <div class="product-img-wrap">
-            ${p.image ? `<img src="${p.image}" alt="${(p.name||'').replace(/"/g,'')}" />` : `<div class="ph">📦</div>`}
-            ${hasDiscount ? `<span class="discount-badge">-${disc}%</span>` : ''}
-            <button class="wish-btn ${isWish ? 'active' : ''}" onclick="event.stopPropagation();toggleWish(${p.id}, event)">${isWish ? '❤️' : '🤍'}</button>
-          </div>
-          <div class="product-body">
-            <div class="product-name">${p.name || 'Product'}</div>
-            <div class="product-cat">${p.category || ''}</div>
-            <div class="price-row">
-              <span class="product-price">${formatMoney(p.price)}</span>
-              ${hasDiscount ? `<span class="product-old">${formatMoney(p.original_price)}</span>` : ''}
-            </div>
-            <button class="add-btn" onclick="event.stopPropagation();addToCart(${p.id})">Add to Cart</button>
-          </div>
-        </div>`;
+      try {
+        p = p || {};
+        const pid = p.id;
+        const isWish = Array.isArray(wishlist) && (wishlist.includes(pid) || wishlist.includes(Number(pid)) || wishlist.includes(String(pid)));
+        const price = Number(p.price) || 0;
+        const oldP = Number(p.original_price) || 0;
+        const hasDiscount = oldP > price && price > 0;
+        const disc = hasDiscount ? Math.round((1 - price / oldP) * 100) : 0;
+        const delay = Math.min((i || 0) * 0.05, 0.4);
+        const name = String(p.name || 'Product').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+        const cat = String(p.category || '').replace(/</g, '&lt;');
+        const img = p.image ? String(p.image).replace(/"/g, '&quot;') : '';
+        const money = (typeof formatMoney === 'function') ? formatMoney(price) : ('GH₵ ' + price);
+        const moneyOld = (typeof formatMoney === 'function') ? formatMoney(oldP) : ('GH₵ ' + oldP);
+        return (
+          '<div class="product-card" data-id="' + pid + '" style="animation-delay:' + delay + 's" onclick="openProductDetail(' + pid + ')">' +
+            '<div class="product-img-wrap">' +
+              (img ? '<img src="' + img + '" alt="' + name + '" loading="lazy" />' : '<div class="ph">📦</div>') +
+              (hasDiscount ? '<span class="discount-badge">-' + disc + '%</span>' : '') +
+              '<button type="button" class="wish-btn' + (isWish ? ' active' : '') + '" onclick="event.stopPropagation();toggleWish(' + pid + ', event)">' + (isWish ? '❤️' : '🤍') + '</button>' +
+            '</div>' +
+            '<div class="product-body">' +
+              '<div class="product-name">' + name + '</div>' +
+              '<div class="product-cat">' + cat + '</div>' +
+              '<div class="price-row">' +
+                '<span class="product-price">' + money + '</span>' +
+                (hasDiscount ? '<span class="product-old">' + moneyOld + '</span>' : '') +
+              '</div>' +
+              '<button type="button" class="add-btn" onclick="event.stopPropagation();addToCart(' + pid + ')">Add to Cart</button>' +
+            '</div>' +
+          '</div>'
+        );
+      } catch (err) {
+        console.error('productCardHtml', err);
+        return '<div class="product-card"><div class="product-body"><div class="product-name">Product</div></div></div>';
+      }
     }
 
     function renderFresh() {
