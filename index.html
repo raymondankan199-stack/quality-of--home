@@ -1423,6 +1423,14 @@
     let cart = JSON.parse(localStorage.getItem('qoh_cart') || '[]');
     let wishlist = JSON.parse(localStorage.getItem('qoh_wishlist') || '[]');
     let currentUser = JSON.parse(localStorage.getItem('qoh_user') || 'null');
+    function requireAuth(actionName) {
+      if (currentUser) return true;
+      if (typeof toast === 'function') toast('Please login or sign up to ' + (actionName || 'continue'));
+      if (typeof openAuth === 'function') openAuth('login');
+      else goPage('account');
+      return false;
+    }
+
     let authMode = 'login';
     let selectedPay = 'paystack';
     let placing = false;
@@ -2158,6 +2166,7 @@
       document.getElementById('cart-count').textContent = cart.reduce((s, i) => s + i.qty, 0);
     }
     function addToCart(id) {
+      if (!requireAuth('add to cart')) return;
       const p = products.find(x => x.id === id);
       if (!p) return;
       const existing = cart.find(i => i.id === id);
@@ -2251,6 +2260,7 @@
 
     function toggleWish(id, e) {
       if (e) e.stopPropagation();
+      if (!requireAuth('add to wishlist')) return;
       if (wishlist.includes(id)) wishlist = wishlist.filter(x => x !== id);
       else wishlist.push(id);
       localStorage.setItem('qoh_wishlist', JSON.stringify(wishlist));
