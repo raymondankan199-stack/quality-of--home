@@ -1098,6 +1098,13 @@
       100% { transform: translate(var(--sx), var(--sy)) scale(0); opacity: 0; }
     }
 
+  
+    #products .product-card {
+      min-width: 0; max-width: none; width: 100%;
+      cursor: pointer;
+    }
+    #products .product-card .product-img-wrap { height: 140px; }
+
   </style>
 </head>
 <body>
@@ -2234,31 +2241,9 @@
           </div>`;
         return;
       }
-      container.innerHTML = list.map(p => {
-        const isWish = wishlist.includes(p.id);
-        const hasDiscount = p.original_price && p.original_price > p.price;
-        const disc = hasDiscount ? Math.round((1 - p.price / p.original_price) * 100) : 0;
-        return `
-          <div class="product-card">
-            <div class="product-img-wrap">
-              ${p.image ? `<img src="${p.image}" alt="${p.name}" />` : `<div class="ph">📦</div>`}
-              ${hasDiscount ? `<span class="discount-badge">-${disc}%</span>` : ''}
-              <button class="wish-btn ${isWish ? 'active' : ''}" onclick="event.stopPropagation();toggleWish(${p.id}, event)">${isWish ? '❤️' : '🤍'}</button>
-            </div>
-            <div class="product-body">
-              <div class="product-name">${p.name || 'Product'}</div>
-              <div class="product-cat">${p.category || ''}</div>
-              <div class="price-row">
-                <span class="product-price">${formatMoney(p.price)}</span>
-                ${hasDiscount ? `<span class="product-old">${formatMoney(p.original_price)}</span>` : ''}
-              </div>
-              <button class="add-btn" onclick="event.stopPropagation();addToCart(${p.id})">Add to Cart</button>
-            </div>
-          </div>`;
-      }).join('');
+      container.innerHTML = list.map((p, i) => productCardHtml(p, i)).join('');
+      try { bindProductCardClicks(); } catch (e) {}
     }
-    
-      try { bindProductCardClicks(); } catch(e) {}
 
     function productCardHtml(p, i) {
       const isWish = wishlist.includes(p.id);
