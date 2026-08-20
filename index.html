@@ -903,6 +903,43 @@
     }
     .jumia-brand:active { background: #ffe8d1; color: #f68b1e; }
 
+  
+    .cat-hero {
+      display: none; margin: 10px 12px 8px; border-radius: 12px; overflow: hidden;
+      position: relative; min-height: 140px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+    }
+    .cat-hero.show { display: block; }
+    .cat-hero-bg {
+      width: 100%; height: 150px; object-fit: cover; display: block;
+    }
+    .cat-hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.25) 60%, transparent 100%);
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 16px 18px; color: #fff;
+    }
+    .cat-hero-overlay .tag {
+      display: inline-block; background: #F5C518; color: #111;
+      font-size: 0.7rem; font-weight: 800; padding: 4px 10px; border-radius: 4px;
+      margin-bottom: 8px; width: fit-content;
+    }
+    .cat-hero-overlay h2 {
+      font-size: 1.25rem; font-weight: 900; line-height: 1.25; margin-bottom: 4px;
+      max-width: 70%;
+    }
+    .cat-hero-overlay p { font-size: 0.82rem; opacity: 0.95; max-width: 70%; }
+    .cat-hero.phones .cat-hero-overlay { background: linear-gradient(90deg, #0a4d7a 0%, rgba(10,77,122,0.4) 55%, transparent 100%); }
+    .cat-hero.beauty .cat-hero-overlay { background: linear-gradient(90deg, #e65c00 0%, rgba(230,92,0,0.35) 55%, transparent 100%); }
+    .cat-hero.appliances .cat-hero-overlay { background: linear-gradient(90deg, #0B7A3E 0%, rgba(11,122,62,0.35) 55%, transparent 100%); }
+    .cat-hero.electronics .cat-hero-overlay { background: linear-gradient(90deg, #1a237e 0%, rgba(26,35,126,0.35) 55%, transparent 100%); }
+    .breadcrumb-bar {
+      display: none; padding: 8px 14px; font-size: 0.78rem; color: #666;
+      background: rgba(255,255,255,0.5);
+    }
+    .breadcrumb-bar.show { display: block; }
+    .breadcrumb-bar span { color: #0B7A3E; font-weight: 600; }
+
   </style>
 </head>
 <body>
@@ -995,6 +1032,17 @@
     </div>
 
     <div id="category-rails"></div>
+
+    
+    <div class="breadcrumb-bar" id="cat-breadcrumb">Home › <span id="cat-breadcrumb-text">All</span></div>
+    <div class="cat-hero" id="cat-hero">
+      <img class="cat-hero-bg" id="cat-hero-img" src="" alt="" />
+      <div class="cat-hero-overlay">
+        <div class="tag" id="cat-hero-tag">Deals</div>
+        <h2 id="cat-hero-title">Category</h2>
+        <p id="cat-hero-sub">Shop quality products</p>
+      </div>
+    </div>
 
     <div class="section-head">
       <h2 id="main-list-title">All Products</h2>
@@ -1642,6 +1690,7 @@
         n.classList.toggle('active', n.dataset.page === page);
       });
       if (page === 'home' && currentCat === 'all' && !searchQuery) {
+        updateCatHero('all');
         ['banner-slider', 'flash-section', 'fresh-rail'].forEach(function(cid) {
           var el = document.getElementById(cid) || document.querySelector('.' + cid);
           if (el) el.style.display = '';
@@ -1691,6 +1740,106 @@
         `<button class="cat-chip ${currentCat === c.id ? 'active' : ''}" onclick="setCategory('${c.id}')">${c.name}</button>`
       ).join('');
     }
+    
+    const CAT_HEROES = {
+      Phones: {
+        cls: 'phones',
+        img: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=900&q=80',
+        tag: 'UP TO 30% OFF',
+        title: 'Smartphones for every budget',
+        sub: 'Samsung · Tecno · Infinix · iPhone & more'
+      },
+      Laptops: {
+        cls: 'electronics',
+        img: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=900&q=80',
+        tag: 'COMPUTING DEALS',
+        title: 'Laptops & computers',
+        sub: 'Work, school and gaming laptops'
+      },
+      Electronics: {
+        cls: 'electronics',
+        img: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=900&q=80',
+        tag: 'TOP DEALS',
+        title: 'TVs, audio & gadgets',
+        sub: 'Entertainment for your home'
+      },
+      Appliances: {
+        cls: 'appliances',
+        img: 'https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?w=900&q=80',
+        tag: 'HOME ESSENTIALS',
+        title: 'Fridges, AC, blenders & more',
+        sub: 'Quality appliances delivered across Ghana'
+      },
+      Accessories: {
+        cls: 'beauty',
+        img: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=900&q=80',
+        tag: 'UP TO -40%',
+        title: 'Unlock the radiance within',
+        sub: 'Beauty, health & personal care'
+      },
+      Fashion: {
+        cls: 'beauty',
+        img: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=900&q=80',
+        tag: 'NEW STYLES',
+        title: 'Fashion for him & her',
+        sub: 'Clothes, shoes and accessories'
+      },
+      Home: {
+        cls: 'appliances',
+        img: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=900&q=80',
+        tag: 'HOME & OFFICE',
+        title: 'Comfort for your space',
+        sub: 'Furniture and home essentials'
+      },
+      Grocery: {
+        cls: 'appliances',
+        img: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=900&q=80',
+        tag: 'SUPERMARKET',
+        title: 'Daily essentials',
+        sub: 'Food cupboard and household'
+      },
+      Kitchen: {
+        cls: 'appliances',
+        img: 'https://images.unsplash.com/photo-1556911220-bff31c8750ea?w=900&q=80',
+        tag: 'KITCHEN',
+        title: 'Cook with confidence',
+        sub: 'Cookers, utensils and more'
+      }
+    };
+
+    function updateCatHero(id) {
+      const hero = document.getElementById('cat-hero');
+      const crumb = document.getElementById('cat-breadcrumb');
+      if (!hero) return;
+      if (!id || id === 'all') {
+        hero.className = 'cat-hero';
+        hero.classList.remove('show');
+        if (crumb) crumb.classList.remove('show');
+        return;
+      }
+      const conf = CAT_HEROES[id] || {
+        cls: 'appliances',
+        img: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=900&q=80',
+        tag: id.toUpperCase(),
+        title: 'Shop ' + id,
+        sub: 'Quality products at great prices'
+      };
+      hero.className = 'cat-hero show ' + (conf.cls || '');
+      const img = document.getElementById('cat-hero-img');
+      if (img) { img.src = conf.img; img.alt = conf.title; }
+      const tag = document.getElementById('cat-hero-tag');
+      if (tag) tag.textContent = conf.tag;
+      const title = document.getElementById('cat-hero-title');
+      if (title) title.textContent = conf.title;
+      const sub = document.getElementById('cat-hero-sub');
+      if (sub) sub.textContent = conf.sub;
+      if (crumb) {
+        crumb.classList.add('show');
+        const ct = document.getElementById('cat-breadcrumb-text');
+        if (ct) ct.textContent = id;
+      }
+    }
+
     function setCategory(id) {
       currentCat = id || 'all';
       searchQuery = '';
@@ -1722,6 +1871,7 @@
       var title = document.getElementById('main-list-title');
       if (title) {
         title.textContent = (currentCat === 'all') ? 'All Products' : (currentCat + ' — All items');
+      updateCatHero(currentCat);
       }
 
       // Scroll straight to product list
