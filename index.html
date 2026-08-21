@@ -501,16 +501,31 @@
     .account-item .arrow { color: #666; }
     .cat-page-list { padding: 12px; }
     .cat-page-item {
-      background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 10px;
+      background: rgba(255,255,255,0.22);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      backdrop-filter: blur(20px) saturate(180%);
+      border-radius: 16px; padding: 16px; margin-bottom: 10px;
       display: flex; align-items: center; gap: 14px;
-      border: 1px solid var(--border); cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.45);
+      box-shadow: inset 0 1px 2px rgba(255,255,255,0.75), 0 6px 18px rgba(0,0,0,0.05);
+      cursor: pointer;
+      color: #111;
+    }
+    .cat-page-item:active {
+      background: rgba(255,255,255,0.35);
+      transform: scale(0.99);
     }
     .cat-page-item .ico {
-      width: 48px; height: 48px; border-radius: 12px; background: var(--green-light);
+      width: 48px; height: 48px; border-radius: 14px;
+      background: rgba(255,255,255,0.35);
+      border: 1px solid rgba(255,255,255,0.5);
       display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.8);
     }
-    .cat-page-item h3 { font-size: 1rem; margin-bottom: 2px; }
-    .cat-page-item p { font-size: 0.8rem; color: var(--muted); }
+    .cat-page-item h3 { font-size: 1rem; margin-bottom: 2px; color: #111; }
+    .cat-page-item p { font-size: 0.8rem; color: #555; }
     .order-card {
       background: #fff; border-radius: 14px; border: 1px solid var(--border);
       margin: 0 12px 12px; overflow: hidden;
@@ -1025,6 +1040,27 @@
     }
     .section-head h2 {
       text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+    }
+
+  
+    .cat-page-item {
+      background: rgba(255,255,255,0.22) !important;
+      -webkit-backdrop-filter: blur(22px) saturate(190%) !important;
+      backdrop-filter: blur(22px) saturate(190%) !important;
+      border: 1px solid rgba(255,255,255,0.5) !important;
+      box-shadow: inset 0 1px 2px rgba(255,255,255,0.8), 0 8px 24px rgba(0,0,0,0.06) !important;
+      border-radius: 16px !important;
+    }
+    .cat-page-item .ico {
+      background: rgba(255,255,255,0.35) !important;
+      border: 1px solid rgba(255,255,255,0.5) !important;
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.85) !important;
+    }
+    #page-categories .topbar, #page-wishlist .topbar, #page-orders .topbar, #page-cart .topbar {
+      background: rgba(255,255,255,0.2) !important;
+      -webkit-backdrop-filter: blur(22px) saturate(180%) !important;
+      backdrop-filter: blur(22px) saturate(180%) !important;
+      border-bottom: 1px solid rgba(255,255,255,0.35) !important;
     }
 
   </style>
