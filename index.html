@@ -1485,11 +1485,16 @@
 
     function searchProductsSmart(query) {
       const q = (query || '').toLowerCase();
-      const words = q.split(/[^a-z0-9+]+/).filter(Boolean);
-      return (products || []).filter(p => {
+      const stop = new Set(['the','and','for','get','me','can','you','please','want','need','show','find','some','any','with','from','have','this','that','what','which','looking','product','products','item','items']);
+      const words = q.split(/[^a-z0-9+]+/).filter(w => w.length > 1 && !stop.has(w));
+      if (!words.length) return [];
+      const scored = (products || []).map(p => {
         const hay = ((p.name || '') + ' ' + (p.category || '')).toLowerCase();
-        return words.some(w => w.length > 1 && hay.includes(w));
-      }).slice(0, 5);
+        let score = 0;
+        words.forEach(w => { if (hay.includes(w)) score += (p.name || '').toLowerCase().includes(w) ? 3 : 1; });
+        return { p, score };
+      }).filter(x => x.score > 0).sort((a,b) => b.score - a.score);
+      return scored.slice(0, 6).map(x => x.p);
     }
 
     function formatProductLine(p) {
@@ -1497,162 +1502,204 @@
     }
 
     function generateHOQReply(raw) {
-      const text = (raw || '').toLowerCase().trim();
-      const wantsHuman = /human|agent|person|real (person|human)|talk to (you|someone|owner|manager|staff)|customer.?service|whatsapp|call me|speak to/.test(text);
-      const saysYes = /^(yes|yeah|yep|sure|ok|okay|please|of course|i do|i want)/.test(text) || /yes.*agent|yes.*human|yes.*whatsapp|connect me|transfer/.test(text);
+      const original = (raw || '').trim();
+      const text = original.toLowerCase().trim();
+      const words = text.split(/[^a-z0-9+]+/).filter(w => w.length > 1);
 
-      // Escalate to human
-      if (wantsHuman || (chatOfferedAgent && saysYes) || (chatTurns >= 5 && /help|please|need/.test(text) && !/product|price|delivery/.test(text))) {
+      const wantsHuman = /human|agent|person|real (person|human)|talk to (you|someone|owner|manager|staff|agent)|customer.?service|whatsapp|call me|speak to|live chat|representative/.test(text);
+      const saysYes = /^(yes|yeah|yep|sure|ok|okay|please|of course|i do|i want)\b/.test(text) || /yes.*(agent|human|whatsapp|person)|connect me|transfer me/.test(text);
+      const saysNo = /^(no|nope|nah|not now|later)\b/.test(text) || /continue with ai|stay with (ai|bot)|no.*(agent|human)/.test(text);
+
+      // ---- Human escalation ----
+      if (wantsHuman || (chatOfferedAgent && saysYes)) {
         chatOfferedAgent = true;
         return {
-          message: "Of course. I can connect you to a real person from Home of Quality on WhatsApp right now.\\n\\nTap below and you'll chat directly with the team.\\n\\n📱 **WhatsApp:** +233 53 331 8842",
+          message: "Absolutely. I can connect you to a real person from **Home of Quality** on WhatsApp.\\n\\nThey can help with orders, payments, special requests, and anything personal.\\n\\nTap **Open WhatsApp** below.",
           quick: ['Open WhatsApp', 'Continue with AI', 'Show products']
         };
       }
       if (/open whatsapp|whatsapp now/.test(text)) {
         openWhatsApp('Hello Home of Quality, I was chatting with HOQ Assistant and would like to talk to a human agent.');
         return {
-          message: "Opening WhatsApp for you… If it didn't open, use this number: **+233 53 331 8842**.",
+          message: "Opening WhatsApp for you…\\n\\nIf it didn't open, save our number and message the team — mention you used the store assistant.",
           quick: ['Show products', 'Delivery info', 'Thanks']
         };
       }
-      if (chatOfferedAgent && /no|not now|continue|ai|bot/.test(text)) {
+      if (chatOfferedAgent && saysNo) {
         chatOfferedAgent = false;
         return {
-          message: "No problem — I'm still here. Ask me about products, prices, delivery, trade-in, or orders.",
-          quick: ['Show popular products', 'Delivery info', 'Trade-In help']
+          message: "No problem — I'm right here with you. Ask me anything: products, prices, delivery, trade-in, or even a casual question.",
+          quick: ['Show popular products', 'Delivery info', 'How to order']
         };
       }
 
-      // Greetings
-      if (/^(hi|hello|hey|good (morning|afternoon|evening)|howdy)\\b/.test(text) || text === 'hi' || text === 'hello') {
+      // ---- Greetings & small talk ----
+      if (/^(hi|hello|hey|yo|hiya|good (morning|afternoon|evening)|howdy)\b/.test(text) || ['hi','hello','hey'].includes(text)) {
         return {
-          message: "Hi there! Welcome to **Home of Quality**. I can help you find appliances, phones, electronics and more. What do you need?",
-          quick: ['Show popular products', 'Phones', 'Appliances', 'Talk to a human']
+          message: "Hey! 👋 Welcome to **Home of Quality**. I'm HOQ Assistant — happy you're here.\\n\\nI can help you shop, compare prices, explain delivery, or just answer questions. What can I do for you?",
+          quick: ['Show popular products', 'How are you?', 'Delivery info', 'How to order']
         };
       }
-
-      // Thanks
-      if (/thank|thanks|thx|appreciate/.test(text)) {
+      if (/how are you|how's it going|how are u|you good|are you ok|how's your day/.test(text)) {
         return {
-          message: "You're welcome! Happy to help anytime. Need anything else?",
+          message: "I'm doing great, thank you for asking! 😊 Always ready to help you find quality products for your home.\\n\\nHow are *you* doing today? And is there something you're shopping for?",
+          quick: ['Show products', 'I need a recommendation', 'Talk to a human']
+        };
+      }
+      if (/what('?s| is) your name|who are you|are you (a )?bot|are you ai|are you real|what are you/.test(text)) {
+        return {
+          message: "I'm **HOQ Assistant** — the smart helper built into Home of Quality.\\n\\nI know our catalogue, delivery, trade-in, and checkout. I'm not a human, but if you need a real person, I can connect you on WhatsApp anytime.",
           quick: ['Show products', 'Talk to a human', 'Delivery info']
         };
       }
-
-      // Delivery
-      if (/deliver|shipping|how long|when.*arrive|free delivery|location|accra|kumasi|ghana/.test(text)) {
+      if (/thank|thanks|thx|appreciate|nice one|well done/.test(text)) {
         return {
-          message: "**Delivery**\\n• Free delivery on orders above **GH₵ 500**\\n• We deliver across Ghana\\n• After you order, we'll confirm and update you\\n\\nYou can also track orders from **Account → Orders** after signing in.",
-          quick: ['Show products', 'How to order', 'Talk to a human']
+          message: "You're very welcome! 💚 Glad I could help. Anything else you need?",
+          quick: ['Show products', 'Talk to a human', 'That's all']
+        };
+      }
+      if (/bye|goodbye|see you|that's all|nothing else|i'?m done/.test(text)) {
+        return {
+          message: "Alright! Thanks for visiting **Home of Quality**. Come back anytime — I'll be right here. Have a wonderful day!",
+          quick: ['Show products', 'Talk to a human']
+        };
+      }
+      if (/joke|make me laugh|funny/.test(text)) {
+        return {
+          message: "Okay: why did the blender break up with the fridge?\\n\\n…It needed some space. 😄\\n\\nWant product help, or another joke?",
+          quick: ['Show products', 'Talk to a human', 'Delivery info']
+        };
+      }
+      if (/i love you|marry me|you'?re (cute|hot|beautiful|sexy)/.test(text)) {
+        return {
+          message: "Haha, you're kind! I'm flattered — but I'm at my best helping you shop smart at Home of Quality. What are you looking for today?",
+          quick: ['Show products', 'Talk to a human']
+        };
+      }
+      if (/help|what can you do|your features|commands/.test(text)) {
+        return {
+          message: "I can help with almost anything related to this store:\\n\\n• Find products & prices\\n• Delivery & free delivery rules\\n• Trade-In\\n• How to order & pay\\n• Order tracking tips\\n• Connect you to a human on WhatsApp\\n\\nJust type naturally — e.g. *“I need a rice cooker under 300”*.",
+          quick: ['Show popular products', 'Delivery info', 'Talk to a human']
         };
       }
 
-      // Trade-in
-      if (/trade.?in|swap|old phone|sell my|exchange/.test(text)) {
+      // ---- Store topics ----
+      if (/deliver|shipping|how long|when.*arrive|free delivery|location|accra|kumasi|ghana|ship to/.test(text)) {
         return {
-          message: "**Trade-In** is available. Tell us your device and condition, and the team will make an offer.\\n\\nYou can start Trade-In from the home page button, or I can connect you on WhatsApp to handle it personally.",
+          message: "**Delivery at Home of Quality**\\n• Free delivery on orders above **GH₵ 500**\\n• We deliver across Ghana\\n• After checkout we'll confirm and update you\\n\\nTrack orders under **Account → Orders** when signed in.",
+          quick: ['Show products', 'How to order', 'Talk to a human']
+        };
+      }
+      if (/trade.?in|swap|old phone|sell my|exchange device/.test(text)) {
+        return {
+          message: "**Trade-In** is available. Share your device and condition — the team can make an offer.\\n\\nStart from the Trade-In button on Home, or say **talk to a human** for WhatsApp help.",
           quick: ['Open Trade-In', 'Talk to a human', 'Show phones']
         };
       }
       if (/open trade.?in/.test(text)) {
         closeChatPanel();
         if (typeof openTradeIn === 'function') openTradeIn();
-        return { message: "Opening Trade-In form for you…", quick: ['Show products', 'Talk to a human'] };
+        return { message: "Opening the Trade-In form for you…", quick: ['Show products', 'Talk to a human'] };
       }
-
-      // Orders / track
-      if (/track|order status|my order|where is my/.test(text)) {
+      if (/track|order status|my order|where is my order/.test(text)) {
         return {
-          message: "To track an order, open **Account → Orders** (sign in with your phone number).\\n\\nIf you need faster help, I can connect you to a human on WhatsApp.",
+          message: "To track an order: open **Account → Orders** (sign in with your phone).\\n\\nNeed faster help? I can connect you to a human on WhatsApp.",
           quick: ['Talk to a human', 'How to order', 'Show products']
         };
       }
-
-      // How to order
-      if (/how (to|do i) order|checkout|buy|purchase|pay/.test(text)) {
+      if (/how (to|do i) order|checkout|how.*buy|how.*pay|payment method|paystack/.test(text)) {
         return {
-          message: "**How to order**\\n1. Browse products on Home\\n2. Tap **Add to Cart** (sign in if asked)\\n3. Open Cart → Checkout\\n4. Pay securely with Paystack\\n\\nNeed help choosing a product? Tell me what you want.",
+          message: "**How to order**\\n1. Find a product on Home\\n2. Tap **Add to Cart** (sign in if asked)\\n3. Open Cart → Checkout\\n4. Pay securely with **Paystack** (card / mobile money)\\n\\nStuck on a step? Tell me where, or ask for a human agent.",
           quick: ['Show popular products', 'Delivery info', 'Talk to a human']
         };
       }
 
-      // Categories / popular
-      if (/popular|best|recommend|show products|what do you (sell|have)|catalogue|catalog/.test(text)) {
+      // ---- Recommendations / browse ----
+      if (/popular|best|recommend|suggest|what do you (sell|have)|show products|catalogue|catalog|browse|anything good/.test(text)) {
         const list = (products || []).slice(0, 6);
         if (!list.length) {
-          return { message: "Products are still loading. Please wait a moment, then ask again.", quick: ['Show products', 'Talk to a human'] };
+          return { message: "Products are still loading. Give me a second, then ask again — or tell me what you need (e.g. fan, phone, microwave).", quick: ['Show products', 'Talk to a human'] };
         }
         return {
-          message: "Here are some items you can explore:\\n\\n" + list.map(formatProductLine).join('\\n') + "\\n\\nTell me a name or category (e.g. *blender*, *phone*, *fan*) and I'll find matches.",
-          quick: ['Appliances', 'Phones', 'Talk to a human']
+          message: "Here are some options from our shop:\\n\\n" + list.map(formatProductLine).join('\\n') + "\\n\\nTell me a product type or budget and I’ll narrow it down.",
+          quick: ['Appliances', 'Phones', 'Under 300', 'Talk to a human']
         };
       }
 
-      // Category shortcuts
-      if (/\\b(phone|phones|iphone|samsung|tablet)\\b/.test(text)) {
-        const list = searchProductsSmart(text.includes('phone') ? 'phone' : text).length
-          ? searchProductsSmart(text)
-          : (products || []).filter(p => /phone/i.test(p.category || '') || /phone|iphone|samsung/i.test(p.name || '')).slice(0, 5);
+      // ---- Budget ----
+      const budgetMatch = text.match(/(?:under|below|less than|max|budget)\s*(?:gh₵|ghs|cedis)?\s*(\d{2,5})/i) || text.match(/(\d{2,5})\s*(?:gh₵|ghs|cedis)?\s*(?:or less|max)?/);
+      if (/price|cost|how much|budget|cheap|affordable|under |below |less than/.test(text) && budgetMatch) {
+        const max = Number(budgetMatch[1]);
+        const list = (products || []).filter(p => Number(p.price) <= max).sort((a,b) => Number(a.price) - Number(b.price)).slice(0, 6);
         if (list.length) {
           return {
-            message: "Here are matching **phones / related items**:\\n\\n" + list.map(formatProductLine).join('\\n') + "\\n\\nTap a product on the shop page to see details, or ask for another model.",
-            quick: ['Show more products', 'Talk to a human', 'Delivery info']
+            message: `Here’s what I found around **GH₵ ${max}** or less:\\n\\n` + list.map(formatProductLine).join('\\n') + "\\n\\nWant a different budget or category?",
+            quick: ['Show popular products', 'Talk to a human', 'Delivery info']
           };
         }
+        return {
+          message: `I couldn’t find items under GH₵ ${max} right now. Try a higher budget, or ask for a category like *appliances* or *phones*.`,
+          quick: ['Under 500', 'Show products', 'Talk to a human']
+        };
       }
-      if (/\\b(appliance|blender|microwave|fridge|fan|cooker|iron|toaster|cooler|heater)\\b/.test(text)) {
-        const list = searchProductsSmart(text);
-        const fallback = (products || []).filter(p => /appliance/i.test(p.category || '')).slice(0, 5);
-        const use = list.length ? list : fallback;
-        if (use.length) {
+      if (/price|cost|how much|budget|cheap|affordable/.test(text)) {
+        return {
+          message: "Tell me the product name or a budget — for example:\\n• “How much is a microwave?”\\n• “Phones under 500”\\n• “Show fans”",
+          quick: ['Under 200', 'Under 500', 'Show popular products']
+        };
+      }
+
+      // ---- Smart product search on any message ----
+      const found = searchProductsSmart(original);
+      if (found.length) {
+        return {
+          message: "I found these for you:\\n\\n" + found.map(formatProductLine).join('\\n') + "\\n\\nYou can open them on the Home page to add to cart. Want something more specific?",
+          quick: ['Show popular products', 'Delivery info', 'Talk to a human']
+        };
+      }
+
+      // Category-ish words without exact product hits
+      if (/\\b(phone|phones|iphone|samsung|laptop|tv|fan|blender|microwave|fridge|iron|cooker|appliance|electronic)/.test(text)) {
+        const catList = (products || []).filter(p => {
+          const hay = ((p.name||'') + ' ' + (p.category||'')).toLowerCase();
+          return words.some(w => hay.includes(w));
+        }).slice(0, 5);
+        if (catList.length) {
           return {
-            message: "Here's what I found:\\n\\n" + use.map(formatProductLine).join('\\n') + "\\n\\nWant something more specific? Tell me the exact name or budget.",
+            message: "Here’s what matches best:\\n\\n" + catList.map(formatProductLine).join('\\n'),
             quick: ['Show popular products', 'Talk to a human', 'Delivery info']
           };
         }
       }
 
-      // Price / budget
-      if (/price|cost|how much|budget|cheap|affordable|under \\d+/.test(text)) {
-        const num = text.match(/(\\d{2,5})/);
-        if (num) {
-          const max = Number(num[1]);
-          const list = (products || []).filter(p => Number(p.price) <= max).sort((a,b)=>Number(a.price)-Number(b.price)).slice(0, 5);
-          if (list.length) {
-            return {
-              message: `Items around **GH₵ ${max}** or less:\\n\\n` + list.map(formatProductLine).join('\\n'),
-              quick: ['Show popular products', 'Talk to a human']
-            };
-          }
-        }
+      // ---- Get me products / I want / I need ----
+      if (/get me|i (want|need|looking for)|can you (get|find|show)|i'?m looking/.test(text)) {
         return {
-          message: "Tell me a product name or a budget (e.g. *under 300*) and I'll list matching items with prices.",
-          quick: ['Under 200', 'Under 500', 'Show popular products']
+          message: "I’d love to help you find it. Tell me a bit more:\\n• What product? (e.g. blender, phone, fan)\\n• Any budget? (e.g. under 400)\\n\\nOr browse **popular products** below.",
+          quick: ['Show popular products', 'Under 300', 'Talk to a human']
         };
       }
 
-      // Product search by free text
-      const found = searchProductsSmart(text);
-      if (found.length) {
-        return {
-          message: "I found these for you:\\n\\n" + found.map(formatProductLine).join('\\n') + "\\n\\nYou can add them from the Home page. Want me to refine the search?",
-          quick: ['Show popular products', 'Delivery info', 'Talk to a human']
-        };
-      }
-
-      // After a few turns, gently offer human
-      if (chatTurns >= 4 && !chatOfferedAgent) {
+      // ---- Soft agent offer after many turns ----
+      if (chatTurns >= 6 && !chatOfferedAgent) {
         chatOfferedAgent = true;
         return {
-          message: "I'm not fully sure I understood that. I can keep helping, or connect you to a **human agent** on WhatsApp for personal support.\\n\\nWould you like to talk to a real person?",
+          message: "I want to make sure you get the best help. I can keep answering, or connect you to a **human agent** on WhatsApp for personal support.\\n\\nWould you like to talk to a real person?",
           quick: ['Yes, talk to agent', 'No, continue', 'Show products']
         };
       }
 
+      // ---- Open-ended intelligent fallback ----
+      const fallback = [
+        "I’m here for any question — shopping or general. Try: “show rice cookers”, “delivery info”, or “how are you?”",
+        "I didn’t find an exact product match for that. Tell me the item name, category, or budget, and I’ll search our catalogue.",
+        "You can ask me anything about Home of Quality, or even chat casually. For personal order issues, say **talk to a human**."
+      ];
       return {
-        message: "I can help with **products, prices, delivery, trade-in, and orders**. Try asking things like:\\n• “Show blenders”\\n• “Phones under 500”\\n• “How does delivery work?”\\n\\nOr say **talk to a human** if you'd prefer WhatsApp support.",
-        quick: ['Show popular products', 'Delivery info', 'Talk to a human']
+        message: fallback[chatTurns % fallback.length] + "\\n\\nWhat would you like to do next?",
+        quick: chatTurns >= 2
+          ? ['Show popular products', 'Talk to a human', 'Delivery info', 'How to order']
+          : ['Show popular products', 'Delivery info', 'How to order', 'How are you?']
       };
     }
 
