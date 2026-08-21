@@ -604,19 +604,20 @@
 
     <div class="hero-carousel" id="hero-carousel">
       <div class="hero-slides" id="hero-slides">
+        <div class="hero-slide" style="background: linear-gradient(135deg, #34d399 0%, #818cf8 50%, #f472b6 100%);">
+          <div style="background:rgba(255,255,255,0.25);display:inline-block;padding:4px 10px;border-radius:20px;font-size:0.72rem;font-weight:800;margin-bottom:8px;">LIMITED OFFER</div>
+          <h1>Flash deals live now</h1>
+          <p>Grab discounts before they end — check Flash Sales below</p>
+          <div class="hero-btns">
+            <button class="btn btn-dark" onclick="document.getElementById('flash-section')?.scrollIntoView({behavior:'smooth'})">See Deals</button>
+          </div>
+        </div>
         <div class="hero-slide" style="background: linear-gradient(135deg, #0B7A3E 0%, #086532 60%, #054d26 100%);">
           <h1>Quality products for your home</h1>
-          <p>Phones, laptops, electronics & more — delivered across Ghana</p>
+          <p>Phones, appliances, electronics & more — delivered across Ghana</p>
           <div class="hero-btns">
             <button class="btn btn-yellow" onclick="openTradeIn()">Trade-In</button>
             <button class="btn btn-outline-white" onclick="openWhatsApp('Hello, I need help with my order')">WhatsApp</button>
-          </div>
-        </div>
-        <div class="hero-slide" style="background: linear-gradient(135deg, #c2410c 0%, #ea580c 50%, #f59e0b 100%);">
-          <h1>⚡ Flash Deals of the Day</h1>
-          <p>Up to 50% off selected phones, appliances & more</p>
-          <div class="hero-btns">
-            <button class="btn btn-yellow" onclick="document.getElementById('flash-section')?.scrollIntoView({behavior:'smooth'})">Shop Deals</button>
           </div>
         </div>
         <div class="hero-slide" style="background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #3b82f6 100%);">
@@ -972,22 +973,30 @@
 
   <div class="modal-overlay" id="tradein-modal">
     <div class="modal">
-      <h2>Trade-In</h2>
-      <p class="sub">Tell us about your device</p>
+      <h2>🔄 Trade-In</h2>
+      <p class="sub">Swap your old device for credit or a better deal. We reply on WhatsApp.</p>
       <div class="form-group">
         <label>Device / Item</label>
-        <input type="text" id="ti-item" placeholder="e.g. iPhone 12, 128GB" />
+        <input type="text" id="ti-item" placeholder="e.g. iPhone 12, 128GB / Laptop / TV" />
       </div>
       <div class="form-group">
-        <label>Your Phone</label>
+        <label>Your WhatsApp Number</label>
         <input type="tel" id="ti-phone" placeholder="0533318842" />
       </div>
       <div class="form-group">
         <label>Condition & Notes</label>
-        <textarea id="ti-notes" placeholder="Condition, storage, accessories..."></textarea>
+        <textarea id="ti-notes" placeholder="Condition, storage, accessories, any issues..."></textarea>
       </div>
-      <button class="btn btn-yellow btn-full" onclick="submitTradeIn()">Submit Trade-In</button>
+      <button class="btn btn-yellow btn-full" onclick="submitTradeIn()">Submit Trade-In Request</button>
       <button class="btn btn-ghost btn-full" style="margin-top:10px;" onclick="closeTradeIn()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- PRODUCT DETAIL MODAL -->
+  <div class="modal-overlay" id="product-modal">
+    <div class="modal" style="max-width:420px;">
+      <div id="product-modal-content"></div>
+      <button class="btn btn-ghost btn-full" style="margin-top:12px;" onclick="closeProductModal()">Close</button>
     </div>
   </div>
 
@@ -1189,13 +1198,13 @@
         const lowStock = stock > 0 && stock <= 5;
         return `
           <div class="product-card">
-            <div class="product-img-wrap">
+            <div class="product-img-wrap" onclick="openProduct(${p.id})" style="cursor:pointer;">
               ${p.image ? `<img src="${p.image}" alt="${p.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" /><div class="ph" style="display:none">📦</div>` : `<div class="ph">📦</div>`}
               ${hasDiscount ? `<span class="discount-badge">-${disc}%</span>` : ''}
               <button class="wish-btn ${isWish ? 'active' : ''}" onclick="toggleWish(${p.id}, event)">${isWish ? '❤️' : '🤍'}</button>
             </div>
             <div class="product-body">
-              <div class="product-name">${p.name || 'Product'}</div>
+              <div class="product-name" onclick="openProduct(${p.id})" style="cursor:pointer;">${p.name || 'Product'}</div>
               <div class="product-cat">${p.category || ''}${lowStock ? ' · <span style="color:#E65100;font-weight:700">Only '+stock+' left</span>' : ''}</div>
               <div class="price-row">
                 <span class="product-price">${formatMoney(p.price)}</span>
@@ -1844,6 +1853,36 @@
     }
     function closeOrderModal() {
       document.getElementById('order-modal').classList.remove('open');
+    }
+
+    function openProduct(id) {
+      const p = products.find(x => x.id === id);
+      if (!p) return;
+      const hasDiscount = p.original_price && Number(p.original_price) > Number(p.price);
+      const disc = hasDiscount ? Math.round((1 - p.price / p.original_price) * 100) : 0;
+      const stock = Number(p.stock) || 0;
+      document.getElementById('product-modal-content').innerHTML = `
+        <div style="text-align:center;margin-bottom:14px;">
+          ${p.image ? `<img src="${p.image}" style="width:100%;max-height:220px;object-fit:contain;border-radius:14px;background:#f8fafc;" onerror="this.src=''" />` : `<div style="font-size:4rem;padding:30px;">📦</div>`}
+        </div>
+        <h2 style="font-size:1.2rem;margin-bottom:6px;">${p.name || 'Product'}</h2>
+        <div style="font-size:0.85rem;color:#666;margin-bottom:10px;">${p.category || ''}</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <span style="font-size:1.35rem;font-weight:800;color:#0B7A3E;">${formatMoney(p.price)}</span>
+          ${hasDiscount ? `<span style="text-decoration:line-through;color:#999;">${formatMoney(p.original_price)}</span><span style="background:#F5C518;padding:2px 8px;border-radius:6px;font-size:0.75rem;font-weight:800;">-${disc}%</span>` : ''}
+        </div>
+        <div style="font-size:0.88rem;color:${stock>0?'#0B7A3E':'#E53935'};font-weight:600;margin-bottom:16px;">
+          ${stock > 0 ? (stock <= 5 ? 'Only ' + stock + ' left in stock' : 'In stock') : 'Out of stock'}
+        </div>
+        <button class="btn btn-green btn-full" onclick="addToCart(${p.id}); closeProductModal();" ${stock===0?'disabled':''}>
+          ${stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+        </button>
+        <button class="btn btn-ghost btn-full" style="margin-top:8px;" onclick="openWhatsApp('Hello, I want to ask about: ${ (p.name||'').replace(/'/g,"") }')">Ask on WhatsApp</button>
+      `;
+      document.getElementById('product-modal').classList.add('open');
+    }
+    function closeProductModal() {
+      document.getElementById('product-modal').classList.remove('open');
     }
 
     function openTradeIn() { document.getElementById('tradein-modal').classList.add('open'); }
