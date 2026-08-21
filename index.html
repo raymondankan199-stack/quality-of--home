@@ -224,6 +224,105 @@
       z-index: 1;
       pointer-events: none;
     }
+    /* Jumia-style Top Deals strip */
+    .deals-strip {
+      margin: 8px 12px 14px;
+      background: linear-gradient(165deg, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.18) 100%);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      border: 1px solid rgba(255,255,255,0.5);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: var(--glass-shadow);
+    }
+    .deals-strip-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px 8px;
+    }
+    .deals-strip-header h3 {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 0;
+    }
+    .deals-strip-header .see-all {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #0B7A3E;
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+    .deals-row {
+      display: flex;
+      gap: 10px;
+      padding: 4px 14px 14px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .deals-row::-webkit-scrollbar { display: none; }
+    .deal-card {
+      flex: 0 0 130px;
+      background: rgba(255,255,255,0.85);
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.7);
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+    }
+    .deal-card:active { transform: scale(0.97); }
+    .deal-card .img-wrap {
+      height: 110px;
+      background: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .deal-card .img-wrap img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    .deal-card .disc {
+      position: absolute;
+      top: 6px; left: 6px;
+      background: #e11d48;
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+    .deal-card .body {
+      padding: 8px 8px 10px;
+    }
+    .deal-card .name {
+      font-size: 0.75rem;
+      font-weight: 650;
+      color: #0f172a;
+      line-height: 1.25;
+      height: 2.5em;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    .deal-card .price {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: #0B7A3E;
+      margin-top: 4px;
+    }
+    .deal-card .old {
+      font-size: 0.68rem;
+      color: #94a3b8;
+      text-decoration: line-through;
+      margin-left: 4px;
+    }
     @media (min-width: 600px) {
       .hero-carousel { height: 300px; }
     }
@@ -1089,7 +1188,9 @@
 
     <div class="cat-scroll" id="cat-scroll"></div>
 
-    <div class="section-head">
+    <div id="deals-strip" class="deals-strip" style="display:none;"></div>
+
+    <div class="section-head" id="fresh-listings-head">
       <h2>Fresh Listings</h2>
       <span style="color:var(--green);font-weight:700;cursor:pointer;" onclick="setCategory('all')">See all</span>
     </div>
@@ -2116,7 +2217,61 @@
         pt.textContent = catName;
       }
     }
+    function renderDealsStrip() {
+      const strip = document.getElementById('deals-strip');
+      const fresh = document.getElementById('fresh-listings-head');
+      if (!strip) return;
+
+      // Only show Jumia-style Top Deals when viewing a specific category
+      if (!currentCat || currentCat === 'all' || searchQuery) {
+        strip.style.display = 'none';
+        if (fresh) fresh.style.display = '';
+        return;
+      }
+
+      const cat = currentCat.toLowerCase().trim();
+      let list = (products || []).filter(p => (p.category || '').toLowerCase().trim() === cat);
+      // Prefer discounted items for Top Deals
+      const deals = list.filter(p => p.original_price && Number(p.original_price) > Number(p.price));
+      const row = (deals.length >= 3 ? deals : list).slice(0, 12);
+      if (!row.length) {
+        strip.style.display = 'none';
+        if (fresh) fresh.style.display = 'none';
+        return;
+      }
+
+      if (fresh) fresh.style.display = 'none';
+      strip.style.display = 'block';
+      const catName = (CATEGORIES.find(function(x){ return x.id === currentCat; }) || {}).name || currentCat;
+
+      strip.innerHTML =
+        '<div class="deals-strip-header">' +
+          '<h3>Top Deals in ' + catName + '</h3>' +
+          '<button type="button" class="see-all" onclick="document.getElementById(\'products\').scrollIntoView({behavior:\'smooth\'})">See All ›</button>' +
+        '</div>' +
+        '<div class="deals-row">' +
+          row.map(function(p) {
+            const hasDisc = p.original_price && Number(p.original_price) > Number(p.price);
+            const disc = hasDisc ? Math.round((1 - Number(p.price) / Number(p.original_price)) * 100) : 0;
+            const img = p.image
+              ? '<img src="' + p.image + '" alt="" loading="lazy" onerror="this.style.display=\'none\'" />'
+              : '<span style="font-size:1.8rem">📦</span>';
+            return '<div class="deal-card" onclick="openProduct(' + p.id + ')">' +
+              '<div class="img-wrap">' + img +
+                (hasDisc ? '<span class="disc">-' + disc + '%</span>' : '') +
+              '</div>' +
+              '<div class="body">' +
+                '<div class="name">' + (p.name || 'Product') + '</div>' +
+                '<div class="price">' + formatMoney(p.price) +
+                  (hasDisc ? '<span class="old">' + formatMoney(p.original_price) + '</span>' : '') +
+                '</div>' +
+              '</div></div>';
+          }).join('') +
+        '</div>';
+    }
+
     function renderProducts() {
+      renderDealsStrip();
       let list = products.slice();
       if (currentCat && currentCat !== 'all') {
         const cat = currentCat.toLowerCase().trim();
