@@ -69,9 +69,19 @@
     .search-wrap input {
       flex: 1; border: none; background: transparent;
       font-size: 0.95rem; outline: none; color: var(--text);
+      min-width: 0;
     }
     .search-wrap input::placeholder { color: #999; }
-    .search-icon { color: #888; margin-right: 8px; font-size: 1.1rem; }
+    .search-icon { color: #888; margin-right: 8px; font-size: 1.1rem; flex-shrink: 0; }
+    .search-clear {
+      flex-shrink: 0;
+      width: 28px; height: 28px; border-radius: 50%;
+      border: none; background: rgba(15,23,42,0.12);
+      color: #334155; font-size: 0.85rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      margin-left: 6px;
+    }
+    .search-clear:active { background: rgba(15,23,42,0.2); }
     .top-cart, .top-icon {
       position: relative; width: 42px; height: 42px;
       display: flex; align-items: center; justify-content: center;
@@ -979,7 +989,8 @@
       <button class="menu-btn" onclick="openSideMenu()" aria-label="Menu">☰</button>
       <div class="search-wrap">
         <span class="search-icon">🔍</span>
-        <input type="text" id="search-input" placeholder="Search products..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="search" name="qoh_search_no_autofill" role="searchbox" data-lpignore="true" data-form-type="other" />
+        <input type="search" id="search-input" placeholder="Search products, brands, categories..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="search" enterkeyhint="search" name="qoh_product_search" role="searchbox" data-lpignore="true" data-form-type="other" aria-label="Search products" />
+        <button type="button" id="search-clear" class="search-clear" onclick="clearSearch()" aria-label="Clear search" style="display:none;">✕</button>
       </div>
       <button class="top-cart" onclick="openCart()">
         🛒 <span class="cart-badge" id="cart-count">0</span>
@@ -1940,7 +1951,21 @@
       }
       if (searchQuery) {
         const q = searchQuery.toLowerCase().trim();
-        list = list.filter(p => (p.name || '').toLowerCase().includes(q) || (p.category || '').toLowerCase().includes(q));
+        const words = q.split(/\s+/).filter(w => w.length > 0);
+        list = list.filter(p => {
+          const hay = ((p.name || '') + ' ' + (p.category || '') + ' ' + (p.description || '')).toLowerCase();
+          // Match if full query is in hay, OR every word appears somewhere
+          if (hay.includes(q)) return true;
+          return words.length > 0 && words.every(w => hay.includes(w));
+        });
+        // Rank: name matches first
+        list.sort((a, b) => {
+          const an = (a.name || '').toLowerCase();
+          const bn = (b.name || '').toLowerCase();
+          const aScore = (an.includes(q) ? 10 : 0) + words.reduce((s, w) => s + (an.includes(w) ? 3 : 0), 0);
+          const bScore = (bn.includes(q) ? 10 : 0) + words.reduce((s, w) => s + (bn.includes(w) ? 3 : 0), 0);
+          return bScore - aScore;
+        });
       }
       document.getElementById('product-count').textContent = list.length + (list.length === 1 ? ' item' : ' items');
       const container = document.getElementById('products');
@@ -2837,30 +2862,69 @@
         renderProducts();
       }
     }
-    document.getElementById('search-input').addEventListener('input', (e) => {
-      let v = e.target.value.trim();
-      // Block email autofill from filtering products
-      if (v.includes('@')) {
-        e.target.value = '';
-        searchQuery = '';
-        renderProducts();
-        return;
-      }
-      searchQuery = v;
+    function clearSearch() {
+      const si = document.getElementById('search-input');
+      if (si) si.value = '';
+      searchQuery = '';
+      const clr = document.getElementById('search-clear');
+      if (clr) clr.style.display = 'none';
       renderProducts();
-    });
-    document.getElementById('search-input').addEventListener('focus', function() {
-      // readonly trick sometimes stops autofill; remove on focus so user can type
-      this.removeAttribute('readonly');
-    });
-    // Stop Chrome/Edge autofill into search
-    const _si = document.getElementById('search-input');
-    if (_si) {
-      _si.setAttribute('readonly', 'readonly');
-      setTimeout(function() { _si.removeAttribute('readonly'); clearBadSearchAutofill(); }, 800);
-      setTimeout(clearBadSearchAutofill, 1500);
-      setTimeout(clearBadSearchAutofill, 3000);
+      if (si) si.focus();
     }
+    function updateSearchClearBtn() {
+      const clr = document.getElementById('search-clear');
+      if (clr) clr.style.display = searchQuery ? 'flex' : 'none';
+    }
+    (function setupProductSearch() {
+      const si = document.getElementById('search-input');
+      if (!si) return;
+      let searchDebounce = null;
+      si.addEventListener('input', function(e) {
+        let v = (e.target.value || '').trim();
+        // Ignore accidental email autofill
+        if (v.includes('@') || /gmail|yahoo|outlook/i.test(v)) {
+          e.target.value = '';
+          searchQuery = '';
+          updateSearchClearBtn();
+          renderProducts();
+          return;
+        }
+        searchQuery = v;
+        updateSearchClearBtn();
+        // Make sure user is on home so they see results
+        if (typeof goPage === 'function') {
+          const home = document.getElementById('page-home');
+          if (home && !home.classList.contains('active')) goPage('home');
+        }
+        clearTimeout(searchDebounce);
+        searchDebounce = setTimeout(function() {
+          renderProducts();
+          // Scroll to product grid so results are visible
+          const grid = document.getElementById('products');
+          if (grid && searchQuery) {
+            try { grid.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch(e) {}
+          }
+        }, 180);
+      });
+      si.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          searchQuery = (si.value || '').trim();
+          updateSearchClearBtn();
+          renderProducts();
+          const grid = document.getElementById('products');
+          if (grid) try { grid.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch(err) {}
+        }
+        if (e.key === 'Escape') clearSearch();
+      });
+      si.addEventListener('focus', function() {
+        this.removeAttribute('readonly');
+      });
+      // Soft autofill block (mobile browsers)
+      si.setAttribute('readonly', 'readonly');
+      setTimeout(function() { si.removeAttribute('readonly'); clearBadSearchAutofill(); }, 600);
+      setTimeout(clearBadSearchAutofill, 1500);
+    })();
 
 
     // ===== ADDRESS AUTOCOMPLETE (OpenStreetMap) =====
