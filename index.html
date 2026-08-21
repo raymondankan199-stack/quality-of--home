@@ -1208,6 +1208,21 @@
     <div class="cat-page-list" id="cat-page-list"></div>
   </div>
 
+  <!-- Dedicated full page for a single category (Jumia-style) -->
+  <div id="page-category" class="page">
+    <div class="topbar">
+      <button class="menu-btn" onclick="goPage('categories')" aria-label="Back" style="font-size:1.2rem;">←</button>
+      <div style="flex:1;font-weight:800;font-size:1.1rem;color:#0f172a;letter-spacing:-0.3px;" id="category-page-title">Category</div>
+    </div>
+    <div class="category-banner" id="category-page-banner"></div>
+    <div id="category-page-deals" class="deals-strip" style="display:none;"></div>
+    <div class="section-head" style="padding-top:8px;">
+      <h2 id="category-page-products-title">Products</h2>
+      <span id="category-page-count">0 items</span>
+    </div>
+    <div class="products" id="category-page-products"></div>
+  </div>
+
   <div id="page-cart" class="page">
     <div class="topbar">
       <div style="font-weight:800;font-size:1.15rem;padding-left:4px;">Cart</div>
@@ -2071,7 +2086,7 @@
       const body = document.getElementById('side-menu-body');
       if (body) {
         body.innerHTML = CATEGORIES.filter(c => c.id !== 'all').map(c => `
-          <button class="side-cat" onclick="setCategory('${c.id}'); closeSideMenu(); goPage('home');">
+          <button class="side-cat" onclick="closeSideMenu(); setCategory('${c.id}');">
             <span class="ico">${c.icon || '📦'}</span>
             <span>${c.name}</span>
           </button>
@@ -2158,15 +2173,137 @@
     function setCategory(id) {
       currentCat = id;
       renderCategories();
-      renderProducts();
-      renderCategoryBanner(id);
-      if (id === 'all' && typeof heroJumpToCategory === 'function') {
-        // stay on rotating home hero
-      } else if (typeof heroJumpToCategory === 'function') {
-        heroJumpToCategory(id);
+
+      // "All" stays on the homepage
+      if (!id || id === 'all') {
+        searchQuery = '';
+        const si = document.getElementById('search-input');
+        if (si) si.value = '';
+        if (typeof renderCategoryBanner === 'function') renderCategoryBanner('all');
+        renderProducts();
+        goPage('home');
+        return;
       }
-      // Ensure user sees the category page view on home
-      if (typeof goPage === 'function') goPage('home');
+
+      // Every other category opens its OWN full page (not homepage)
+      openCategoryPage(id);
+    }
+
+    function openCategoryPage(catId) {
+      currentCat = catId;
+      const catName = (CATEGORIES.find(function(x){ return x.id === catId; }) || {}).name || catId;
+
+      // Title in top bar
+      const titleEl = document.getElementById('category-page-title');
+      if (titleEl) titleEl.textContent = catName;
+      const prodTitle = document.getElementById('category-page-products-title');
+      if (prodTitle) prodTitle.textContent = catName;
+
+      // Banner
+      renderCategoryPageBanner(catId);
+
+      // Deals + products on this page
+      renderCategoryPageContent(catId);
+
+      // Show the dedicated page (do NOT go to home)
+      document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+      const page = document.getElementById('page-category');
+      if (page) page.classList.add('active');
+      // Highlight Categories in bottom nav
+      document.querySelectorAll('.nav-item').forEach(function(n){
+        n.classList.toggle('active', n.dataset.page === 'categories');
+      });
+      window.scrollTo(0, 0);
+    }
+
+    function renderCategoryPageBanner(catId) {
+      const banner = document.getElementById('category-page-banner');
+      if (!banner) return;
+      const meta = CATEGORY_BANNERS[catId] || {
+        tag: (catId || 'CATEGORY').toUpperCase(),
+        title: catId,
+        desc: 'Shop the best deals in this category',
+        colors: ['#0B7A3E', '#059669', '#064e3b']
+      };
+      const g = 'linear-gradient(135deg, ' + meta.colors[0] + ' 0%, ' + meta.colors[1] + ' 50%, ' + meta.colors[2] + ' 100%)';
+      banner.style.display = 'block';
+      banner.style.background = g;
+      var bubbles = (typeof makeHeroBubbles === 'function') ? makeHeroBubbles(36) : '<div class="hero-bubbles"></div>';
+      banner.innerHTML = bubbles +
+        '<div class="category-banner-inner">' +
+          '<div class="category-banner-tag">' + meta.tag + '</div>' +
+          '<h1>' + meta.title + '</h1>' +
+          '<p>' + meta.desc + '</p>' +
+        '</div>';
+    }
+
+    function renderCategoryPageContent(catId) {
+      const cat = (catId || '').toLowerCase().trim();
+      let list = (products || []).filter(function(p){
+        return (p.category || '').toLowerCase().trim() === cat;
+      });
+
+      // Top Deals strip
+      const dealsEl = document.getElementById('category-page-deals');
+      if (dealsEl) {
+        const deals = list.filter(function(p){ return p.original_price && Number(p.original_price) > Number(p.price); });
+        const row = (deals.length >= 3 ? deals : list).slice(0, 12);
+        if (!row.length) {
+          dealsEl.style.display = 'none';
+        } else {
+          dealsEl.style.display = 'block';
+          dealsEl.innerHTML =
+            '<div class="deals-strip-header">' +
+              '<h3>Top Deals</h3>' +
+              '<button type="button" class="see-all" onclick="document.getElementById(\'category-page-products\').scrollIntoView({behavior:\'smooth\'})">See All ›</button>' +
+            '</div>' +
+            '<div class="deals-row">' +
+              row.map(function(p){
+                const hasDisc = p.original_price && Number(p.original_price) > Number(p.price);
+                const disc = hasDisc ? Math.round((1 - Number(p.price) / Number(p.original_price)) * 100) : 0;
+                const img = p.image
+                  ? '<img src="' + p.image + '" alt="" loading="lazy" onerror="this.style.display=\'none\'" />'
+                  : '<span style="font-size:1.8rem">📦</span>';
+                return '<div class="deal-card" onclick="openProduct(' + p.id + ')">' +
+                  '<div class="img-wrap">' + img + (hasDisc ? '<span class="disc">-' + disc + '%</span>' : '') + '</div>' +
+                  '<div class="body"><div class="name">' + (p.name || 'Product') + '</div>' +
+                  '<div class="price">' + formatMoney(p.price) +
+                    (hasDisc ? '<span class="old">' + formatMoney(p.original_price) + '</span>' : '') +
+                  '</div></div></div>';
+              }).join('') +
+            '</div>';
+        }
+      }
+
+      // Product grid
+      const countEl = document.getElementById('category-page-count');
+      if (countEl) countEl.textContent = list.length + (list.length === 1 ? ' item' : ' items');
+      const container = document.getElementById('category-page-products');
+      if (!container) return;
+      if (!list.length) {
+        container.innerHTML = '<div class="empty"><div class="empty-icon">📦</div><h3>No products yet</h3><p>Check back soon for items in this category</p><button class="btn btn-green" onclick="goPage(\'categories\')">All Categories</button></div>';
+        return;
+      }
+      container.innerHTML = list.map(function(p){
+        const isWish = wishlist.includes(p.id);
+        const hasDiscount = p.original_price && Number(p.original_price) > Number(p.price);
+        const disc = hasDiscount ? Math.round((1 - p.price / p.original_price) * 100) : 0;
+        const stock = Number(p.stock) || 0;
+        return '<div class="product-card">' +
+          '<div class="product-img-wrap" onclick="openProduct(' + p.id + ')" style="cursor:pointer;">' +
+            (p.image ? '<img src="' + p.image + '" alt="" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'" /><div class="ph" style="display:none">📦</div>' : '<div class="ph">📦</div>') +
+            (hasDiscount ? '<span class="discount-badge">-' + disc + '%</span>' : '') +
+            '<button class="wish-btn ' + (isWish ? 'active' : '') + '" onclick="toggleWish(' + p.id + ', event)">' + (isWish ? '❤️' : '🤍') + '</button>' +
+          '</div>' +
+          '<div class="product-body">' +
+            '<div class="product-name" onclick="openProduct(' + p.id + ')" style="cursor:pointer;">' + (p.name || 'Product') + '</div>' +
+            '<div class="product-cat">' + (p.category || '') + '</div>' +
+            '<div class="price-row"><span class="product-price">' + formatMoney(p.price) + '</span>' +
+              (hasDiscount ? '<span class="product-old">' + formatMoney(p.original_price) + '</span>' : '') +
+            '</div>' +
+            '<button class="add-btn" onclick="addToCart(' + p.id + ')">' + (stock === 0 ? 'Out of Stock' : 'Add to Cart') + '</button>' +
+          '</div></div>';
+      }).join('');
     }
 
     function renderCategoryBanner(catId) {
@@ -2500,7 +2637,7 @@
 
     function renderCategoriesPage() {
       document.getElementById('cat-page-list').innerHTML = CATEGORIES.filter(c => c.id !== 'all').map(c => `
-        <div class="cat-page-item" onclick="setCategory('${c.id}');goPage('home')">
+        <div class="cat-page-item" onclick="setCategory('${c.id}')">
           <div class="ico">${c.icon}</div>
           <div><h3>${c.name}</h3><p>Browse ${c.name.toLowerCase()}</p></div>
         </div>`).join('');
@@ -3219,7 +3356,7 @@
         title: 'Phones & Tablets',
         desc: 'Latest phones at the best prices — delivered across Ghana',
         action: 'Shop Phones',
-        onclick: "setCategory('Phones');goPage('home')",
+        onclick: "setCategory('Phones')",
         btnClass: 'btn-yellow',
         category: 'Phones',
         colors: [
@@ -3233,7 +3370,7 @@
         title: 'Home Appliances',
         desc: 'Blenders, microwaves, fans, cookers & more for your home',
         action: 'Shop Appliances',
-        onclick: "setCategory('Appliances');goPage('home')",
+        onclick: "setCategory('Appliances')",
         btnClass: 'btn-yellow',
         category: 'Appliances',
         colors: [
@@ -3247,7 +3384,7 @@
         title: 'Electronics Deals',
         desc: 'Quality electronics for work, play and everyday life',
         action: 'Shop Electronics',
-        onclick: "setCategory('Electronics');goPage('home')",
+        onclick: "setCategory('Electronics')",
         btnClass: 'btn-yellow',
         category: 'Electronics',
         colors: [
