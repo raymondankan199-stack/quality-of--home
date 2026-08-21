@@ -57,6 +57,54 @@
       border: 1px solid var(--border); border-radius: 12px;
       background: #fff; cursor: pointer; font-size: 1.2rem;
     }
+
+    .menu-btn {
+      width: 42px; height: 42px; border: 1px solid var(--border); border-radius: 12px;
+      background: #fff; cursor: pointer; font-size: 1.35rem;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .side-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200;
+      display: none;
+    }
+    .side-overlay.open { display: block; }
+    .side-menu {
+      position: fixed; top: 0; left: 0; width: 82%; max-width: 320px; height: 100%;
+      background: #fff; z-index: 201; transform: translateX(-100%);
+      transition: transform 0.28s ease; display: flex; flex-direction: column;
+      box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+    }
+    .side-menu.open { transform: translateX(0); }
+    .side-menu-header {
+      background: linear-gradient(135deg, #0B7A3E, #086532);
+      color: #fff; padding: 20px 16px; display: flex; align-items: center; gap: 12px;
+    }
+    .side-logo {
+      width: 44px; height: 44px; background: #fff; color: #0B7A3E;
+      border-radius: 12px; display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 0.85rem;
+    }
+    .side-menu-header h3 { font-size: 1.05rem; font-weight: 800; margin: 0; }
+    .side-menu-header p { font-size: 0.78rem; opacity: 0.9; margin: 2px 0 0; }
+    .side-menu-body { flex: 1; overflow-y: auto; padding: 8px 0; }
+    .side-cat {
+      display: flex; align-items: center; gap: 14px;
+      padding: 13px 18px; cursor: pointer; font-weight: 600; font-size: 0.95rem;
+      border: none; background: none; width: 100%; text-align: left; color: var(--text);
+    }
+    .side-cat:active, .side-cat:hover { background: #f0fdf4; }
+    .side-cat .ico {
+      width: 36px; height: 36px; border-radius: 10px; background: #ecfdf5;
+      display: flex; align-items: center; justify-content: center; font-size: 1.15rem;
+    }
+    .side-menu-footer {
+      border-top: 1px solid var(--border); padding: 12px 16px; font-size: 0.85rem;
+    }
+    .side-menu-footer button {
+      width: 100%; padding: 12px; border-radius: 10px; border: none;
+      background: #0B7A3E; color: #fff; font-weight: 700; cursor: pointer; margin-bottom: 8px;
+    }
+
     .cart-badge {
       position: absolute; top: -4px; right: -4px;
       background: var(--green); color: #fff;
@@ -64,20 +112,46 @@
       min-width: 18px; height: 18px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
     }
-    .hero {
-      margin: 12px;
-      background: linear-gradient(135deg, #0B7A3E 0%, #086532 55%, #054d26 100%);
-      border-radius: 16px; padding: 22px 18px; color: #fff;
-      position: relative; overflow: hidden;
+    .hero-carousel {
+      margin: 12px; border-radius: 16px; overflow: hidden;
+      position: relative; height: 180px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
     }
-    .hero::after {
-      content: ''; position: absolute; right: -30px; top: -30px;
-      width: 140px; height: 140px; background: var(--yellow);
-      border-radius: 50%; opacity: 0.18;
+    .hero-slides {
+      display: flex; width: 100%; height: 100%;
+      transition: transform 0.6s ease;
     }
-    .hero h1 { font-size: 1.35rem; font-weight: 800; margin-bottom: 6px; position: relative; z-index: 1; }
-    .hero p { font-size: 0.9rem; opacity: 0.92; margin-bottom: 16px; position: relative; z-index: 1; }
-    .hero-btns { display: flex; gap: 10px; flex-wrap: wrap; position: relative; z-index: 1; }
+    .hero-slide {
+      min-width: 100%; height: 100%;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 22px 18px; color: #fff; position: relative;
+      background-size: cover; background-position: center;
+    }
+    .hero-slide::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.25) 100%);
+    }
+    .hero-slide > * { position: relative; z-index: 1; }
+    .hero-slide h1 { font-size: 1.3rem; font-weight: 800; margin-bottom: 6px; }
+    .hero-slide p { font-size: 0.88rem; opacity: 0.95; margin-bottom: 14px; }
+    .hero-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+    .hero-dots {
+      position: absolute; bottom: 10px; left: 0; right: 0;
+      display: flex; justify-content: center; gap: 6px; z-index: 5;
+    }
+    .hero-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: rgba(255,255,255,0.45); border: none; padding: 0; cursor: pointer;
+    }
+    .hero-dot.active { background: #fff; width: 18px; border-radius: 4px; }
+    .hero-arrow {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 32px; height: 32px; border-radius: 50%; border: none;
+      background: rgba(0,0,0,0.35); color: #fff; font-size: 1.1rem;
+      cursor: pointer; z-index: 5; display: flex; align-items: center; justify-content: center;
+    }
+    .hero-arrow.prev { left: 8px; }
+    .hero-arrow.next { right: 8px; }
     .btn {
       display: inline-flex; align-items: center; justify-content: center; gap: 6px;
       padding: 11px 18px; border-radius: 10px;
@@ -435,10 +509,29 @@
 </head>
 <body>
 
+  
+  <!-- Side category menu (Jumia-style, green HOQ) -->
+  <div class="side-overlay" id="side-overlay" onclick="closeSideMenu()"></div>
+  <div class="side-menu" id="side-menu">
+    <div class="side-menu-header">
+      <div class="side-logo">HOQ</div>
+      <div>
+        <h3>Home of Quality</h3>
+        <p>Shop by category</p>
+      </div>
+    </div>
+    <div class="side-menu-body" id="side-menu-body"></div>
+    <div class="side-menu-footer">
+      <button onclick="closeSideMenu(); openWhatsApp('Hello Home of Quality')">WhatsApp Support</button>
+      <div style="text-align:center;color:#888;font-size:0.75rem;">© 2026 Home of Quality</div>
+    </div>
+  </div>
+
   <div class="promo-bar">Free delivery on orders above GH₵ 500 · Call / WhatsApp: 0533318842</div>
 
   <div id="page-home" class="page active">
     <div class="topbar">
+      <button class="menu-btn" onclick="openSideMenu()" aria-label="Menu">☰</button>
       <div class="search-wrap">
         <span class="search-icon">🔍</span>
         <input type="text" id="search-input" placeholder="Search on Home of Quality" />
@@ -448,13 +541,41 @@
       </button>
     </div>
 
-    <div class="hero">
-      <h1>Quality products for your home</h1>
-      <p>Phones, laptops, electronics & more — delivered across Ghana</p>
-      <div class="hero-btns">
-        <button class="btn btn-yellow" onclick="openTradeIn()">Trade-In</button>
-        <button class="btn btn-outline-white" onclick="openWhatsApp('Hello, I need help with my order')">WhatsApp</button>
+    <div class="hero-carousel" id="hero-carousel">
+      <div class="hero-slides" id="hero-slides">
+        <div class="hero-slide" style="background: linear-gradient(135deg, #0B7A3E 0%, #086532 60%, #054d26 100%);">
+          <h1>Quality products for your home</h1>
+          <p>Phones, laptops, electronics & more — delivered across Ghana</p>
+          <div class="hero-btns">
+            <button class="btn btn-yellow" onclick="openTradeIn()">Trade-In</button>
+            <button class="btn btn-outline-white" onclick="openWhatsApp('Hello, I need help with my order')">WhatsApp</button>
+          </div>
+        </div>
+        <div class="hero-slide" style="background: linear-gradient(135deg, #c2410c 0%, #ea580c 50%, #f59e0b 100%);">
+          <h1>⚡ Flash Deals of the Day</h1>
+          <p>Up to 50% off selected phones, appliances & more</p>
+          <div class="hero-btns">
+            <button class="btn btn-yellow" onclick="document.getElementById('flash-section')?.scrollIntoView({behavior:'smooth'})">Shop Deals</button>
+          </div>
+        </div>
+        <div class="hero-slide" style="background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #3b82f6 100%);">
+          <h1>Free delivery across Ghana</h1>
+          <p>On orders above GH₵ 500 · Call / WhatsApp 0533318842</p>
+          <div class="hero-btns">
+            <button class="btn btn-yellow" onclick="goPage('categories')">Browse Categories</button>
+          </div>
+        </div>
+        <div class="hero-slide" style="background: linear-gradient(135deg, #4c1d95 0%, #7c3aed 55%, #a78bfa 100%);">
+          <h1>Trade-In & Save</h1>
+          <p>Swap your old phone, laptop or appliance for a better deal</p>
+          <div class="hero-btns">
+            <button class="btn btn-yellow" onclick="openTradeIn()">Start Trade-In</button>
+          </div>
+        </div>
       </div>
+      <button class="hero-arrow prev" onclick="heroPrev()">‹</button>
+      <button class="hero-arrow next" onclick="heroNext()">›</button>
+      <div class="hero-dots" id="hero-dots"></div>
     </div>
 
     <div class="flash" id="flash-section" style="display:none;">
@@ -503,24 +624,54 @@
   </div>
 
   <div id="page-account" class="page">
-    <div class="account-header">
-      <h2 id="account-name">Welcome</h2>
-      <p id="account-sub">Sign in to track orders & manage your account</p>
-    </div>
-    <div class="account-list">
-      <div class="account-item" onclick="openAuth('login')">
-        <div class="ico">👤</div>
-        <span id="login-text">Login / Sign Up</span>
-        <span class="arrow">›</span>
+    <div class="account-header" style="display:flex;justify-content:space-between;align-items:center;padding:20px 16px 18px;">
+      <div>
+        <h2 id="account-name" style="margin:0 0 4px;">Welcome</h2>
+        <p id="account-sub" style="margin:0;opacity:0.9;font-size:0.9rem;">Enter your account</p>
       </div>
+      <button id="account-login-btn" class="btn btn-yellow" style="padding:10px 20px;border-radius:8px;font-weight:700;" onclick="openAuth('login')">Login</button>
+    </div>
+
+    <!-- Logged-in overview cards (Jumia style) -->
+    <div id="account-overview" style="display:none;padding:0 12px 12px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px;">
+          <div style="font-size:0.7rem;font-weight:700;color:#888;margin-bottom:8px;letter-spacing:0.4px;">ACCOUNT DETAILS</div>
+          <div id="ov-name" style="font-weight:800;font-size:0.95rem;">—</div>
+          <div id="ov-email" style="font-size:0.8rem;color:#666;margin-top:2px;">—</div>
+          <div id="ov-phone" style="font-size:0.8rem;color:#666;margin-top:2px;">—</div>
+        </div>
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div style="font-size:0.7rem;font-weight:700;color:#888;letter-spacing:0.4px;">ADDRESS BOOK</div>
+            <button onclick="openAddressBook()" style="background:none;border:none;color:var(--green);font-size:0.85rem;font-weight:700;cursor:pointer;">Edit</button>
+          </div>
+          <div id="ov-address" style="font-size:0.8rem;color:#444;line-height:1.35;">No address saved yet</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px;">
+          <div style="font-size:0.7rem;font-weight:700;color:#888;margin-bottom:8px;letter-spacing:0.4px;">STORE CREDIT</div>
+          <div style="font-weight:700;color:var(--green);">GH₵ 0</div>
+        </div>
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px;">
+          <div style="font-size:0.7rem;font-weight:700;color:#888;margin-bottom:8px;letter-spacing:0.4px;">NEWSLETTER</div>
+          <div style="font-size:0.8rem;color:#555;">Get offers via WhatsApp</div>
+          <button onclick="toast('Newsletter preferences saved')" style="margin-top:6px;background:none;border:none;color:var(--green);font-size:0.8rem;font-weight:700;cursor:pointer;padding:0;">Edit preferences</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;padding:0 16px 14px;">
+      <button class="btn btn-green" style="flex:1;padding:12px;border-radius:10px;" onclick="openWhatsApp('Hello Home of Quality, I need live support')">💬 Live Chat</button>
+      <button class="btn" style="flex:1;padding:12px;border-radius:10px;background:#fff;border:1.5px solid #25D366;color:#128C7E;font-weight:700;" onclick="openWhatsApp('Hello Home of Quality')">WhatsApp</button>
+    </div>
+
+    <div class="account-list" style="margin-top:0;">
+      <div style="padding:10px 18px 4px;font-size:0.75rem;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">My Account</div>
       <div class="account-item" onclick="goPage('orders')">
         <div class="ico">📦</div>
-        <span>My Orders</span>
-        <span class="arrow">›</span>
-      </div>
-      <div class="account-item" onclick="goPage('cart')">
-        <div class="ico">🛒</div>
-        <span>My Cart</span>
+        <span>Orders</span>
         <span class="arrow">›</span>
       </div>
       <div class="account-item" onclick="goPage('wishlist')">
@@ -528,9 +679,9 @@
         <span>Wishlist</span>
         <span class="arrow">›</span>
       </div>
-      <div class="account-item" onclick="openWhatsApp('Hello Home of Quality, I need support')">
-        <div class="ico">💬</div>
-        <span>Live Chat / WhatsApp</span>
+      <div class="account-item" onclick="goPage('cart')">
+        <div class="ico">🛒</div>
+        <span>My Cart</span>
         <span class="arrow">›</span>
       </div>
       <div class="account-item" onclick="openWhatsApp('Hello, I want to trade-in my device')">
@@ -538,9 +689,58 @@
         <span>Trade-In</span>
         <span class="arrow">›</span>
       </div>
+      <div class="account-item" onclick="toast('Ratings coming soon')">
+        <div class="ico">⭐</div>
+        <span>Pending Reviews</span>
+        <span class="arrow">›</span>
+      </div>
+      <div class="account-item" onclick="toast('Recently viewed coming soon')">
+        <div class="ico">🕒</div>
+        <span>Recently Viewed</span>
+        <span class="arrow">›</span>
+      </div>
+
+      <div style="padding:14px 18px 4px;font-size:0.75rem;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Help & Support</div>
+      <div class="account-item" onclick="openWhatsApp('Hello Home of Quality, I need help')">
+        <div class="ico">ℹ️</div>
+        <span>Help & Support</span>
+        <span class="arrow">›</span>
+      </div>
+      <div class="account-item" onclick="openWhatsApp('Hello Home of Quality')">
+        <div class="ico">💬</div>
+        <span>Live Chat</span>
+        <span class="arrow">›</span>
+      </div>
+
+      <div style="padding:14px 18px 4px;font-size:0.75rem;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Account Management</div>
+      <div class="account-item" onclick="toast('Payments are handled securely by Paystack at checkout')">
+        <div class="ico">💳</div>
+        <span>Payment Settings</span>
+        <span class="arrow">›</span>
+      </div>
+      <div class="account-item" onclick="openAddressBook()">
+        <div class="ico">📍</div>
+        <span>Address Book</span>
+        <span class="arrow">›</span>
+      </div>
+      <div class="account-item" onclick="toast('You will get order updates via WhatsApp')">
+        <div class="ico">🔔</div>
+        <span>Newsletter Preferences</span>
+        <span class="arrow">›</span>
+      </div>
+      <div class="account-item" onclick="showPrivacy()">
+        <div class="ico">🔒</div>
+        <span>Privacy Policy</span>
+        <span class="arrow">›</span>
+      </div>
       <div class="account-item" id="logout-item" style="display:none;" onclick="logout()">
         <div class="ico">🚪</div>
         <span>Log Out</span>
+        <span class="arrow">›</span>
+      </div>
+      <div class="account-item" id="close-account-item" style="display:none;" onclick="closeAccount()">
+        <div class="ico">⚠️</div>
+        <span style="color:#dc2626;">Close Account</span>
         <span class="arrow">›</span>
       </div>
     </div>
@@ -597,7 +797,7 @@
   <div class="modal-overlay" id="auth-modal">
     <div class="modal">
       <h2 id="auth-title">Sign In</h2>
-      <p class="sub" id="auth-sub">Enter your details to continue</p>
+      <p class="sub" id="auth-sub">Sign in with your phone number</p>
       <div class="form-group" id="name-group">
         <label>Full Name</label>
         <input type="text" id="auth-name" placeholder="Your full name" />
@@ -605,6 +805,14 @@
       <div class="form-group">
         <label>Phone Number</label>
         <input type="tel" id="auth-phone" placeholder="e.g. 0533318842" />
+      </div>
+      <div class="form-group">
+        <label>Email (optional)</label>
+        <input type="email" id="auth-email" placeholder="you@email.com" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="auth-pass" placeholder="Create or enter password" />
       </div>
       <button class="btn btn-green btn-full" onclick="submitAuth()">Continue</button>
       <div class="auth-switch">
@@ -749,16 +957,21 @@
 
     const CATEGORIES = [
       { id: 'all', name: 'All', icon: '🛒' },
-      { id: 'Phones', name: 'Phones', icon: '📱' },
-      { id: 'Laptops', name: 'Laptops', icon: '💻' },
-      { id: 'Electronics', name: 'Electronics', icon: '🔌' },
-      { id: 'Accessories', name: 'Accessories', icon: '🎧' },
-      { id: 'Appliances', name: 'Appliances', icon: '🏠' },
+      { id: 'Grocery', name: 'Supermarket', icon: '🍎' },
+      { id: 'Phones', name: 'Phones & Tablets', icon: '📱' },
+      { id: 'Beauty', name: 'Health & Beauty', icon: '💄' },
+      { id: 'Home', name: 'Home & Office', icon: '🏠' },
+      { id: 'Appliances', name: 'Appliances', icon: '🧺' },
+      { id: 'Electronics', name: 'Electronics', icon: '📺' },
+      { id: 'Laptops', name: 'Computing', icon: '💻' },
       { id: 'Fashion', name: 'Fashion', icon: '👕' },
-      { id: 'Home', name: 'Home', icon: '🛋️' },
+      { id: 'Sports', name: 'Sporting Goods', icon: '🏋️' },
+      { id: 'Baby', name: 'Baby Products', icon: '👶' },
+      { id: 'Gaming', name: 'Gaming', icon: '🎮' },
+      { id: 'Accessories', name: 'Accessories', icon: '🎧' },
       { id: 'Furniture', name: 'Furniture', icon: '🪑' },
       { id: 'Kitchen', name: 'Kitchen', icon: '🍳' },
-      { id: 'Grocery', name: 'Grocery', icon: '🛒' }
+      { id: 'Other', name: 'Other Categories', icon: '⋯' }
     ];
 
     const STATUS_LABELS = {
@@ -792,7 +1005,32 @@
       document.getElementById('chat-panel').classList.toggle('open');
     }
 
+
+    function openSideMenu() {
+      const body = document.getElementById('side-menu-body');
+      if (body) {
+        body.innerHTML = CATEGORIES.filter(c => c.id !== 'all').map(c => `
+          <button class="side-cat" onclick="setCategory('${c.id}'); closeSideMenu(); goPage('home');">
+            <span class="ico">${c.icon || '📦'}</span>
+            <span>${c.name}</span>
+          </button>
+        `).join('');
+      }
+      document.getElementById('side-overlay').classList.add('open');
+      document.getElementById('side-menu').classList.add('open');
+    }
+    function closeSideMenu() {
+      document.getElementById('side-overlay').classList.remove('open');
+      document.getElementById('side-menu').classList.remove('open');
+    }
+
     function goPage(page) {
+      // Require login for wishlist and orders
+      if ((page === 'wishlist' || page === 'orders') && !currentUser) {
+        toast(page === 'wishlist' ? 'Please sign in to view your wishlist' : 'Please sign in to view your orders');
+        openAuth('login');
+        return;
+      }
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       const el = document.getElementById('page-' + page);
       if (el) el.classList.add('active');
@@ -910,8 +1148,17 @@
       document.getElementById('cart-count').textContent = cart.reduce((s, i) => s + i.qty, 0);
     }
     function addToCart(id) {
+      if (!currentUser) {
+        toast('Please sign in or create an account first');
+        openAuth('login');
+        return;
+      }
       const p = products.find(x => x.id === id);
       if (!p) return;
+      if (Number(p.stock) <= 0) {
+        toast('This item is out of stock');
+        return;
+      }
       const existing = cart.find(i => i.id === id);
       if (existing) existing.qty += 1;
       else cart.push({ id: p.id, name: p.name, price: p.price, image: p.image || '', qty: 1 });
@@ -1003,6 +1250,11 @@
 
     function toggleWish(id, e) {
       if (e) e.stopPropagation();
+      if (!currentUser) {
+        toast('Please sign in to save favorites');
+        openAuth('login');
+        return;
+      }
       if (wishlist.includes(id)) wishlist = wishlist.filter(x => x !== id);
       else wishlist.push(id);
       localStorage.setItem('qoh_wishlist', JSON.stringify(wishlist));
@@ -1046,22 +1298,73 @@
     }
 
     function updateAccountUI() {
+      const loginBtn = document.getElementById('account-login-btn');
+      const overview = document.getElementById('account-overview');
       if (currentUser) {
         document.getElementById('account-name').textContent = currentUser.name || 'Welcome back';
         document.getElementById('account-sub').textContent = currentUser.phone || '';
-        document.getElementById('login-text').textContent = 'My Profile';
-        document.getElementById('logout-item').style.display = 'flex';
+        if (loginBtn) {
+          loginBtn.textContent = 'Hi, ' + ((currentUser.name || 'User').split(' ')[0]);
+          loginBtn.onclick = function() { toast('Logged in as ' + (currentUser.name || currentUser.phone)); };
+        }
+        if (overview) overview.style.display = 'block';
+        const ovName = document.getElementById('ov-name');
+        const ovEmail = document.getElementById('ov-email');
+        const ovPhone = document.getElementById('ov-phone');
+        const ovAddr = document.getElementById('ov-address');
+        if (ovName) ovName.textContent = currentUser.name || '—';
+        if (ovEmail) ovEmail.textContent = currentUser.email || 'No email saved';
+        if (ovPhone) ovPhone.textContent = currentUser.phone || '—';
+        if (ovAddr) {
+          const saved = localStorage.getItem('qoh_address_' + (currentUser.phone || '')) || '';
+          ovAddr.textContent = saved || 'No address saved yet. Tap Edit to add one.';
+        }
+        const lo = document.getElementById('logout-item');
+        if (lo) lo.style.display = 'flex';
+        const ca = document.getElementById('close-account-item');
+        if (ca) ca.style.display = 'flex';
       } else {
         document.getElementById('account-name').textContent = 'Welcome';
-        document.getElementById('account-sub').textContent = 'Sign in to track orders & manage account';
-        document.getElementById('login-text').textContent = 'Login / Sign Up';
-        document.getElementById('logout-item').style.display = 'none';
+        document.getElementById('account-sub').textContent = 'Enter your account';
+        if (loginBtn) {
+          loginBtn.textContent = 'Login';
+          loginBtn.onclick = function() { openAuth('login'); };
+        }
+        if (overview) overview.style.display = 'none';
+        const lo = document.getElementById('logout-item');
+        if (lo) lo.style.display = 'none';
+        const ca = document.getElementById('close-account-item');
+        if (ca) ca.style.display = 'none';
       }
+    }
+    function closeAccount() {
+      if (!confirm('Close your Home of Quality account? You can sign up again anytime.')) return;
+      if (currentUser && currentUser.phone) {
+        const passMap = JSON.parse(localStorage.getItem('qoh_passwords') || '{}');
+        delete passMap[currentUser.phone];
+        localStorage.setItem('qoh_passwords', JSON.stringify(passMap));
+        localStorage.removeItem('qoh_address_' + currentUser.phone);
+      }
+      logout();
+      toast('Account closed on this device');
+    }
+    function openAddressBook() {
+      if (!currentUser) { toast('Please sign in first'); openAuth('login'); return; }
+      const saved = localStorage.getItem('qoh_address_' + (currentUser.phone || '')) || '';
+      const addr = prompt('Your delivery address (name, area, city, phone):', saved || '');
+      if (addr !== null) {
+        localStorage.setItem('qoh_address_' + currentUser.phone, addr.trim());
+        toast(addr.trim() ? 'Address saved' : 'Address cleared');
+        updateAccountUI();
+      }
+    }
+    function showPrivacy() {
+      alert('Home of Quality — Privacy Policy\n\n1. Information we collect\nName, phone number, email, delivery address, and order history.\n\n2. How we use it\nTo process orders, arrange delivery, and contact you about your purchases via WhatsApp or phone.\n\n3. Payments\nCard and mobile money payments are handled securely by Paystack. We do not store your full card details.\n\n4. Sharing\nWe do not sell your personal data. We only share what is needed with delivery partners to fulfil your order.\n\n5. Your choices\nYou can update your address in Account → Address Book, or close your account anytime.\n\n6. Contact\nWhatsApp / Call: 0533318842\n\nLast updated: August 2026');
     }
     function openAuth(mode) {
       authMode = mode || 'login';
       document.getElementById('auth-title').textContent = authMode === 'login' ? 'Sign In' : 'Create Account';
-      document.getElementById('auth-sub').textContent = authMode === 'login' ? 'Enter your phone to continue' : 'Create your Home of Quality account';
+      document.getElementById('auth-sub').textContent = authMode === 'login' ? 'Sign in with your phone number' : 'Create your Home of Quality account';
       document.getElementById('name-group').style.display = authMode === 'signup' ? 'block' : 'none';
       document.getElementById('auth-switch-text').textContent = authMode === 'login' ? "Don't have an account?" : 'Already have an account?';
       document.getElementById('auth-switch-link').textContent = authMode === 'login' ? 'Sign Up' : 'Sign In';
@@ -1072,36 +1375,96 @@
     async function submitAuth() {
       const name = document.getElementById('auth-name').value.trim();
       const phone = document.getElementById('auth-phone').value.trim();
+      const email = (document.getElementById('auth-email') || {}).value?.trim() || '';
+      const pass = (document.getElementById('auth-pass') || {}).value || '';
       if (!phone) return toast('Enter your phone number');
+      if (!pass || pass.length < 4) return toast('Enter a password (at least 4 characters)');
       if (authMode === 'signup' && !name) return toast('Enter your name');
       if (!supabaseClient) return toast('No connection');
+
+      // Local password store (phone -> password)
+      const passMap = JSON.parse(localStorage.getItem('qoh_passwords') || '{}');
+
       try {
         if (authMode === 'signup') {
           const { data: existing } = await supabaseClient.from('customers').select('*').eq('phone', phone).limit(1);
           if (existing && existing.length) {
-            saveUser(existing[0]);
-            toast('Account exists. Signed in!');
+            // Account exists — treat as login if password matches
+            if (passMap[phone] && passMap[phone] !== pass) {
+              return toast('Wrong password. Try again or reset via WhatsApp.');
+            }
+            passMap[phone] = pass;
+            localStorage.setItem('qoh_passwords', JSON.stringify(passMap));
+            saveUser({ ...existing[0], email: email || existing[0].email });
+            toast('Welcome back!');
           } else {
-            const { data, error } = await supabaseClient.from('customers').insert([{ name, phone, orders: 0, spent: 0 }]).select().single();
+            const row = { name, phone, orders: 0, spent: 0 };
+            const { data, error } = await supabaseClient.from('customers').insert([row]).select().single();
             if (error) throw error;
-            saveUser(data);
+            passMap[phone] = pass;
+            localStorage.setItem('qoh_passwords', JSON.stringify(passMap));
+            saveUser({ ...data, email });
             toast('Account created!');
           }
         } else {
           const { data, error } = await supabaseClient.from('customers').select('*').eq('phone', phone).limit(1);
           if (error) throw error;
-          if (data && data.length) {
-            saveUser(data[0]);
-            toast('Welcome back!');
-          } else {
+          if (!data || !data.length) {
             toast('No account found. Please sign up.');
             openAuth('signup');
             return;
           }
+          if (passMap[phone] && passMap[phone] !== pass) {
+            return toast('Wrong password');
+          }
+          // First login on this device without stored pass: set it
+          if (!passMap[phone]) {
+            passMap[phone] = pass;
+            localStorage.setItem('qoh_passwords', JSON.stringify(passMap));
+          }
+          saveUser({ ...data[0], email: email || data[0].email });
+          toast('Welcome back!');
         }
         closeAuth();
-        updateAccountUI();
-      } catch (e) { toast('Something went wrong'); }
+    
+    // ===== Auto-rotating hero carousel (like Jumia) =====
+    let heroIndex = 0;
+    let heroTimer = null;
+    const HERO_COUNT = 4;
+
+    function heroGo(i) {
+      heroIndex = (i + HERO_COUNT) % HERO_COUNT;
+      const slides = document.getElementById('hero-slides');
+      if (slides) slides.style.transform = 'translateX(-' + (heroIndex * 100) + '%)';
+      document.querySelectorAll('.hero-dot').forEach((d, idx) => {
+        d.classList.toggle('active', idx === heroIndex);
+      });
+    }
+    function heroNext() { heroGo(heroIndex + 1); restartHeroTimer(); }
+    function heroPrev() { heroGo(heroIndex - 1); restartHeroTimer(); }
+    function restartHeroTimer() {
+      if (heroTimer) clearInterval(heroTimer);
+      heroTimer = setInterval(() => heroGo(heroIndex + 1), 4000);
+    }
+    function initHeroCarousel() {
+      const dots = document.getElementById('hero-dots');
+      if (!dots) return;
+      dots.innerHTML = '';
+      for (let i = 0; i < HERO_COUNT; i++) {
+        const b = document.createElement('button');
+        b.className = 'hero-dot' + (i === 0 ? ' active' : '');
+        b.onclick = () => { heroGo(i); restartHeroTimer(); };
+        dots.appendChild(b);
+      }
+      restartHeroTimer();
+    }
+
+    initHeroCarousel();
+    updateAccountUI();
+      } catch (e) {
+        console.error(e);
+        toast('Something went wrong');
+      }
     }
     function saveUser(user) {
       currentUser = user;
@@ -1124,13 +1487,17 @@
     }
     function startCheckout() {
       if (!cart.length) return toast('Cart is empty');
+      if (!currentUser) {
+        toast('Please sign in to checkout');
+        closeCart();
+        openAuth('login');
+        return;
+      }
       closeCart();
       const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
       document.getElementById('co-total').textContent = formatMoney(total);
-      if (currentUser) {
-        document.getElementById('co-name').value = currentUser.name || '';
-        document.getElementById('co-phone').value = currentUser.phone || '';
-      }
+      document.getElementById('co-name').value = currentUser.name || '';
+      document.getElementById('co-phone').value = currentUser.phone || '';
       document.getElementById('checkout-modal').classList.add('open');
       setupAddressAutocomplete();
     }
