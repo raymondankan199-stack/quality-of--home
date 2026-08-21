@@ -556,17 +556,66 @@
       font-weight: 750; display: flex; justify-content: space-between; align-items: center;
       border-bottom: 1px solid rgba(255,255,255,0.3);
     }
-    .chat-body { padding: 14px; max-height: 220px; overflow-y: auto; }
+    .chat-body {
+      padding: 14px; max-height: 280px; min-height: 180px;
+      overflow-y: auto; display: flex; flex-direction: column; gap: 8px;
+    }
     .chat-msg {
-      background: rgba(255,255,255,0.4);
-      border: 1px solid rgba(255,255,255,0.45);
-      padding: 11px 13px; border-radius: 16px;
-      font-size: 0.88rem; margin-bottom: 10px; line-height: 1.4;
-      color: #0f172a;
+      background: rgba(255,255,255,0.45);
+      border: 1px solid rgba(255,255,255,0.5);
+      padding: 11px 13px; border-radius: 16px 16px 16px 6px;
+      font-size: 0.88rem; line-height: 1.45;
+      color: #0f172a; max-width: 92%; align-self: flex-start;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
     .chat-msg.bot {
-      background: rgba(11,122,62,0.15);
-      border-color: rgba(11,122,62,0.25);
+      background: rgba(11,122,62,0.14);
+      border-color: rgba(11,122,62,0.22);
+    }
+    .chat-msg.user {
+      align-self: flex-end;
+      background: rgba(15,23,42,0.88);
+      color: #fff;
+      border-color: transparent;
+      border-radius: 16px 16px 6px 16px;
+    }
+    .chat-msg.typing {
+      opacity: 0.7; font-style: italic; font-size: 0.82rem;
+    }
+    .chat-quick {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      padding: 8px 12px; border-top: 1px solid rgba(255,255,255,0.25);
+    }
+    .chat-quick button {
+      border: 1px solid rgba(255,255,255,0.45);
+      background: rgba(255,255,255,0.35);
+      backdrop-filter: blur(8px);
+      border-radius: 999px; padding: 7px 12px;
+      font-size: 0.75rem; font-weight: 650; color: #0f172a;
+      cursor: pointer;
+    }
+    .chat-quick button:active { background: rgba(255,255,255,0.55); }
+    .chat-input-row {
+      display: flex; gap: 8px; padding: 10px 12px 12px;
+      border-top: 1px solid rgba(255,255,255,0.3);
+      align-items: center;
+    }
+    .chat-input-row input {
+      flex: 1; border: 1px solid rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.4);
+      border-radius: 999px; padding: 11px 14px;
+      font-size: 0.9rem; outline: none; color: #0f172a;
+    }
+    .chat-input-row input::placeholder { color: #64748b; }
+    .chat-input-row button {
+      width: 42px; height: 42px; border-radius: 50%; border: none;
+      background: #0B7A3E; color: #fff; font-size: 1.1rem;
+      cursor: pointer; font-weight: 700;
+      box-shadow: 0 4px 14px rgba(11,122,62,0.3);
+    }
+    .chat-panel {
+      width: 340px !important; max-width: calc(100vw - 24px) !important;
+      bottom: 160px !important;
     }
     .chat-actions {
       padding: 12px; border-top: 1px solid rgba(255,255,255,0.3);
@@ -980,20 +1029,23 @@
     </button>
   </nav>
 
-  <button class="chat-fab" onclick="toggleChat()" title="Live Chat">💬</button>
+  <button class="chat-fab" onclick="toggleChat()" title="HOQ Assistant">✨</button>
   <div class="chat-panel" id="chat-panel">
     <div class="chat-header">
-      <span>Live Support</span>
-      <span style="cursor:pointer;font-size:1.2rem;" onclick="toggleChat()">✕</span>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:36px;height:36px;border-radius:12px;background:rgba(11,122,62,0.2);display:flex;align-items:center;justify-content:center;font-size:1.1rem;">✨</div>
+        <div>
+          <div style="font-weight:800;font-size:0.95rem;line-height:1.2;">HOQ Assistant</div>
+          <div style="font-size:0.72rem;opacity:0.75;font-weight:500;">Smart help · Always online</div>
+        </div>
+      </div>
+      <span style="cursor:pointer;font-size:1.2rem;padding:4px 8px;" onclick="toggleChat()">✕</span>
     </div>
-    <div class="chat-body">
-      <div class="chat-msg bot">Hello! 👋 Welcome to Home of Quality. How can we help you today?</div>
-      <div class="chat-msg bot">You can chat with us directly on WhatsApp for fast replies.</div>
-    </div>
-    <div class="chat-actions">
-      <button class="btn btn-green btn-full" onclick="openWhatsApp('Hello Home of Quality, I need help')">💬 Chat on WhatsApp</button>
-      <button class="btn btn-ghost btn-full" onclick="openWhatsApp('Hello, I want to place an order')">📦 Order Help</button>
-      <button class="btn btn-ghost btn-full" onclick="openWhatsApp('Hello, I want to check my order status')">🔍 Track Order</button>
+    <div class="chat-body" id="chat-body"></div>
+    <div class="chat-quick" id="chat-quick"></div>
+    <div class="chat-input-row">
+      <input type="text" id="chat-input" placeholder="Ask me anything..." autocomplete="off" />
+      <button type="button" id="chat-send" onclick="sendChatMessage()">➤</button>
     </div>
   </div>
 
@@ -1219,9 +1271,297 @@
       const url = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(text || 'Hello Home of Quality')}`;
       window.open(url, '_blank');
     }
+
+    /* ========== HOQ Smart AI Assistant ========== */
+    let chatHistory = [];
+    let chatTurns = 0;
+    let chatOfferedAgent = false;
+    let chatInitialized = false;
+
     function toggleChat() {
-      document.getElementById('chat-panel').classList.toggle('open');
+      const panel = document.getElementById('chat-panel');
+      panel.classList.toggle('open');
+      if (panel.classList.contains('open')) {
+        if (!chatInitialized) initHOQAssistant();
+        setTimeout(() => {
+          const input = document.getElementById('chat-input');
+          if (input) input.focus();
+        }, 200);
+      }
     }
+
+    function initHOQAssistant() {
+      chatInitialized = true;
+      chatHistory = [];
+      chatTurns = 0;
+      chatOfferedAgent = false;
+      const body = document.getElementById('chat-body');
+      if (body) body.innerHTML = '';
+      appendChatBot("Hello! 👋 I'm the **HOQ Assistant** — your smart shopping helper for Home of Quality.");
+      appendChatBot("I can help you find products, check prices, explain delivery, trade-in, orders, and more. What are you looking for today?");
+      renderChatQuick([
+        'Show popular products',
+        'Delivery info',
+        'Trade-In help',
+        'Talk to a human'
+      ]);
+      const input = document.getElementById('chat-input');
+      if (input && !input._bound) {
+        input._bound = true;
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') { e.preventDefault(); sendChatMessage(); }
+        });
+      }
+    }
+
+    function appendChatBot(html) {
+      const body = document.getElementById('chat-body');
+      if (!body) return;
+      const div = document.createElement('div');
+      div.className = 'chat-msg bot';
+      div.innerHTML = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      body.appendChild(div);
+      body.scrollTop = body.scrollHeight;
+    }
+
+    function appendChatUser(text) {
+      const body = document.getElementById('chat-body');
+      if (!body) return;
+      const div = document.createElement('div');
+      div.className = 'chat-msg user';
+      div.textContent = text;
+      body.appendChild(div);
+      body.scrollTop = body.scrollHeight;
+    }
+
+    function appendChatTyping() {
+      const body = document.getElementById('chat-body');
+      if (!body) return;
+      const div = document.createElement('div');
+      div.className = 'chat-msg bot typing';
+      div.id = 'chat-typing';
+      div.textContent = 'Thinking…';
+      body.appendChild(div);
+      body.scrollTop = body.scrollHeight;
+    }
+
+    function removeChatTyping() {
+      const t = document.getElementById('chat-typing');
+      if (t) t.remove();
+    }
+
+    function renderChatQuick(items) {
+      const box = document.getElementById('chat-quick');
+      if (!box) return;
+      box.innerHTML = items.map(t =>
+        `<button type="button" onclick="chatQuick('${t.replace(/'/g, "\\'")}')">${t}</button>`
+      ).join('');
+    }
+
+    function chatQuick(text) {
+      const input = document.getElementById('chat-input');
+      if (input) input.value = text;
+      sendChatMessage();
+    }
+
+    function sendChatMessage() {
+      const input = document.getElementById('chat-input');
+      if (!input) return;
+      const text = (input.value || '').trim();
+      if (!text) return;
+      input.value = '';
+      appendChatUser(text);
+      chatHistory.push({ role: 'user', text });
+      chatTurns++;
+      appendChatTyping();
+      setTimeout(() => {
+        removeChatTyping();
+        const reply = generateHOQReply(text);
+        appendChatBot(reply.message);
+        chatHistory.push({ role: 'bot', text: reply.message });
+        if (reply.quick && reply.quick.length) renderChatQuick(reply.quick);
+        else renderChatQuick(['Talk to a human', 'Show products', 'Delivery info', 'Thanks']);
+      }, 450 + Math.min(800, text.length * 12));
+    }
+
+    function searchProductsSmart(query) {
+      const q = (query || '').toLowerCase();
+      const words = q.split(/[^a-z0-9+]+/).filter(Boolean);
+      return (products || []).filter(p => {
+        const hay = ((p.name || '') + ' ' + (p.category || '')).toLowerCase();
+        return words.some(w => w.length > 1 && hay.includes(w));
+      }).slice(0, 5);
+    }
+
+    function formatProductLine(p) {
+      return `• **${p.name}** — ${formatMoney(p.price)}${p.category ? ' · ' + p.category : ''}`;
+    }
+
+    function generateHOQReply(raw) {
+      const text = (raw || '').toLowerCase().trim();
+      const wantsHuman = /human|agent|person|real (person|human)|talk to (you|someone|owner|manager|staff)|customer.?service|whatsapp|call me|speak to/.test(text);
+      const saysYes = /^(yes|yeah|yep|sure|ok|okay|please|of course|i do|i want)/.test(text) || /yes.*agent|yes.*human|yes.*whatsapp|connect me|transfer/.test(text);
+
+      // Escalate to human
+      if (wantsHuman || (chatOfferedAgent && saysYes) || (chatTurns >= 5 && /help|please|need/.test(text) && !/product|price|delivery/.test(text))) {
+        chatOfferedAgent = true;
+        return {
+          message: "Of course. I can connect you to a real person from Home of Quality on WhatsApp right now.\\n\\nTap below and you'll chat directly with the team.\\n\\n📱 **WhatsApp:** +233 53 331 8842",
+          quick: ['Open WhatsApp', 'Continue with AI', 'Show products']
+        };
+      }
+      if (/open whatsapp|whatsapp now/.test(text)) {
+        openWhatsApp('Hello Home of Quality, I was chatting with HOQ Assistant and would like to talk to a human agent.');
+        return {
+          message: "Opening WhatsApp for you… If it didn't open, use this number: **+233 53 331 8842**.",
+          quick: ['Show products', 'Delivery info', 'Thanks']
+        };
+      }
+      if (chatOfferedAgent && /no|not now|continue|ai|bot/.test(text)) {
+        chatOfferedAgent = false;
+        return {
+          message: "No problem — I'm still here. Ask me about products, prices, delivery, trade-in, or orders.",
+          quick: ['Show popular products', 'Delivery info', 'Trade-In help']
+        };
+      }
+
+      // Greetings
+      if (/^(hi|hello|hey|good (morning|afternoon|evening)|howdy)\\b/.test(text) || text === 'hi' || text === 'hello') {
+        return {
+          message: "Hi there! Welcome to **Home of Quality**. I can help you find appliances, phones, electronics and more. What do you need?",
+          quick: ['Show popular products', 'Phones', 'Appliances', 'Talk to a human']
+        };
+      }
+
+      // Thanks
+      if (/thank|thanks|thx|appreciate/.test(text)) {
+        return {
+          message: "You're welcome! Happy to help anytime. Need anything else?",
+          quick: ['Show products', 'Talk to a human', 'Delivery info']
+        };
+      }
+
+      // Delivery
+      if (/deliver|shipping|how long|when.*arrive|free delivery|location|accra|kumasi|ghana/.test(text)) {
+        return {
+          message: "**Delivery**\\n• Free delivery on orders above **GH₵ 500**\\n• We deliver across Ghana\\n• After you order, we'll confirm and update you\\n\\nYou can also track orders from **Account → Orders** after signing in.",
+          quick: ['Show products', 'How to order', 'Talk to a human']
+        };
+      }
+
+      // Trade-in
+      if (/trade.?in|swap|old phone|sell my|exchange/.test(text)) {
+        return {
+          message: "**Trade-In** is available. Tell us your device and condition, and the team will make an offer.\\n\\nYou can start Trade-In from the home page button, or I can connect you on WhatsApp to handle it personally.",
+          quick: ['Open Trade-In', 'Talk to a human', 'Show phones']
+        };
+      }
+      if (/open trade.?in/.test(text)) {
+        closeChatPanel();
+        if (typeof openTradeIn === 'function') openTradeIn();
+        return { message: "Opening Trade-In form for you…", quick: ['Show products', 'Talk to a human'] };
+      }
+
+      // Orders / track
+      if (/track|order status|my order|where is my/.test(text)) {
+        return {
+          message: "To track an order, open **Account → Orders** (sign in with your phone number).\\n\\nIf you need faster help, I can connect you to a human on WhatsApp.",
+          quick: ['Talk to a human', 'How to order', 'Show products']
+        };
+      }
+
+      // How to order
+      if (/how (to|do i) order|checkout|buy|purchase|pay/.test(text)) {
+        return {
+          message: "**How to order**\\n1. Browse products on Home\\n2. Tap **Add to Cart** (sign in if asked)\\n3. Open Cart → Checkout\\n4. Pay securely with Paystack\\n\\nNeed help choosing a product? Tell me what you want.",
+          quick: ['Show popular products', 'Delivery info', 'Talk to a human']
+        };
+      }
+
+      // Categories / popular
+      if (/popular|best|recommend|show products|what do you (sell|have)|catalogue|catalog/.test(text)) {
+        const list = (products || []).slice(0, 6);
+        if (!list.length) {
+          return { message: "Products are still loading. Please wait a moment, then ask again.", quick: ['Show products', 'Talk to a human'] };
+        }
+        return {
+          message: "Here are some items you can explore:\\n\\n" + list.map(formatProductLine).join('\\n') + "\\n\\nTell me a name or category (e.g. *blender*, *phone*, *fan*) and I'll find matches.",
+          quick: ['Appliances', 'Phones', 'Talk to a human']
+        };
+      }
+
+      // Category shortcuts
+      if (/\\b(phone|phones|iphone|samsung|tablet)\\b/.test(text)) {
+        const list = searchProductsSmart(text.includes('phone') ? 'phone' : text).length
+          ? searchProductsSmart(text)
+          : (products || []).filter(p => /phone/i.test(p.category || '') || /phone|iphone|samsung/i.test(p.name || '')).slice(0, 5);
+        if (list.length) {
+          return {
+            message: "Here are matching **phones / related items**:\\n\\n" + list.map(formatProductLine).join('\\n') + "\\n\\nTap a product on the shop page to see details, or ask for another model.",
+            quick: ['Show more products', 'Talk to a human', 'Delivery info']
+          };
+        }
+      }
+      if (/\\b(appliance|blender|microwave|fridge|fan|cooker|iron|toaster|cooler|heater)\\b/.test(text)) {
+        const list = searchProductsSmart(text);
+        const fallback = (products || []).filter(p => /appliance/i.test(p.category || '')).slice(0, 5);
+        const use = list.length ? list : fallback;
+        if (use.length) {
+          return {
+            message: "Here's what I found:\\n\\n" + use.map(formatProductLine).join('\\n') + "\\n\\nWant something more specific? Tell me the exact name or budget.",
+            quick: ['Show popular products', 'Talk to a human', 'Delivery info']
+          };
+        }
+      }
+
+      // Price / budget
+      if (/price|cost|how much|budget|cheap|affordable|under \\d+/.test(text)) {
+        const num = text.match(/(\\d{2,5})/);
+        if (num) {
+          const max = Number(num[1]);
+          const list = (products || []).filter(p => Number(p.price) <= max).sort((a,b)=>Number(a.price)-Number(b.price)).slice(0, 5);
+          if (list.length) {
+            return {
+              message: `Items around **GH₵ ${max}** or less:\\n\\n` + list.map(formatProductLine).join('\\n'),
+              quick: ['Show popular products', 'Talk to a human']
+            };
+          }
+        }
+        return {
+          message: "Tell me a product name or a budget (e.g. *under 300*) and I'll list matching items with prices.",
+          quick: ['Under 200', 'Under 500', 'Show popular products']
+        };
+      }
+
+      // Product search by free text
+      const found = searchProductsSmart(text);
+      if (found.length) {
+        return {
+          message: "I found these for you:\\n\\n" + found.map(formatProductLine).join('\\n') + "\\n\\nYou can add them from the Home page. Want me to refine the search?",
+          quick: ['Show popular products', 'Delivery info', 'Talk to a human']
+        };
+      }
+
+      // After a few turns, gently offer human
+      if (chatTurns >= 4 && !chatOfferedAgent) {
+        chatOfferedAgent = true;
+        return {
+          message: "I'm not fully sure I understood that. I can keep helping, or connect you to a **human agent** on WhatsApp for personal support.\\n\\nWould you like to talk to a real person?",
+          quick: ['Yes, talk to agent', 'No, continue', 'Show products']
+        };
+      }
+
+      return {
+        message: "I can help with **products, prices, delivery, trade-in, and orders**. Try asking things like:\\n• “Show blenders”\\n• “Phones under 500”\\n• “How does delivery work?”\\n\\nOr say **talk to a human** if you'd prefer WhatsApp support.",
+        quick: ['Show popular products', 'Delivery info', 'Talk to a human']
+      };
+    }
+
+    function closeChatPanel() {
+      const panel = document.getElementById('chat-panel');
+      if (panel) panel.classList.remove('open');
+    }
+
 
 
     function openSideMenu() {
