@@ -150,45 +150,51 @@
       display: flex; align-items: center; justify-content: center;
     }
     .hero-carousel {
-      margin: 12px; border-radius: 16px; overflow: hidden;
-      position: relative; height: 180px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      margin: 12px; border-radius: 20px; overflow: hidden;
+      position: relative; height: 260px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+    }
+    @media (min-width: 600px) {
+      .hero-carousel { height: 300px; }
     }
     .hero-slides {
       display: flex; width: 100%; height: 100%;
-      transition: transform 0.6s ease;
+      transition: transform 0.55s cubic-bezier(0.25, 0.1, 0.25, 1);
     }
     .hero-slide {
       min-width: 100%; height: 100%;
-      display: flex; flex-direction: column; justify-content: center;
-      padding: 22px 18px; color: #fff; position: relative;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 28px 20px 36px; color: #fff; position: relative;
       background-size: cover; background-position: center;
     }
     .hero-slide::before {
       content: ''; position: absolute; inset: 0;
-      background: linear-gradient(135deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.25) 100%);
+      background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.55) 100%);
     }
     .hero-slide > * { position: relative; z-index: 1; }
-    .hero-slide h1 { font-size: 1.3rem; font-weight: 800; margin-bottom: 6px; }
-    .hero-slide p { font-size: 0.88rem; opacity: 0.95; margin-bottom: 14px; }
+    .hero-slide h1 { font-size: 1.55rem; font-weight: 850; margin-bottom: 8px; letter-spacing: -0.3px; line-height: 1.2; }
+    .hero-slide p { font-size: 0.95rem; opacity: 0.95; margin-bottom: 16px; max-width: 90%; }
     .hero-btns { display: flex; gap: 10px; flex-wrap: wrap; }
     .hero-dots {
-      position: absolute; bottom: 10px; left: 0; right: 0;
+      position: absolute; bottom: 12px; left: 0; right: 0;
       display: flex; justify-content: center; gap: 6px; z-index: 5;
     }
     .hero-dot {
       width: 8px; height: 8px; border-radius: 50%;
       background: rgba(255,255,255,0.45); border: none; padding: 0; cursor: pointer;
+      transition: width 0.25s, background 0.25s;
     }
-    .hero-dot.active { background: #fff; width: 18px; border-radius: 4px; }
+    .hero-dot.active { background: #fff; width: 22px; border-radius: 4px; }
     .hero-arrow {
       position: absolute; top: 50%; transform: translateY(-50%);
-      width: 32px; height: 32px; border-radius: 50%; border: none;
-      background: rgba(0,0,0,0.35); color: #fff; font-size: 1.1rem;
+      width: 36px; height: 36px; border-radius: 50%; border: none;
+      background: rgba(255,255,255,0.25);
+      backdrop-filter: blur(8px);
+      color: #fff; font-size: 1.2rem;
       cursor: pointer; z-index: 5; display: flex; align-items: center; justify-content: center;
     }
-    .hero-arrow.prev { left: 8px; }
-    .hero-arrow.next { right: 8px; }
+    .hero-arrow.prev { left: 10px; }
+    .hero-arrow.next { right: 10px; }
     .btn {
       display: inline-flex; align-items: center; justify-content: center; gap: 6px;
       padding: 11px 18px; border-radius: 10px;
@@ -831,34 +837,52 @@
 
     <div class="hero-carousel" id="hero-carousel">
       <div class="hero-slides" id="hero-slides">
-        <div class="hero-slide" style="background: linear-gradient(135deg, #34d399 0%, #818cf8 50%, #f472b6 100%);">
-          <div style="background:rgba(255,255,255,0.25);display:inline-block;padding:4px 10px;border-radius:20px;font-size:0.72rem;font-weight:800;margin-bottom:8px;">LIMITED OFFER</div>
+        <div class="hero-slide" style="background: linear-gradient(135deg, #f59e0b 0%, #ef4444 45%, #ec4899 100%);">
+          <div style="background:rgba(255,255,255,0.28);display:inline-block;padding:5px 12px;border-radius:20px;font-size:0.72rem;font-weight:800;margin-bottom:10px;">LIMITED OFFER</div>
           <h1>Flash deals live now</h1>
-          <p>Grab discounts before they end — check Flash Sales below</p>
+          <p>Huge discounts on selected items — shop Flash Sales below</p>
           <div class="hero-btns">
-            <button class="btn btn-dark" onclick="document.getElementById('flash-section')?.scrollIntoView({behavior:'smooth'})">See Deals</button>
+            <button class="btn btn-dark" onclick="document.getElementById('flash-section')?.scrollIntoView({behavior:'smooth'})">Shop Deals</button>
           </div>
         </div>
-        <div class="hero-slide" style="background: linear-gradient(135deg, #0B7A3E 0%, #086532 60%, #054d26 100%);">
-          <h1>Quality products for your home</h1>
-          <p>Phones, appliances, electronics & more — delivered across Ghana</p>
+        <div class="hero-slide" style="background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 50%, #1d4ed8 100%);">
+          <div style="background:rgba(255,255,255,0.28);display:inline-block;padding:5px 12px;border-radius:20px;font-size:0.72rem;font-weight:800;margin-bottom:10px;">PHONES</div>
+          <h1>Phones & Tablets</h1>
+          <p>Latest phones at the best prices — delivered across Ghana</p>
           <div class="hero-btns">
-            <button class="btn btn-yellow" onclick="openTradeIn()">Trade-In</button>
-            <button class="btn btn-outline-white" onclick="openWhatsApp('Hello, I need help with my order')">WhatsApp</button>
+            <button class="btn btn-yellow" onclick="setCategory('Phones');goPage('home')">Shop Phones</button>
+          </div>
+        </div>
+        <div class="hero-slide" style="background: linear-gradient(135deg, #059669 0%, #0B7A3E 55%, #064e3b 100%);">
+          <div style="background:rgba(255,255,255,0.28);display:inline-block;padding:5px 12px;border-radius:20px;font-size:0.72rem;font-weight:800;margin-bottom:10px;">APPLIANCES</div>
+          <h1>Home Appliances</h1>
+          <p>Blenders, microwaves, fans, cookers & more for your home</p>
+          <div class="hero-btns">
+            <button class="btn btn-yellow" onclick="setCategory('Appliances');goPage('home')">Shop Appliances</button>
+          </div>
+        </div>
+        <div class="hero-slide" style="background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 55%, #4c1d95 100%);">
+          <div style="background:rgba(255,255,255,0.28);display:inline-block;padding:5px 12px;border-radius:20px;font-size:0.72rem;font-weight:800;margin-bottom:10px;">ELECTRONICS</div>
+          <h1>Electronics Deals</h1>
+          <p>Quality electronics for work, play and everyday life</p>
+          <div class="hero-btns">
+            <button class="btn btn-yellow" onclick="setCategory('Electronics');goPage('home')">Shop Electronics</button>
           </div>
         </div>
         <div class="hero-slide" style="background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #3b82f6 100%);">
+          <div style="background:rgba(255,255,255,0.28);display:inline-block;padding:5px 12px;border-radius:20px;font-size:0.72rem;font-weight:800;margin-bottom:10px;">DELIVERY</div>
           <h1>Free delivery across Ghana</h1>
-          <p>On orders above GH₵ 500</p>
+          <p>On orders above GH₵ 500 — shop with confidence</p>
           <div class="hero-btns">
             <button class="btn btn-yellow" onclick="goPage('categories')">Browse Categories</button>
           </div>
         </div>
-        <div class="hero-slide" style="background: linear-gradient(135deg, #4c1d95 0%, #7c3aed 55%, #a78bfa 100%);">
+        <div class="hero-slide" style="background: linear-gradient(135deg, #b45309 0%, #ea580c 50%, #f59e0b 100%);">
+          <div style="background:rgba(255,255,255,0.28);display:inline-block;padding:5px 12px;border-radius:20px;font-size:0.72rem;font-weight:800;margin-bottom:10px;">TRADE-IN</div>
           <h1>Trade-In & Save</h1>
-          <p>Swap your old phone, laptop or appliance for a better deal</p>
+          <p>Swap your old phone or appliance for a better deal</p>
           <div class="hero-btns">
-            <button class="btn btn-yellow" onclick="openTradeIn()">Start Trade-In</button>
+            <button class="btn btn-dark" onclick="openTradeIn()">Start Trade-In</button>
           </div>
         </div>
       </div>
@@ -2162,7 +2186,7 @@
     // ===== Auto-rotating hero carousel (like Jumia) =====
     let heroIndex = 0;
     let heroTimer = null;
-    const HERO_COUNT = 4;
+    const HERO_COUNT = 6;
 
     function heroGo(i) {
       heroIndex = (i + HERO_COUNT) % HERO_COUNT;
@@ -2176,7 +2200,7 @@
     function heroPrev() { heroGo(heroIndex - 1); restartHeroTimer(); }
     function restartHeroTimer() {
       if (heroTimer) clearInterval(heroTimer);
-      heroTimer = setInterval(() => heroGo(heroIndex + 1), 4000);
+      heroTimer = setInterval(() => heroGo(heroIndex + 1), 3500);
     }
     function initHeroCarousel() {
       const dots = document.getElementById('hero-dots');
