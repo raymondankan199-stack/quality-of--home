@@ -1255,6 +1255,15 @@
       document.querySelectorAll('.nav-item').forEach(n => {
         n.classList.toggle('active', n.dataset.page === page);
       });
+      // When opening Home, always show ALL products (reset filters)
+      if (page === 'home') {
+        currentCat = 'all';
+        searchQuery = '';
+        const si = document.getElementById('search-input');
+        if (si) si.value = '';
+        renderCategories();
+        renderProducts();
+      }
       if (page === 'cart') renderCartPage();
       if (page === 'wishlist') renderWishlist();
       if (page === 'account') updateAccountUI();
@@ -1269,27 +1278,30 @@
         container.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><h3>No connection</h3><p>Unable to load products</p></div>';
         return;
       }
+      // Show loading state on home immediately
+      if (container) {
+        container.innerHTML = '<div class="empty"><div class="empty-icon">⏳</div><h3>Loading products...</h3><p>Please wait</p></div>';
+      }
       try {
-        // Load ALL products from Supabase (no status filter so nothing is hidden)
+        // Load ALL products from Supabase
         let { data, error } = await supabaseClient
           .from('products')
           .select('*')
           .order('id', { ascending: false })
           .limit(1000);
         if (error) throw error;
-        // Prefer active products first, but still show everything
-        products = (data || []).slice().sort((a, b) => {
-          const aActive = (a.status || '').toLowerCase() === 'active' ? 0 : 1;
-          const bActive = (b.status || '').toLowerCase() === 'active' ? 0 : 1;
-          if (aActive !== bActive) return aActive - bActive;
-          return (b.id || 0) - (a.id || 0);
-        });
+        products = data || [];
+        // Always reset to show everything on home
+        currentCat = 'all';
+        searchQuery = '';
+        const si = document.getElementById('search-input');
+        if (si) si.value = '';
         renderCategories();
         renderProducts();
         renderFlash();
       } catch (e) {
         console.error('loadProducts error:', e);
-        container.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><h3>Error loading</h3><p>Please try again later</p></div>';
+        container.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><h3>Error loading</h3><p>Please try again later</p><button class="btn btn-green" onclick="loadProducts()">Retry</button></div>';
       }
     }
 
@@ -1304,12 +1316,13 @@
       renderProducts();
     }
     function renderProducts() {
-      let list = products;
-      if (currentCat !== 'all') {
-        list = list.filter(p => (p.category || '').toLowerCase() === currentCat.toLowerCase());
+      let list = products.slice();
+      if (currentCat && currentCat !== 'all') {
+        const cat = currentCat.toLowerCase().trim();
+        list = list.filter(p => (p.category || '').toLowerCase().trim() === cat);
       }
       if (searchQuery) {
-        const q = searchQuery.toLowerCase();
+        const q = searchQuery.toLowerCase().trim();
         list = list.filter(p => (p.name || '').toLowerCase().includes(q) || (p.category || '').toLowerCase().includes(q));
       }
       document.getElementById('product-count').textContent = list.length + (list.length === 1 ? ' item' : ' items');
