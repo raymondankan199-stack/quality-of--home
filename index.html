@@ -729,7 +729,7 @@
       <button class="menu-btn" onclick="openSideMenu()" aria-label="Menu">☰</button>
       <div class="search-wrap">
         <span class="search-icon">🔍</span>
-        <input type="text" id="search-input" placeholder="Search products..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="search" name="qoh-product-search" />
+        <input type="text" id="search-input" placeholder="Search products..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="search" name="qoh_search_no_autofill" role="searchbox" data-lpignore="true" data-form-type="other" />
       </div>
       <button class="top-cart" onclick="openCart()">
         🛒 <span class="cart-badge" id="cart-count">0</span>
@@ -1299,6 +1299,8 @@
         renderCategories();
         renderProducts();
         renderFlash();
+        setTimeout(function(){ if (typeof clearBadSearchAutofill === 'function') clearBadSearchAutofill(); }, 500);
+        setTimeout(function(){ if (typeof clearBadSearchAutofill === 'function') clearBadSearchAutofill(); }, 2000);
       } catch (e) {
         console.error('loadProducts error:', e);
         container.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><h3>Error loading</h3><p>Please try again later</p><button class="btn btn-green" onclick="loadProducts()">Retry</button></div>';
@@ -2048,10 +2050,45 @@
       } catch (e) { toast('Could not submit. Try again.'); }
     }
 
+    function isEmailLike(v) {
+      return /@/.test(v) || /^[a-z0-9._%+-]+$/.test(v) && v.includes('.com');
+    }
+    function clearBadSearchAutofill() {
+      const si = document.getElementById('search-input');
+      if (!si) return;
+      const v = (si.value || '').trim();
+      if (!v) return;
+      // Browser often autofills email into search — ignore it
+      if (v.includes('@') || v.toLowerCase().includes('gmail') || v.toLowerCase().includes('yahoo') || v.toLowerCase().includes('outlook')) {
+        si.value = '';
+        searchQuery = '';
+        renderProducts();
+      }
+    }
     document.getElementById('search-input').addEventListener('input', (e) => {
-      searchQuery = e.target.value.trim();
+      let v = e.target.value.trim();
+      // Block email autofill from filtering products
+      if (v.includes('@')) {
+        e.target.value = '';
+        searchQuery = '';
+        renderProducts();
+        return;
+      }
+      searchQuery = v;
       renderProducts();
     });
+    document.getElementById('search-input').addEventListener('focus', function() {
+      // readonly trick sometimes stops autofill; remove on focus so user can type
+      this.removeAttribute('readonly');
+    });
+    // Stop Chrome/Edge autofill into search
+    const _si = document.getElementById('search-input');
+    if (_si) {
+      _si.setAttribute('readonly', 'readonly');
+      setTimeout(function() { _si.removeAttribute('readonly'); clearBadSearchAutofill(); }, 800);
+      setTimeout(clearBadSearchAutofill, 1500);
+      setTimeout(clearBadSearchAutofill, 3000);
+    }
 
 
     // ===== ADDRESS AUTOCOMPLETE (OpenStreetMap) =====
