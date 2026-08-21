@@ -1146,7 +1146,27 @@
       <button class="menu-btn" onclick="openSideMenu()" aria-label="Menu">☰</button>
       <div class="search-wrap">
         <span class="search-icon">🔍</span>
-        <input type="search" id="search-input" placeholder="Search products, brands, categories..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="search" enterkeyhint="search" name="qoh_product_search" role="searchbox" data-lpignore="true" data-form-type="other" aria-label="Search products" />
+        <!-- Decoy fields: browsers dump saved account into these instead of the real search box -->
+        <input type="text" name="username" autocomplete="username" tabindex="-1" aria-hidden="true"
+          style="position:absolute;opacity:0;height:0;width:0;border:0;padding:0;margin:0;left:-9999px;" value="" />
+        <input type="password" name="password" autocomplete="current-password" tabindex="-1" aria-hidden="true"
+          style="position:absolute;opacity:0;height:0;width:0;border:0;padding:0;margin:0;left:-9999px;" value="" />
+        <input type="search" id="search-input"
+          placeholder="Search products, brands, categories..."
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+          inputmode="search"
+          enterkeyhint="search"
+          name="hoq_search_q_no_account"
+          role="searchbox"
+          data-lpignore="true"
+          data-1p-ignore="true"
+          data-bwignore="true"
+          data-form-type="other"
+          aria-label="Search products"
+          value="" />
         <button type="button" id="search-clear" class="search-clear" onclick="clearSearch()" aria-label="Clear search" style="display:none;">✕</button>
       </div>
       <button class="top-cart" onclick="openCart()">
@@ -3129,16 +3149,29 @@
     function isEmailLike(v) {
       return /@/.test(v) || /^[a-z0-9._%+-]+$/.test(v) && v.includes('.com');
     }
+    function isAccountAutofill(v) {
+      if (!v) return false;
+      var s = String(v).trim().toLowerCase();
+      if (!s) return false;
+      // Email / provider
+      if (s.indexOf('@') >= 0) return true;
+      if (/gmail|yahoo|outlook|hotmail|icloud|proton/.test(s)) return true;
+      // Account / name fragments that browsers paste into search
+      if (/raymond|ankan|romanangan|raymondankan|quality.?of.?home|home.?of.?quality/.test(s)) return true;
+      // Looks like a saved login (no spaces, has numbers/dots typical of usernames)
+      if (/^[a-z0-9._-]{6,}$/.test(s) && /\d/.test(s) && !/\s/.test(s)) return true;
+      return false;
+    }
     function clearBadSearchAutofill() {
       const si = document.getElementById('search-input');
       if (!si) return;
       const v = (si.value || '').trim();
       if (!v) return;
-      // Browser often autofills email into search — ignore it
-      if (v.includes('@') || v.toLowerCase().includes('gmail') || v.toLowerCase().includes('yahoo') || v.toLowerCase().includes('outlook')) {
+      if (isAccountAutofill(v)) {
         si.value = '';
         searchQuery = '';
-        renderProducts();
+        updateSearchClearBtn();
+        try { renderProducts(); } catch (e) {}
       }
     }
     function clearSearch() {
@@ -3158,10 +3191,16 @@
       const si = document.getElementById('search-input');
       if (!si) return;
       let searchDebounce = null;
+      let userIsTyping = false;
+
+      // Force empty on load — kill any browser autofill
+      si.value = '';
+      searchQuery = '';
+
       si.addEventListener('input', function(e) {
+        userIsTyping = true;
         let v = (e.target.value || '').trim();
-        // Ignore accidental email autofill
-        if (v.includes('@') || /gmail|yahoo|outlook/i.test(v)) {
+        if (isAccountAutofill(v)) {
           e.target.value = '';
           searchQuery = '';
           updateSearchClearBtn();
@@ -3170,7 +3209,6 @@
         }
         searchQuery = v;
         updateSearchClearBtn();
-        // Make sure user is on home so they see results
         if (typeof goPage === 'function') {
           const home = document.getElementById('page-home');
           if (home && !home.classList.contains('active')) goPage('home');
@@ -3178,7 +3216,6 @@
         clearTimeout(searchDebounce);
         searchDebounce = setTimeout(function() {
           renderProducts();
-          // Scroll to product grid so results are visible
           const grid = document.getElementById('products');
           if (grid && searchQuery) {
             try { grid.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch(e) {}
@@ -3188,7 +3225,9 @@
       si.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
           e.preventDefault();
-          searchQuery = (si.value || '').trim();
+          var v = (si.value || '').trim();
+          if (isAccountAutofill(v)) { clearSearch(); return; }
+          searchQuery = v;
           updateSearchClearBtn();
           renderProducts();
           const grid = document.getElementById('products');
@@ -3198,11 +3237,41 @@
       });
       si.addEventListener('focus', function() {
         this.removeAttribute('readonly');
+        // If browser filled account while we weren't looking, wipe it
+        if (isAccountAutofill(this.value)) {
+          this.value = '';
+          searchQuery = '';
+          updateSearchClearBtn();
+        }
       });
-      // Soft autofill block (mobile browsers)
+      si.addEventListener('blur', function() {
+        if (isAccountAutofill(this.value)) {
+          this.value = '';
+          searchQuery = '';
+          updateSearchClearBtn();
+          try { renderProducts(); } catch (e) {}
+        }
+      });
+
+      // readonly until user interacts (blocks many autofill engines)
       si.setAttribute('readonly', 'readonly');
-      setTimeout(function() { si.removeAttribute('readonly'); clearBadSearchAutofill(); }, 600);
-      setTimeout(clearBadSearchAutofill, 1500);
+      function unlockSearch() {
+        si.removeAttribute('readonly');
+        clearBadSearchAutofill();
+      }
+      si.addEventListener('touchstart', unlockSearch, { once: true });
+      si.addEventListener('mousedown', unlockSearch, { once: true });
+      setTimeout(unlockSearch, 800);
+
+      // Keep clearing autofill for a few seconds after load
+      [0, 200, 500, 1000, 2000, 3500, 5000].forEach(function(ms) {
+        setTimeout(clearBadSearchAutofill, ms);
+      });
+      // Mutation-style check: if value appears without typing
+      setInterval(function() {
+        if (!userIsTyping && isAccountAutofill(si.value)) clearBadSearchAutofill();
+        userIsTyping = false;
+      }, 1000);
     })();
 
 
