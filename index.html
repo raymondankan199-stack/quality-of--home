@@ -163,6 +163,7 @@
       transition: transform 0.2s, background 0.3s;
     }
     .theme-toggle:active { transform: scale(0.92); }
+    .pd-thumb.active { border-color: #0B7A3E !important; box-shadow: 0 0 0 2px rgba(11,122,62,0.25); }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -2572,7 +2573,7 @@
         const stock = Number(p.stock) || 0;
         return '<div class="product-card">' +
           '<div class="product-img-wrap" onclick="openProduct(' + p.id + ')" style="cursor:pointer;">' +
-            (p.image ? '<img src="' + p.image + '" alt="" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'" /><div class="ph" style="display:none">📦</div>' : '<div class="ph">📦</div>') +
+            (productThumb(p) ? '<img src="' + productThumb(p) + '" alt="" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'" /><div class="ph" style="display:none">📦</div>' : '<div class="ph">📦</div>') +
             (hasDiscount ? '<span class="discount-badge">-' + disc + '%</span>' : '') +
             '<button class="wish-btn ' + (isWish ? 'active' : '') + '" onclick="toggleWish(' + p.id + ', event)">' + (isWish ? '❤️' : '🤍') + '</button>' +
           '</div>' +
@@ -2699,7 +2700,7 @@
         const q = searchQuery.toLowerCase().trim();
         const words = q.split(/\s+/).filter(w => w.length > 0);
         list = list.filter(p => {
-          const hay = ((p.name || '') + ' ' + (p.category || '') + ' ' + (p.description || '')).toLowerCase();
+          const hay = ((p.name || '') + ' ' + (p.category || '') + ' ' + (parseProductMedia(p).description || '')).toLowerCase();
           // Match if full query is in hay, OR every word appears somewhere
           if (hay.includes(q)) return true;
           return words.length > 0 && words.every(w => hay.includes(w));
@@ -2734,7 +2735,7 @@
         return `
           <div class="product-card">
             <div class="product-img-wrap" onclick="openProduct(${p.id})" style="cursor:pointer;">
-              ${p.image ? `<img src="${p.image}" alt="${p.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" /><div class="ph" style="display:none">📦</div>` : `<div class="ph">📦</div>`}
+              ${productThumb(p) ? `<img src="${productThumb(p)}" alt="${p.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" /><div class="ph" style="display:none">📦</div>` : `<div class="ph">📦</div>`}
               ${hasDiscount ? `<span class="discount-badge">-${disc}%</span>` : ''}
               <button class="wish-btn ${isWish ? 'active' : ''}" onclick="toggleWish(${p.id}, event)">${isWish ? '❤️' : '🤍'}</button>
             </div>
@@ -2759,7 +2760,7 @@
         const disc = Math.round((1 - p.price / p.original_price) * 100);
         return `
           <div class="flash-item" onclick="addToCart(${p.id})">
-            ${p.image ? `<img src="${p.image}" />` : `<div class="ph">📦</div>`}
+            ${productThumb(p) ? `<img src="${productThumb(p)}" />` : `<div class="ph">📦</div>`}
             <div class="flash-price">${formatMoney(p.price)}</div>
             <div class="flash-old">${formatMoney(p.original_price)}</div>
             <span class="flash-badge">-${disc}%</span>
@@ -2788,7 +2789,7 @@
       }
       const existing = cart.find(i => i.id === id);
       if (existing) existing.qty += 1;
-      else cart.push({ id: p.id, name: p.name, price: p.price, image: p.image || '', qty: 1 });
+      else cart.push({ id: p.id, name: p.name, price: p.price, image: productThumb(p) || '', qty: 1 });
       saveCart();
       toast('Added to cart ✓');
     }
@@ -2905,7 +2906,7 @@
       el.innerHTML = `<div class="products" style="padding-top:12px;">${items.map(p => `
         <div class="product-card">
           <div class="product-img-wrap">
-            ${p.image ? `<img src="${p.image}" />` : `<div class="ph">📦</div>`}
+            ${productThumb(p) ? `<img src="${productThumb(p)}" />` : `<div class="ph">📦</div>`}
             <button class="wish-btn active" onclick="toggleWish(${p.id}, event)">❤️</button>
           </div>
           <div class="product-body">
@@ -3362,29 +3363,82 @@
       document.getElementById('order-modal').classList.remove('open');
     }
 
+
+    // ===== Product media (single image URL or JSON gallery + description) =====
+    function parseProductMedia(p) {
+      var images = [];
+      var description = '';
+      var raw = p && p.image;
+      if (!raw) return { images: [], description: '', thumb: '' };
+      if (typeof raw === 'string' && (raw.charAt(0) === '{' || raw.charAt(0) === '[')) {
+        try {
+          var data = JSON.parse(raw);
+          if (Array.isArray(data)) {
+            images = data.filter(Boolean);
+          } else if (data && typeof data === 'object') {
+            if (Array.isArray(data.images)) images = data.images.filter(Boolean);
+            else if (data.main) images = [data.main].concat(data.gallery || []).filter(Boolean);
+            description = data.description || data.desc || '';
+          }
+        } catch (e) {
+          images = [raw];
+        }
+      } else {
+        images = [raw];
+      }
+      return { images: images, description: description, thumb: images[0] || '' };
+    }
+    function productThumb(p) {
+      return parseProductMedia(p).thumb;
+    }
+    function setProductGalleryMain(src, elId) {
+      var main = document.getElementById(elId || 'pd-main-img');
+      if (main) main.src = src;
+      document.querySelectorAll('.pd-thumb').forEach(function(t) {
+        t.classList.toggle('active', t.getAttribute('data-src') === src);
+      });
+    }
+
     function openProduct(id) {
       const p = products.find(x => x.id === id);
       if (!p) return;
       const hasDiscount = p.original_price && Number(p.original_price) > Number(p.price);
       const disc = hasDiscount ? Math.round((1 - p.price / p.original_price) * 100) : 0;
       const stock = Number(p.stock) || 0;
+      const media = parseProductMedia(p);
+      const imgs = media.images;
+      const mainSrc = imgs[0] || '';
+      const thumbs = imgs.length > 1
+        ? `<div style="display:flex;gap:8px;overflow-x:auto;padding:8px 0 4px;justify-content:center;">` +
+          imgs.map(function(src, i) {
+            return `<button type="button" class="pd-thumb${i===0?' active':''}" data-src="${src.replace(/"/g,'&quot;')}" onclick="setProductGalleryMain(this.getAttribute('data-src'))" style="flex:0 0 56px;width:56px;height:56px;border-radius:10px;border:2px solid ${i===0?'#0B7A3E':'rgba(0,0,0,0.12)'};padding:0;overflow:hidden;background:#fff;cursor:pointer;"><img src="${src}" style="width:100%;height:100%;object-fit:cover;" /></button>`;
+          }).join('') + `</div>`
+        : '';
+      const descHtml = media.description
+        ? `<div style="margin:14px 0 18px;padding:14px;border-radius:14px;background:rgba(15,23,42,0.04);border:1px solid rgba(15,23,42,0.08);text-align:left;">
+            <div style="font-size:0.78rem;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:#64748b;margin-bottom:8px;">Product details</div>
+            <div style="font-size:0.92rem;line-height:1.55;color:#334155;white-space:pre-wrap;">${media.description.replace(/</g,'&lt;')}</div>
+          </div>`
+        : `<div style="margin:12px 0 16px;font-size:0.9rem;color:#64748b;line-height:1.5;text-align:left;">Quality product from Home of Quality. Fast delivery across Ghana. Contact us on WhatsApp for more info.</div>`;
       document.getElementById('product-modal-content').innerHTML = `
-        <div style="text-align:center;margin-bottom:14px;">
-          ${p.image ? `<img src="${p.image}" style="width:100%;max-height:220px;object-fit:contain;border-radius:14px;background:#f8fafc;" onerror="this.src=''" />` : `<div style="font-size:4rem;padding:30px;">📦</div>`}
+        <div style="text-align:center;margin-bottom:10px;">
+          ${mainSrc ? `<img id="pd-main-img" src="${mainSrc}" style="width:100%;max-height:260px;object-fit:contain;border-radius:16px;background:linear-gradient(180deg,#f8fafc,#eef2ff);" onerror="this.style.display='none'" />` : `<div style="font-size:4rem;padding:30px;">📦</div>`}
+          ${thumbs}
         </div>
-        <h2 style="font-size:1.2rem;margin-bottom:6px;">${p.name || 'Product'}</h2>
+        <h2 style="font-size:1.22rem;margin-bottom:6px;line-height:1.3;">${p.name || 'Product'}</h2>
         <div style="font-size:0.85rem;color:#666;margin-bottom:10px;">${p.category || ''}</div>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-          <span style="font-size:1.35rem;font-weight:800;color:#0B7A3E;">${formatMoney(p.price)}</span>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+          <span style="font-size:1.4rem;font-weight:800;color:#0B7A3E;">${formatMoney(p.price)}</span>
           ${hasDiscount ? `<span style="text-decoration:line-through;color:#999;">${formatMoney(p.original_price)}</span><span style="background:#F5C518;padding:2px 8px;border-radius:6px;font-size:0.75rem;font-weight:800;">-${disc}%</span>` : ''}
         </div>
-        <div style="font-size:0.88rem;color:${stock>0?'#0B7A3E':'#E53935'};font-weight:600;margin-bottom:16px;">
-          ${stock > 0 ? (stock <= 5 ? 'Only ' + stock + ' left in stock' : 'In stock') : 'Out of stock'}
+        <div style="font-size:0.88rem;color:${stock>0?'#0B7A3E':'#E53935'};font-weight:600;margin-bottom:8px;">
+          ${stock > 0 ? (stock <= 5 ? 'Only ' + stock + ' left in stock' : 'In stock · Ready to ship') : 'Out of stock'}
         </div>
+        ${descHtml}
         <button class="btn btn-green btn-full" onclick="addToCart(${p.id}); closeProductModal();" ${stock===0?'disabled':''}>
           ${stock === 0 ? 'Out of Stock' : 'Add to Cart'}
         </button>
-        <button class="btn btn-ghost btn-full" style="margin-top:8px;" onclick="openWhatsApp('Hello, I want to ask about: ${ (p.name||'').replace(/'/g,"") }')">Ask on WhatsApp</button>
+        <button class="btn btn-ghost btn-full" style="margin-top:8px;" onclick="openWhatsApp('Hello, I want to ask about: ${ (p.name||'').replace(/'/g,"\\'") }')">Ask on WhatsApp</button>
       `;
       document.getElementById('product-modal').classList.add('open');
     }
