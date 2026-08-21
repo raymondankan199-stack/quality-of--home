@@ -155,26 +155,28 @@
       display: flex; align-items: center; justify-content: center;
     }
     .hero-carousel {
-      margin: 12px; border-radius: 20px; overflow: hidden;
+      margin: 12px; border-radius: 24px; overflow: hidden;
       position: relative; height: 260px;
-      box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+      box-shadow: 0 12px 36px rgba(0,0,0,0.16), inset 0 1px 0 rgba(255,255,255,0.25);
     }
     @media (min-width: 600px) {
       .hero-carousel { height: 300px; }
     }
     .hero-slides {
       display: flex; width: 100%; height: 100%;
-      transition: transform 0.55s cubic-bezier(0.25, 0.1, 0.25, 1);
+      transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
     }
     .hero-slide {
       min-width: 100%; height: 100%;
       display: flex; flex-direction: column; justify-content: flex-end;
       padding: 28px 20px 36px; color: #fff; position: relative;
       background-size: cover; background-position: center;
+      transition: background 1.2s cubic-bezier(0.22, 1, 0.36, 1);
     }
     .hero-slide::before {
       content: ''; position: absolute; inset: 0;
-      background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.55) 100%);
+      background: linear-gradient(180deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.45) 100%);
+      pointer-events: none;
     }
     .hero-slide > * { position: relative; z-index: 1; }
     .hero-slide h1 { font-size: 1.55rem; font-weight: 850; margin-bottom: 8px; letter-spacing: -0.3px; line-height: 1.2; }
@@ -951,56 +953,7 @@
     </div>
 
     <div class="hero-carousel" id="hero-carousel">
-      <div class="hero-slides" id="hero-slides">
-        <div class="hero-slide" style="background: linear-gradient(135deg, #f59e0b 0%, #ef4444 45%, #ec4899 100%);">
-          <div style="background:rgba(255,255,255,0.28);display:inline-block;padding:5px 12px;border-radius:20px;font-size:0.72rem;font-weight:800;margin-bottom:10px;">LIMITED OFFER</div>
-          <h1>Flash deals live now</h1>
-          <p>Huge discounts on selected items — shop Flash Sales below</p>
-          <div class="hero-btns">
-            <button class="btn btn-dark" onclick="document.getElementById('flash-section')?.scrollIntoView({behavior:'smooth'})">Shop Deals</button>
-          </div>
-        </div>
-        <div class="hero-slide" style="background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 50%, #1d4ed8 100%);">
-          <div style="background:rgba(255,255,255,0.28);display:inline-block;padding:5px 12px;border-radius:20px;font-size:0.72rem;font-weight:800;margin-bottom:10px;">PHONES</div>
-          <h1>Phones & Tablets</h1>
-          <p>Latest phones at the best prices — delivered across Ghana</p>
-          <div class="hero-btns">
-            <button class="btn btn-yellow" onclick="setCategory('Phones');goPage('home')">Shop Phones</button>
-          </div>
-        </div>
-        <div class="hero-slide" style="background: linear-gradient(135deg, #059669 0%, #0B7A3E 55%, #064e3b 100%);">
-          <div style="background:rgba(255,255,255,0.28);display:inline-block;padding:5px 12px;border-radius:20px;font-size:0.72rem;font-weight:800;margin-bottom:10px;">APPLIANCES</div>
-          <h1>Home Appliances</h1>
-          <p>Blenders, microwaves, fans, cookers & more for your home</p>
-          <div class="hero-btns">
-            <button class="btn btn-yellow" onclick="setCategory('Appliances');goPage('home')">Shop Appliances</button>
-          </div>
-        </div>
-        <div class="hero-slide" style="background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 55%, #4c1d95 100%);">
-          <div style="background:rgba(255,255,255,0.28);display:inline-block;padding:5px 12px;border-radius:20px;font-size:0.72rem;font-weight:800;margin-bottom:10px;">ELECTRONICS</div>
-          <h1>Electronics Deals</h1>
-          <p>Quality electronics for work, play and everyday life</p>
-          <div class="hero-btns">
-            <button class="btn btn-yellow" onclick="setCategory('Electronics');goPage('home')">Shop Electronics</button>
-          </div>
-        </div>
-        <div class="hero-slide" style="background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #3b82f6 100%);">
-          <div style="background:rgba(255,255,255,0.28);display:inline-block;padding:5px 12px;border-radius:20px;font-size:0.72rem;font-weight:800;margin-bottom:10px;">DELIVERY</div>
-          <h1>Free delivery across Ghana</h1>
-          <p>On orders above GH₵ 500 — shop with confidence</p>
-          <div class="hero-btns">
-            <button class="btn btn-yellow" onclick="goPage('categories')">Browse Categories</button>
-          </div>
-        </div>
-        <div class="hero-slide" style="background: linear-gradient(135deg, #b45309 0%, #ea580c 50%, #f59e0b 100%);">
-          <div style="background:rgba(255,255,255,0.28);display:inline-block;padding:5px 12px;border-radius:20px;font-size:0.72rem;font-weight:800;margin-bottom:10px;">TRADE-IN</div>
-          <h1>Trade-In & Save</h1>
-          <p>Swap your old phone or appliance for a better deal</p>
-          <div class="hero-btns">
-            <button class="btn btn-dark" onclick="openTradeIn()">Start Trade-In</button>
-          </div>
-        </div>
-      </div>
+      <div class="hero-slides" id="hero-slides"></div>
       <button class="hero-arrow prev" onclick="heroPrev()">‹</button>
       <button class="hero-arrow next" onclick="heroNext()">›</button>
       <div class="hero-dots" id="hero-dots"></div>
@@ -1943,6 +1896,7 @@
       currentCat = id;
       renderCategories();
       renderProducts();
+      if (typeof heroJumpToCategory === 'function') heroJumpToCategory(id);
     }
     function renderProducts() {
       let list = products.slice();
@@ -2298,16 +2252,135 @@
         }
         closeAuth();
     
-    // ===== Auto-rotating hero carousel (like Jumia) =====
+    // ===== Jumia-style hero: category banners + fluent rotation + 30-min color refresh =====
     let heroIndex = 0;
     let heroTimer = null;
-    const HERO_COUNT = 6;
+    let heroColorTimer = null;
+    let heroColorSet = 0;
+
+    // Each banner = category theme. Each theme has several 3-color gradient sets that rotate every 30 min.
+    const HERO_BANNERS = [
+      {
+        tag: 'LIMITED OFFER',
+        title: 'Flash deals live now',
+        desc: 'Huge discounts on selected items — shop Flash Sales below',
+        action: 'Shop Deals',
+        onclick: "document.getElementById('flash-section')?.scrollIntoView({behavior:'smooth'})",
+        btnClass: 'btn-dark',
+        category: 'all',
+        colors: [
+          ['#f59e0b', '#ef4444', '#ec4899'],
+          ['#fb923c', '#f43f5e', '#d946ef'],
+          ['#eab308', '#dc2626', '#db2777']
+        ]
+      },
+      {
+        tag: 'PHONES',
+        title: 'Phones & Tablets',
+        desc: 'Latest phones at the best prices — delivered across Ghana',
+        action: 'Shop Phones',
+        onclick: "setCategory('Phones');goPage('home')",
+        btnClass: 'btn-yellow',
+        category: 'Phones',
+        colors: [
+          ['#0ea5e9', '#2563eb', '#1d4ed8'],
+          ['#06b6d4', '#3b82f6', '#1e40af'],
+          ['#22d3ee', '#6366f1', '#312e81']
+        ]
+      },
+      {
+        tag: 'APPLIANCES',
+        title: 'Home Appliances',
+        desc: 'Blenders, microwaves, fans, cookers & more for your home',
+        action: 'Shop Appliances',
+        onclick: "setCategory('Appliances');goPage('home')",
+        btnClass: 'btn-yellow',
+        category: 'Appliances',
+        colors: [
+          ['#059669', '#0B7A3E', '#064e3b'],
+          ['#10b981', '#047857', '#065f46'],
+          ['#34d399', '#059669', '#14532d']
+        ]
+      },
+      {
+        tag: 'ELECTRONICS',
+        title: 'Electronics Deals',
+        desc: 'Quality electronics for work, play and everyday life',
+        action: 'Shop Electronics',
+        onclick: "setCategory('Electronics');goPage('home')",
+        btnClass: 'btn-yellow',
+        category: 'Electronics',
+        colors: [
+          ['#7c3aed', '#5b21b6', '#4c1d95'],
+          ['#8b5cf6', '#6d28d9', '#5b21b6'],
+          ['#a78bfa', '#7c3aed', '#4c1d95']
+        ]
+      },
+      {
+        tag: 'DELIVERY',
+        title: 'Free delivery across Ghana',
+        desc: 'On orders above GH₵ 500 — shop with confidence',
+        action: 'Browse Categories',
+        onclick: "goPage('categories')",
+        btnClass: 'btn-yellow',
+        category: 'all',
+        colors: [
+          ['#1e3a8a', '#2563eb', '#3b82f6'],
+          ['#1e40af', '#3b82f6', '#60a5fa'],
+          ['#172554', '#1d4ed8', '#38bdf8']
+        ]
+      },
+      {
+        tag: 'TRADE-IN',
+        title: 'Trade-In & Save',
+        desc: 'Swap your old phone or appliance for a better deal',
+        action: 'Start Trade-In',
+        onclick: 'openTradeIn()',
+        btnClass: 'btn-dark',
+        category: 'Phones',
+        colors: [
+          ['#b45309', '#ea580c', '#f59e0b'],
+          ['#c2410c', '#f97316', '#fbbf24'],
+          ['#9a3412', '#ea580c', '#fcd34d']
+        ]
+      }
+    ];
+    const HERO_COUNT = HERO_BANNERS.length;
+
+    function heroGradient(banner) {
+      const set = banner.colors[heroColorSet % banner.colors.length];
+      return 'linear-gradient(135deg, ' + set[0] + ' 0%, ' + set[1] + ' 50%, ' + set[2] + ' 100%)';
+    }
+
+    function buildHeroSlides() {
+      const slides = document.getElementById('hero-slides');
+      if (!slides) return;
+      slides.innerHTML = HERO_BANNERS.map(function(b, i) {
+        return '<div class="hero-slide" data-cat="' + b.category + '" style="background: ' + heroGradient(b) + ';">' +
+          '<div style="background:rgba(255,255,255,0.28);display:inline-block;padding:5px 12px;border-radius:20px;font-size:0.72rem;font-weight:800;margin-bottom:10px;backdrop-filter:blur(8px);">' + b.tag + '</div>' +
+          '<h1>' + b.title + '</h1>' +
+          '<p>' + b.desc + '</p>' +
+          '<div class="hero-btns">' +
+            '<button class="btn ' + b.btnClass + '" onclick="' + b.onclick + '">' + b.action + '</button>' +
+          '</div></div>';
+      }).join('');
+      slides.style.transform = 'translateX(-' + (heroIndex * 100) + '%)';
+    }
+
+    function refreshHeroColors() {
+      heroColorSet = (heroColorSet + 1) % 3;
+      // Smoothly update each slide background to the next 3-color set
+      document.querySelectorAll('.hero-slide').forEach(function(el, i) {
+        const b = HERO_BANNERS[i];
+        if (b) el.style.background = heroGradient(b);
+      });
+    }
 
     function heroGo(i) {
       heroIndex = (i + HERO_COUNT) % HERO_COUNT;
       const slides = document.getElementById('hero-slides');
       if (slides) slides.style.transform = 'translateX(-' + (heroIndex * 100) + '%)';
-      document.querySelectorAll('.hero-dot').forEach((d, idx) => {
+      document.querySelectorAll('.hero-dot').forEach(function(d, idx) {
         d.classList.toggle('active', idx === heroIndex);
       });
     }
@@ -2315,19 +2388,30 @@
     function heroPrev() { heroGo(heroIndex - 1); restartHeroTimer(); }
     function restartHeroTimer() {
       if (heroTimer) clearInterval(heroTimer);
-      heroTimer = setInterval(() => heroGo(heroIndex + 1), 3500);
+      heroTimer = setInterval(function() { heroGo(heroIndex + 1); }, 4000);
     }
     function initHeroCarousel() {
+      buildHeroSlides();
       const dots = document.getElementById('hero-dots');
       if (!dots) return;
       dots.innerHTML = '';
       for (let i = 0; i < HERO_COUNT; i++) {
         const b = document.createElement('button');
         b.className = 'hero-dot' + (i === 0 ? ' active' : '');
-        b.onclick = () => { heroGo(i); restartHeroTimer(); };
+        b.onclick = function() { heroGo(i); restartHeroTimer(); };
         dots.appendChild(b);
       }
       restartHeroTimer();
+      // Every 30 minutes → rotate to next 3-color palette for every banner
+      if (heroColorTimer) clearInterval(heroColorTimer);
+      heroColorTimer = setInterval(refreshHeroColors, 30 * 60 * 1000);
+    }
+
+    // When user picks a category, jump banner to matching category slide (Jumia-style)
+    function heroJumpToCategory(catId) {
+      if (!catId || catId === 'all') return;
+      const idx = HERO_BANNERS.findIndex(function(b) { return b.category === catId; });
+      if (idx >= 0) { heroGo(idx); restartHeroTimer(); }
     }
 
     initHeroCarousel();
