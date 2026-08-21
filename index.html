@@ -1381,13 +1381,13 @@
       chatOfferedAgent = false;
       const body = document.getElementById('chat-body');
       if (body) body.innerHTML = '';
-      appendChatBot("Hello! 👋 I'm the **HOQ Assistant** — your smart shopping helper for Home of Quality.");
-      appendChatBot("I can help you find products, check prices, explain delivery, trade-in, orders, and more. What are you looking for today?");
+      appendChatBot("Hello! 👋 I'm **HOQ Assistant** — your smart AI helper for Home of Quality.");
+      appendChatBot("Chat with me first: products, prices, delivery, trade-in, orders. If you need a real person later, I'll connect you to live WhatsApp support.");
       renderChatQuick([
         'Show popular products',
         'Delivery info',
         'Trade-In help',
-        'Talk to a human'
+        'How to order'
       ]);
       const input = document.getElementById('chat-input');
       if (input && !input._bound) {
@@ -1443,6 +1443,19 @@
     }
 
     function chatQuick(text) {
+      const t = (text || '').toLowerCase();
+      if (t.includes('open whatsapp') || t === 'whatsapp now') {
+        openWhatsApp('Hello Home of Quality, I was chatting with HOQ Assistant and would like to talk to a human agent.');
+        appendChatBot("Opening **WhatsApp** live chat for you…\n\nIf it doesn't open, message us on WhatsApp and mention you used the store assistant.");
+        renderChatQuick(['Continue with AI', 'Show products', 'Thanks']);
+        return;
+      }
+      if (t.includes('continue with ai') || t === 'no, continue') {
+        chatOfferedAgent = false;
+        appendChatBot("No problem — I'm still here. What would you like help with?");
+        renderChatQuick(['Show popular products', 'Delivery info', 'Trade-In help', 'How to order']);
+        return;
+      }
       const input = document.getElementById('chat-input');
       if (input) input.value = text;
       sendChatMessage();
@@ -1464,7 +1477,9 @@
         appendChatBot(reply.message);
         chatHistory.push({ role: 'bot', text: reply.message });
         if (reply.quick && reply.quick.length) renderChatQuick(reply.quick);
-        else renderChatQuick(['Talk to a human', 'Show products', 'Delivery info', 'Thanks']);
+        else renderChatQuick(chatTurns >= 2
+          ? ['Talk to a human', 'Show products', 'Delivery info', 'Thanks']
+          : ['Show products', 'Delivery info', 'How to order', 'Trade-In help']);
       }, 450 + Math.min(800, text.length * 12));
     }
 
