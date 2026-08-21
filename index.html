@@ -169,6 +169,61 @@
       position: relative; height: 260px;
       box-shadow: 0 12px 36px rgba(0,0,0,0.16), inset 0 1px 0 rgba(255,255,255,0.25);
     }
+    /* Jumia-style category page banner */
+    .category-banner {
+      margin: 12px;
+      border-radius: 20px;
+      overflow: hidden;
+      position: relative;
+      min-height: 180px;
+      color: #fff;
+      box-shadow: 0 10px 32px rgba(0,0,0,0.14);
+    }
+    .category-banner-inner {
+      position: relative;
+      z-index: 2;
+      padding: 28px 22px 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      min-height: 180px;
+    }
+    .category-banner-tag {
+      display: inline-block;
+      background: rgba(255,255,255,0.28);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.4);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      width: fit-content;
+    }
+    .category-banner h1 {
+      font-size: 1.55rem;
+      font-weight: 850;
+      margin-bottom: 8px;
+      letter-spacing: -0.3px;
+      line-height: 1.2;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    }
+    .category-banner p {
+      font-size: 0.95rem;
+      opacity: 0.95;
+      max-width: 92%;
+      text-shadow: 0 1px 8px rgba(0,0,0,0.25);
+      margin-bottom: 0;
+    }
+    .category-banner::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      height: 55%;
+      background: linear-gradient(to top, rgba(0,0,0,0.3) 0%, transparent 100%);
+      z-index: 1;
+      pointer-events: none;
+    }
     @media (min-width: 600px) {
       .hero-carousel { height: 300px; }
     }
@@ -1006,6 +1061,7 @@
       <button class="hero-arrow next" onclick="heroNext()">›</button>
       <div class="hero-dots" id="hero-dots"></div>
     </div>
+    <div class="category-banner" id="category-banner" style="display:none;"></div>
 
     <div class="flash" id="flash-section" style="display:none;">
       <div class="flash-header">
@@ -1038,7 +1094,7 @@
       <span style="color:var(--green);font-weight:700;cursor:pointer;" onclick="setCategory('all')">See all</span>
     </div>
     <div class="section-head" style="padding-top:4px;">
-      <h2>All Products</h2>
+      <h2 id="products-section-title">All Products</h2>
       <span id="product-count">0 items</span>
     </div>
     <div class="products" id="products"></div>
@@ -1469,6 +1525,64 @@
       { id: 'Laptops', name: 'Computing', icon: '💻' },
       { id: 'Other', name: 'Other', icon: '⋯' }
     ];
+
+    // Jumia-style dedicated banner for each category (3-color gradients)
+    const CATEGORY_BANNERS = {
+      Appliances: {
+        tag: 'APPLIANCES',
+        title: 'Home Appliances Deals',
+        desc: 'Blenders, microwaves, fans, cookers and more for your home',
+        colors: ['#059669', '#0B7A3E', '#064e3b']
+      },
+      Phones: {
+        tag: 'PHONES & TABLETS',
+        title: 'Phones & Tablets',
+        desc: 'Latest phones at the best prices — delivered across Ghana',
+        colors: ['#0ea5e9', '#2563eb', '#1d4ed8']
+      },
+      Electronics: {
+        tag: 'ELECTRONICS',
+        title: 'Electronics Deals',
+        desc: 'Quality electronics for work, play and everyday life',
+        colors: ['#7c3aed', '#5b21b6', '#4c1d95']
+      },
+      Furniture: {
+        tag: 'FURNITURE',
+        title: 'Furniture for Every Space',
+        desc: 'Comfortable, stylish pieces for home and office',
+        colors: ['#b45309', '#d97706', '#f59e0b']
+      },
+      Home: {
+        tag: 'HOME & OFFICE',
+        title: 'Home & Office Essentials',
+        desc: 'Everything you need to work and live better',
+        colors: ['#0f766e', '#0d9488', '#14b8a6']
+      },
+      Kitchen: {
+        tag: 'KITCHEN',
+        title: 'Kitchen Must-Haves',
+        desc: 'Cook smarter with quality kitchen tools and appliances',
+        colors: ['#dc2626', '#ea580c', '#f59e0b']
+      },
+      Accessories: {
+        tag: 'ACCESSORIES',
+        title: 'Accessories & More',
+        desc: 'Headphones, chargers, cases and everyday gadgets',
+        colors: ['#db2777', '#e11d48', '#f43f5e']
+      },
+      Laptops: {
+        tag: 'COMPUTING',
+        title: 'Laptops & Computing',
+        desc: 'Powerful devices for school, work and creativity',
+        colors: ['#1e3a8a', '#2563eb', '#3b82f6']
+      },
+      Other: {
+        tag: 'MORE TO EXPLORE',
+        title: 'More Great Finds',
+        desc: 'Discover quality products across every category',
+        colors: ['#4c1d95', '#6d28d9', '#8b5cf6']
+      }
+    };
 
     const STATUS_LABELS = {
       pending: 'Pending Confirmation',
@@ -1944,7 +2058,63 @@
       currentCat = id;
       renderCategories();
       renderProducts();
-      if (typeof heroJumpToCategory === 'function') heroJumpToCategory(id);
+      renderCategoryBanner(id);
+      if (id === 'all' && typeof heroJumpToCategory === 'function') {
+        // stay on rotating home hero
+      } else if (typeof heroJumpToCategory === 'function') {
+        heroJumpToCategory(id);
+      }
+      // Ensure user sees the category page view on home
+      if (typeof goPage === 'function') goPage('home');
+    }
+
+    function renderCategoryBanner(catId) {
+      const hero = document.getElementById('hero-carousel');
+      const banner = document.getElementById('category-banner');
+      if (!banner) return;
+
+      if (!catId || catId === 'all') {
+        banner.style.display = 'none';
+        if (hero) hero.style.display = '';
+        const head = document.querySelector('#page-home .section-head h2');
+        // update product section title
+        const titles = document.querySelectorAll('#page-home .section-head h2');
+        if (titles.length >= 2) titles[1].textContent = 'All Products';
+        return;
+      }
+
+      const meta = CATEGORY_BANNERS[catId] || {
+        tag: (catId || 'CATEGORY').toUpperCase(),
+        title: catId,
+        desc: 'Shop the best deals in this category',
+        colors: ['#0B7A3E', '#059669', '#064e3b']
+      };
+      const g = 'linear-gradient(135deg, ' + meta.colors[0] + ' 0%, ' + meta.colors[1] + ' 50%, ' + meta.colors[2] + ' 100%)';
+
+      // Hide home rotating hero, show category banner (Jumia style)
+      if (hero) hero.style.display = 'none';
+      banner.style.display = 'block';
+      banner.style.background = g;
+
+      var bubbles = '';
+      if (typeof makeHeroBubbles === 'function') {
+        bubbles = makeHeroBubbles(36);
+      } else {
+        bubbles = '<div class="hero-bubbles"></div>';
+      }
+
+      banner.innerHTML = bubbles +
+        '<div class="category-banner-inner">' +
+          '<div class="category-banner-tag">' + meta.tag + '</div>' +
+          '<h1>' + meta.title + '</h1>' +
+          '<p>' + meta.desc + '</p>' +
+        '</div>';
+
+      const pt = document.getElementById('products-section-title');
+      if (pt) {
+        const catName = (CATEGORIES.find(function(x){ return x.id === catId; }) || {}).name || catId;
+        pt.textContent = catName;
+      }
     }
     function renderProducts() {
       let list = products.slice();
