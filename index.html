@@ -130,6 +130,21 @@
     html.dark .promo-bar {
       background: linear-gradient(90deg, #064e3b, #0f172a, #312e81) !important;
     }
+        html.dark .product-name, html.dark .product-price { color: #f1f5f9 !important; }
+    html.dark .product-price { color: #34d399 !important; }
+    html.dark .add-btn {
+      background: linear-gradient(135deg, #1e293b, #334155) !important;
+      color: #fff !important;
+    }
+    html.dark .wish-btn {
+      background: rgba(30,41,59,0.95) !important;
+      border-color: rgba(148,163,184,0.3) !important;
+      color: #e2e8f0;
+    }
+    html.dark .flash-item,
+    html.dark .flash-body {
+      background: transparent;
+    }
     html.dark .account-card,
     html.dark .drawer,
     html.dark .chat-panel {
@@ -164,7 +179,7 @@
       padding-bottom: 80px;
       -webkit-font-smoothing: antialiased;
       min-height: 100vh;
-      transition: background-image 1.8s ease, background-color 1.8s ease;
+      transition: background-image 0.35s ease, background-color 0.35s ease, color 0.25s ease;
     }
     .topbar {
       position: sticky; top: 0; z-index: 60;
@@ -3627,7 +3642,19 @@
       if (!isNaN(saved) && saved >= 0 && saved < BG_THEMES.length) bgThemeIndex = saved;
     } catch (e) {}
 
+    var DARK_BG = {
+      color: '#020617',
+      image: 'radial-gradient(ellipse 120% 80% at 10% -10%, rgba(16,185,129,0.28) 0%, transparent 50%), radial-gradient(ellipse 100% 70% at 90% 10%, rgba(99,102,241,0.25) 0%, transparent 45%), radial-gradient(ellipse 80% 60% at 50% 100%, rgba(15,23,42,0.95) 0%, transparent 55%), linear-gradient(180deg, #020617 0%, #0f172a 100%)'
+    };
+
     function applyBgTheme(index) {
+      // In dark mode, always use dark background (instant, no light flash)
+      if (document.documentElement.classList.contains('dark')) {
+        document.body.style.backgroundColor = DARK_BG.color;
+        document.body.style.backgroundImage = DARK_BG.image;
+        document.body.style.backgroundAttachment = 'fixed';
+        return;
+      }
       const theme = BG_THEMES[index % BG_THEMES.length];
       if (!theme) return;
       document.body.style.backgroundColor = theme.color;
@@ -3870,22 +3897,51 @@
       if (idx >= 0) { heroGo(idx); restartHeroTimer(); }
     }
 
-    // ===== Dark mode =====
+    // ===== Dark mode (instant — no refresh needed) =====
     function isDarkMode() {
       try { return localStorage.getItem('qoh_dark') === '1'; } catch (e) { return false; }
     }
     function applyDarkMode(on) {
-      document.documentElement.classList.toggle('dark', !!on);
+      on = !!on;
+      // 1. Class on <html> → all CSS dark rules apply immediately
+      document.documentElement.classList.toggle('dark', on);
+
+      // 2. Body background inline styles update instantly
+      if (on) {
+        document.body.style.backgroundColor = (typeof DARK_BG !== 'undefined') ? DARK_BG.color : '#020617';
+        document.body.style.backgroundImage = (typeof DARK_BG !== 'undefined') ? DARK_BG.image :
+          'radial-gradient(ellipse 120% 80% at 10% -10%, rgba(16,185,129,0.28) 0%, transparent 50%), radial-gradient(ellipse 100% 70% at 90% 10%, rgba(99,102,241,0.25) 0%, transparent 45%), linear-gradient(180deg, #020617 0%, #0f172a 100%)';
+        document.body.style.backgroundAttachment = 'fixed';
+      } else {
+        // Restore current light theme immediately
+        if (typeof applyBgTheme === 'function') {
+          applyBgTheme(typeof bgThemeIndex !== 'undefined' ? bgThemeIndex : 0);
+        } else {
+          document.body.style.backgroundColor = '';
+          document.body.style.backgroundImage = '';
+        }
+      }
+
+      // 3. Toggle icon + browser chrome color
       var btn = document.getElementById('theme-toggle');
-      if (btn) btn.textContent = on ? '☀️' : '🌙';
+      if (btn) {
+        btn.textContent = on ? '☀️' : '🌙';
+        btn.setAttribute('title', on ? 'Light mode' : 'Dark mode');
+        btn.setAttribute('aria-label', on ? 'Switch to light mode' : 'Switch to dark mode');
+      }
       var meta = document.querySelector('meta[name="theme-color"]');
       if (meta) meta.setAttribute('content', on ? '#020617' : '#0f172a');
+
+      // 4. Remember choice
       try { localStorage.setItem('qoh_dark', on ? '1' : '0'); } catch (e) {}
     }
     function toggleDarkMode() {
       applyDarkMode(!document.documentElement.classList.contains('dark'));
     }
-    // Apply before paint if possible
+    // Expose globally so onclick always works
+    window.toggleDarkMode = toggleDarkMode;
+    window.applyDarkMode = applyDarkMode;
+    // Apply saved preference immediately
     applyDarkMode(isDarkMode());
 
     // ===== Boot on page load =====
