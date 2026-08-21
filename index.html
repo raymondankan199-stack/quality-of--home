@@ -127,11 +127,14 @@
     }
     .side-cat:active, .side-cat:hover { background: rgba(255,255,255,0.35); }
     .side-cat .ico {
-      width: 40px; height: 40px; border-radius: 14px;
-      background: rgba(255,255,255,0.4);
-      border: 1px solid rgba(255,255,255,0.5);
-      display: flex; align-items: center; justify-content: center; font-size: 1.15rem;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);
+      width: 36px; height: 36px; border-radius: 10px;
+      background: transparent;
+      border: none;
+      display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+      box-shadow: none;
+      color: #334155;
+      filter: grayscale(1);
+      opacity: 0.9;
     }
     .side-menu-footer {
       border-top: 1px solid rgba(255,255,255,0.3); padding: 14px 16px; font-size: 0.85rem;
@@ -329,12 +332,30 @@
     }
     .nav-item {
       flex: 1; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 2px;
-      color: #888; font-size: 0.68rem; font-weight: 600;
+      align-items: center; justify-content: center; gap: 3px;
+      color: #64748b; font-size: 0.68rem; font-weight: 600;
       cursor: pointer; background: none; border: none; padding: 6px 0;
+      position: relative;
     }
-    .nav-item .icon { font-size: 1.3rem; line-height: 1; }
-    .nav-item.active { color: var(--green); }
+    .nav-item .icon {
+      width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+      line-height: 1;
+    }
+    .nav-item .icon svg {
+      width: 22px; height: 22px; stroke: currentColor; fill: none;
+      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .nav-item.active {
+      color: #0B7A3E;
+    }
+    .nav-item.active .icon {
+      background: #ecfdf5;
+      border-radius: 12px;
+      width: 44px; height: 32px;
+    }
+    .nav-item.active .icon svg {
+      stroke: #0B7A3E;
+    }
     .page { display: none; min-height: calc(100vh - 80px); }
     .page.active { display: block; }
     .account-header {
@@ -372,11 +393,14 @@
     .account-item:active { background: rgba(255,255,255,0.2); }
     .account-item:last-child { border-bottom: none; }
     .account-item .ico {
-      width: 42px; height: 42px; border-radius: 14px;
-      background: rgba(255,255,255,0.35);
-      border: 1px solid rgba(255,255,255,0.45);
-      display: flex; align-items: center; justify-content: center; font-size: 1.15rem;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);
+      width: 36px; height: 36px; border-radius: 10px;
+      background: transparent;
+      border: none;
+      display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+      box-shadow: none;
+      color: #334155;
+      filter: grayscale(1);
+      opacity: 0.85;
     }
     .account-item span { flex: 1; font-weight: 650; font-size: 0.98rem; color: #0f172a; }
     .account-item .arrow { color: rgba(15,23,42,0.35); font-size: 1.1rem; }
@@ -394,11 +418,13 @@
     }
     .cat-page-item:active { transform: scale(0.98); background: rgba(255,255,255,0.4); }
     .cat-page-item .ico {
-      width: 50px; height: 50px; border-radius: 16px;
-      background: rgba(255,255,255,0.4);
-      border: 1px solid rgba(255,255,255,0.5);
-      display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.55);
+      width: 42px; height: 42px; border-radius: 12px;
+      background: transparent;
+      border: none;
+      display: flex; align-items: center; justify-content: center; font-size: 1.35rem;
+      box-shadow: none;
+      filter: grayscale(1);
+      opacity: 0.9;
     }
     .cat-page-item h3 { font-size: 1.02rem; margin-bottom: 2px; color: #0f172a; font-weight: 700; }
     .cat-page-item p { font-size: 0.8rem; color: #475569; }
@@ -718,15 +744,18 @@
       letter-spacing: 0.2px;
     }
     .bottom-nav {
-      background: rgba(255,255,255,0.28) !important;
-      backdrop-filter: blur(32px) saturate(180%) !important;
-      -webkit-backdrop-filter: blur(32px) saturate(180%) !important;
-      border-top: 1px solid rgba(255,255,255,0.35) !important;
-      box-shadow: 0 -8px 40px rgba(0,0,0,0.12) !important;
-      height: 72px !important;
+      background: rgba(255,255,255,0.92) !important;
+      backdrop-filter: blur(20px) saturate(160%) !important;
+      -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
+      border-top: 1px solid rgba(15,23,42,0.08) !important;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.06) !important;
+      height: 68px !important;
     }
-    .nav-item { color: rgba(15,23,42,0.55) !important; }
+    .nav-item { color: #64748b !important; }
     .nav-item.active { color: #0B7A3E !important; }
+    .nav-item.active .icon {
+      background: #ecfdf5 !important;
+    }
     .quick-actions {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -749,6 +778,8 @@
     .quick-action .qa-icon {
       font-size: 1.55rem;
       margin-bottom: 6px;
+      filter: grayscale(1);
+      opacity: 0.9;
     }
     .quick-action span {
       display: block;
@@ -1081,19 +1112,19 @@
 
   <nav class="bottom-nav">
     <button class="nav-item active" data-page="home" onclick="goPage('home')">
-      <span class="icon">🏠</span><span>Home</span>
+      <span class="icon"><svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1v-9.5z"/></svg></span><span>Home</span>
     </button>
     <button class="nav-item" data-page="categories" onclick="goPage('categories')">
-      <span class="icon">📂</span><span>Categories</span>
+      <span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span><span>Categories</span>
     </button>
     <button class="nav-item" data-page="cart" onclick="goPage('cart')">
-      <span class="icon">🛒</span><span>Cart</span>
+      <span class="icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="20" r="1.5"/><circle cx="17" cy="20" r="1.5"/><path d="M3 3h2l.4 2M7 13h10l3-8H6.4M7 13L5.4 5M7 13l-1.5 6h13"/></svg></span><span>Cart</span>
     </button>
     <button class="nav-item" data-page="wishlist" onclick="goPage('wishlist')">
-      <span class="icon">❤️</span><span>Wishlist</span>
+      <span class="icon"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 5.5 5.5 5.5 0 0 1 21.5 12c-2.5 4.5-9.5 9-9.5 9z"/></svg></span><span>Wishlist</span>
     </button>
     <button class="nav-item" data-page="account" onclick="goPage('account')">
-      <span class="icon">👤</span><span>Account</span>
+      <span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg></span><span>Account</span>
     </button>
   </nav>
 
