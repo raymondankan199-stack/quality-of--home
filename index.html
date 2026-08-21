@@ -36,11 +36,13 @@
         radial-gradient(ellipse 90% 60% at 50% 100%, #f472b6 0%, transparent 50%),
         linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
       background-attachment: fixed;
+      background-color: #0f172a;
       color: var(--text);
       line-height: 1.45;
       padding-bottom: 80px;
       -webkit-font-smoothing: antialiased;
       min-height: 100vh;
+      transition: background-image 1.8s ease, background-color 1.8s ease;
     }
     .topbar {
       position: sticky; top: 0; z-index: 60;
@@ -2654,6 +2656,53 @@
       const s = String(Math.floor((diff % 60000) / 1000)).padStart(2,'0');
       el.textContent = `Ends in ${h}:${m}:${s}`;
     }, 1000);
+
+    /* ===== Auto-changing background themes (every 20 minutes) ===== */
+    const BG_THEMES = [
+      // 1. Emerald + Indigo + Pink (default)
+      {
+        color: '#0f172a',
+        image: 'radial-gradient(ellipse 120% 80% at 10% -10%, #34d399 0%, transparent 50%), radial-gradient(ellipse 100% 70% at 90% 10%, #818cf8 0%, transparent 45%), radial-gradient(ellipse 90% 60% at 50% 100%, #f472b6 0%, transparent 50%), linear-gradient(180deg, #0f172a 0%, #1e293b 100%)'
+      },
+      // 2. Ocean blue + cyan + violet
+      {
+        color: '#0c1222',
+        image: 'radial-gradient(ellipse 120% 80% at 15% -5%, #22d3ee 0%, transparent 50%), radial-gradient(ellipse 100% 70% at 85% 15%, #6366f1 0%, transparent 45%), radial-gradient(ellipse 90% 60% at 40% 100%, #a78bfa 0%, transparent 50%), linear-gradient(180deg, #0c1222 0%, #1e1b4b 100%)'
+      },
+      // 3. Sunset amber + rose + deep purple
+      {
+        color: '#1a0f14',
+        image: 'radial-gradient(ellipse 120% 80% at 20% 0%, #fb923c 0%, transparent 50%), radial-gradient(ellipse 100% 70% at 90% 20%, #f43f5e 0%, transparent 45%), radial-gradient(ellipse 90% 60% at 50% 100%, #c084fc 0%, transparent 50%), linear-gradient(180deg, #1a0f14 0%, #3b0764 100%)'
+      },
+      // 4. Forest teal + gold + soft mint
+      {
+        color: '#0a1612',
+        image: 'radial-gradient(ellipse 120% 80% at 10% -10%, #2dd4bf 0%, transparent 50%), radial-gradient(ellipse 100% 70% at 95% 10%, #fbbf24 0%, transparent 45%), radial-gradient(ellipse 90% 60% at 30% 100%, #6ee7b7 0%, transparent 50%), linear-gradient(180deg, #0a1612 0%, #14532d 100%)'
+      }
+    ];
+    const BG_INTERVAL_MS = 20 * 60 * 1000; // 20 minutes
+    let bgThemeIndex = 0;
+    try {
+      const saved = parseInt(localStorage.getItem('qoh_bg_theme') || '0', 10);
+      if (!isNaN(saved) && saved >= 0 && saved < BG_THEMES.length) bgThemeIndex = saved;
+    } catch (e) {}
+
+    function applyBgTheme(index) {
+      const theme = BG_THEMES[index % BG_THEMES.length];
+      if (!theme) return;
+      document.body.style.backgroundColor = theme.color;
+      document.body.style.backgroundImage = theme.image;
+      document.body.style.backgroundAttachment = 'fixed';
+      try { localStorage.setItem('qoh_bg_theme', String(index % BG_THEMES.length)); } catch (e) {}
+    }
+
+    function nextBgTheme() {
+      bgThemeIndex = (bgThemeIndex + 1) % BG_THEMES.length;
+      applyBgTheme(bgThemeIndex);
+    }
+
+    applyBgTheme(bgThemeIndex);
+    setInterval(nextBgTheme, BG_INTERVAL_MS);
   </script>
 </body>
 </html>
