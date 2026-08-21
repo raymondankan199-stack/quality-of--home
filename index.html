@@ -872,6 +872,41 @@
     .pd-section p { font-size: 0.9rem; color: #333; line-height: 1.55; }
     .product-card { cursor: pointer; }
 
+  
+    /* Medium products — smoother on phones */
+    .product-img-wrap {
+      height: 140px;
+      max-height: 140px;
+      overflow: hidden;
+      background: #f0f0f0;
+    }
+    .product-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .h-scroll .product-img-wrap {
+      height: 120px;
+      max-height: 120px;
+    }
+    .pd-hero {
+      max-height: 320px !important;
+      aspect-ratio: 1 / 1;
+    }
+    .pd-hero img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    @media (max-width: 480px) {
+      .product-img-wrap { height: 130px; max-height: 130px; }
+      .h-scroll .product-card {
+        min-width: 140px;
+        max-width: 140px;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -1541,7 +1576,7 @@
 
       document.getElementById('pd-top-title').textContent = p.name || 'Product';
       document.getElementById('pd-hero').innerHTML = p.image
-        ? '<img src="' + p.image + '" alt="' + String(p.name||'').replace(/"/g,'') + '" />'
+        ? '<img src="' + p.image + '" alt="' + String(p.name||'').replace(/"/g,'') + '" loading="eager" decoding="async" />'
         : '<div class="ph">📦</div>';
 
       document.getElementById('pd-body').innerHTML = `
@@ -1678,7 +1713,7 @@
         return `
           <div class="product-card" onclick="openProduct(${p.id}, event)">
             <div class="product-img-wrap">
-              ${p.image ? `<img src="${p.image}" alt="${p.name}" />` : `<div class="ph">📦</div>`}
+              ${p.image ? `<img src="${p.image}" alt="${p.name}" loading="lazy" decoding="async" />` : `<div class="ph">📦</div>`}
               ${hasDiscount ? `<span class="discount-badge">-${disc}%</span>` : ''}
               <button class="wish-btn ${isWish ? 'active' : ''}" onclick="toggleWish(${p.id}, event)">${isWish ? '❤️' : '🤍'}</button>
             </div>
@@ -1703,7 +1738,7 @@
       return `
         <div class="product-card" style="animation-delay:${delay}s" onclick="openProduct(${p.id}, event)">
           <div class="product-img-wrap">
-            ${p.image ? `<img src="${p.image}" alt="${(p.name||'').replace(/"/g,'')}" />` : `<div class="ph">📦</div>`}
+            ${p.image ? `<img src="${p.image}" alt="${(p.name||'').replace(/"/g,'')}" loading="lazy" decoding="async" />` : `<div class="ph">📦</div>`}
             ${hasDiscount ? `<span class="discount-badge">-${disc}%</span>` : ''}
             <button class="wish-btn ${isWish ? 'active' : ''}" onclick="toggleWish(${p.id}, event)">${isWish ? '❤️' : '🤍'}</button>
           </div>
@@ -1775,7 +1810,7 @@
         const disc = Math.round((1 - p.price / p.original_price) * 100);
         return `
           <div class="flash-item" onclick="openProduct(${p.id}, event)">
-            ${p.image ? `<img src="${p.image}" />` : `<div class="ph">📦</div>`}
+            ${p.image ? `<img src="${p.image}" loading="lazy" decoding="async" />` : `<div class="ph">📦</div>`}
             <div class="flash-price">${formatMoney(p.price)}</div>
             <div class="flash-old">${formatMoney(p.original_price)}</div>
             <span class="flash-badge">-${disc}%</span>
@@ -1907,7 +1942,7 @@
       el.innerHTML = `<div class="products" style="padding-top:12px;">${items.map(p => `
         <div class="product-card" onclick="openProduct(${p.id}, event)">
           <div class="product-img-wrap">
-            ${p.image ? `<img src="${p.image}" />` : `<div class="ph">📦</div>`}
+            ${p.image ? `<img src="${p.image}" loading="lazy" decoding="async" />` : `<div class="ph">📦</div>`}
             <button class="wish-btn active" onclick="toggleWish(${p.id}, event)">❤️</button>
           </div>
           <div class="product-body">
