@@ -401,6 +401,21 @@
       opacity: 0;
       z-index: 1;
     }
+    /* --- Style 5: Vertical wipe --- */
+    .hero-fx-wipe .hero-slide {
+      transform: translateY(100%);
+      transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.45s ease;
+      opacity: 0;
+    }
+    .hero-fx-wipe .hero-slide.is-active {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    .hero-fx-wipe .hero-slide.is-prev {
+      transform: translateY(-100%);
+      opacity: 1;
+      z-index: 1;
+    }
     /* Soft bottom shade only for text readability — colors stay bright */
     .hero-slide::before {
       content: '';
@@ -2168,7 +2183,8 @@
     function openSideMenu() {
       const body = document.getElementById('side-menu-body');
       if (body) {
-        body.innerHTML = CATEGORIES.filter(c => c.id !== 'all').map(c => `
+        var list = ((typeof getActiveCategories === 'function') ? getActiveCategories() : CATEGORIES).filter(c => c.id !== 'all');
+        body.innerHTML = list.map(c => `
           <button class="side-cat" onclick="closeSideMenu(); setCategory('${c.id}');">
             <span class="ico">${c.icon || '📦'}</span>
             <span>${c.name}</span>
@@ -2248,8 +2264,28 @@
       }
     }
 
+
+    function getActiveCategories() {
+      // Only show categories that currently have at least 1 product
+      var counts = {};
+      (products || []).forEach(function(p) {
+        var cat = (p.category || '').trim();
+        if (!cat) return;
+        counts[cat] = (counts[cat] || 0) + 1;
+      });
+      return CATEGORIES.filter(function(c) {
+        if (c.id === 'all') return true;
+        // Match by id (case-insensitive) against product category field
+        var key = Object.keys(counts).find(function(k) {
+          return k.toLowerCase() === c.id.toLowerCase();
+        });
+        return key && counts[key] > 0;
+      });
+    }
+
     function renderCategories() {
-      document.getElementById('cat-scroll').innerHTML = CATEGORIES.map(c =>
+      var list = (typeof getActiveCategories === 'function') ? getActiveCategories() : CATEGORIES;
+      document.getElementById('cat-scroll').innerHTML = list.map(c =>
         `<button class="cat-chip ${currentCat === c.id ? 'active' : ''}" onclick="setCategory('${c.id}')">${c.name}</button>`
       ).join('');
     }
@@ -2719,7 +2755,8 @@
     }
 
     function renderCategoriesPage() {
-      document.getElementById('cat-page-list').innerHTML = CATEGORIES.filter(c => c.id !== 'all').map(c => `
+      var list = ((typeof getActiveCategories === 'function') ? getActiveCategories() : CATEGORIES).filter(c => c.id !== 'all');
+      document.getElementById('cat-page-list').innerHTML = list.map(c => `
         <div class="cat-page-item" onclick="setCategory('${c.id}')">
           <div class="ico">${c.icon}</div>
           <div><h3>${c.name}</h3><p>Browse ${c.name.toLowerCase()}</p></div>
@@ -3605,7 +3642,7 @@
     }
 
     // 4 different banner flip styles — cycles so you see variety
-    var HERO_FX = ['slide', 'fade', 'flip', 'zoom'];
+    var HERO_FX = ['slide', 'fade', 'flip', 'zoom', 'wipe'];
     var heroFxIndex = 0;
     var heroFxSwapEvery = 2; // change effect every 2 slides
     var heroFxCounter = 0;
