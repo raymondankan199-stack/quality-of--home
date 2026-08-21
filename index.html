@@ -327,16 +327,79 @@
       .hero-carousel { height: 300px; }
     }
     .hero-slides {
-      display: flex; width: 100%; height: 100%;
-      transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+      position: relative;
+      width: 100%; height: 100%;
+      perspective: 1200px;
     }
     .hero-slide {
-      min-width: 100%; height: 100%;
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
       display: flex; flex-direction: column; justify-content: flex-end;
-      padding: 28px 20px 40px; color: #fff; position: relative;
+      padding: 28px 20px 40px; color: #fff;
       background-size: cover; background-position: center;
       transition: background 1.2s cubic-bezier(0.22, 1, 0.36, 1);
       overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .hero-slide.is-active {
+      opacity: 1;
+      pointer-events: auto;
+      z-index: 2;
+    }
+    /* --- Style 1: Slide --- */
+    .hero-fx-slide .hero-slide {
+      transform: translateX(100%);
+      transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease;
+    }
+    .hero-fx-slide .hero-slide.is-active {
+      transform: translateX(0);
+    }
+    .hero-fx-slide .hero-slide.is-prev {
+      transform: translateX(-100%);
+      opacity: 1;
+      z-index: 1;
+    }
+    /* --- Style 2: Fade --- */
+    .hero-fx-fade .hero-slide {
+      transform: scale(1.04);
+      transition: opacity 0.85s ease, transform 0.85s ease;
+    }
+    .hero-fx-fade .hero-slide.is-active {
+      transform: scale(1);
+      opacity: 1;
+    }
+    /* --- Style 3: Flip (3D card) --- */
+    .hero-fx-flip .hero-slide {
+      transform: rotateY(90deg);
+      transform-origin: center center;
+      transition: transform 0.75s cubic-bezier(0.4, 0.0, 0.2, 1), opacity 0.4s ease;
+      backface-visibility: hidden;
+    }
+    .hero-fx-flip .hero-slide.is-active {
+      transform: rotateY(0deg);
+      opacity: 1;
+    }
+    .hero-fx-flip .hero-slide.is-prev {
+      transform: rotateY(-90deg);
+      opacity: 1;
+      z-index: 1;
+    }
+    /* --- Style 4: Zoom --- */
+    .hero-fx-zoom .hero-slide {
+      transform: scale(0.82);
+      transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.65s ease;
+    }
+    .hero-fx-zoom .hero-slide.is-active {
+      transform: scale(1);
+      opacity: 1;
+    }
+    .hero-fx-zoom .hero-slide.is-prev {
+      transform: scale(1.12);
+      opacity: 0;
+      z-index: 1;
     }
     /* Soft bottom shade only for text readability — colors stay bright */
     .hero-slide::before {
@@ -3534,22 +3597,56 @@
             '<button class="btn ' + b.btnClass + '" onclick="' + b.onclick + '">' + b.action + '</button>' +
           '</div></div>';
       }).join('');
-      slides.style.transform = 'translateX(-' + (heroIndex * 100) + '%)';
+      // Activate first slide
+      var all = slides.querySelectorAll('.hero-slide');
+      all.forEach(function(el, idx) {
+        el.classList.toggle('is-active', idx === heroIndex);
+      });
+    }
+
+    // 4 different banner flip styles — cycles so you see variety
+    var HERO_FX = ['slide', 'fade', 'flip', 'zoom'];
+    var heroFxIndex = 0;
+    var heroFxSwapEvery = 2; // change effect every 2 slides
+    var heroFxCounter = 0;
+
+    function applyHeroFx(name) {
+      var slides = document.getElementById('hero-slides');
+      if (!slides) return;
+      HERO_FX.forEach(function(fx) {
+        slides.classList.remove('hero-fx-' + fx);
+      });
+      slides.classList.add('hero-fx-' + name);
     }
 
     function refreshHeroColors() {
       heroColorSet = (heroColorSet + 1) % 3;
-      // Smoothly update each slide background to the next 3-color set
-      document.querySelectorAll('.hero-slide').forEach(function(el, i) {
+      document.querySelectorAll('#hero-slides .hero-slide').forEach(function(el, i) {
         const b = HERO_BANNERS[i];
         if (b) el.style.background = heroGradient(b);
       });
     }
 
-    function heroGo(i) {
+    function heroGo(i, forceFx) {
+      var prev = heroIndex;
       heroIndex = (i + HERO_COUNT) % HERO_COUNT;
-      const slides = document.getElementById('hero-slides');
-      if (slides) slides.style.transform = 'translateX(-' + (heroIndex * 100) + '%)';
+      if (heroIndex === prev && forceFx == null) return;
+
+      // Rotate through transition styles
+      heroFxCounter++;
+      if (forceFx) {
+        applyHeroFx(forceFx);
+      } else if (heroFxCounter % heroFxSwapEvery === 0) {
+        heroFxIndex = (heroFxIndex + 1) % HERO_FX.length;
+        applyHeroFx(HERO_FX[heroFxIndex]);
+      }
+
+      var nodes = document.querySelectorAll('#hero-slides .hero-slide');
+      nodes.forEach(function(el, idx) {
+        el.classList.remove('is-active', 'is-prev');
+        if (idx === prev && prev !== heroIndex) el.classList.add('is-prev');
+        if (idx === heroIndex) el.classList.add('is-active');
+      });
       document.querySelectorAll('.hero-dot').forEach(function(d, idx) {
         d.classList.toggle('active', idx === heroIndex);
       });
@@ -3558,10 +3655,16 @@
     function heroPrev() { heroGo(heroIndex - 1); restartHeroTimer(); }
     function restartHeroTimer() {
       if (heroTimer) clearInterval(heroTimer);
-      heroTimer = setInterval(function() { heroGo(heroIndex + 1); }, 3500);
+      heroTimer = setInterval(function() { heroGo(heroIndex + 1); }, 3800);
     }
     function initHeroCarousel() {
       buildHeroSlides();
+      applyHeroFx(HERO_FX[0]);
+      // Ensure first slide visible
+      var nodes = document.querySelectorAll('#hero-slides .hero-slide');
+      nodes.forEach(function(el, idx) {
+        el.classList.toggle('is-active', idx === 0);
+      });
       const dots = document.getElementById('hero-dots');
       if (!dots) return;
       dots.innerHTML = '';
@@ -3572,7 +3675,6 @@
         dots.appendChild(b);
       }
       restartHeroTimer();
-      // Every 30 minutes → rotate to next 3-color palette for every banner
       if (heroColorTimer) clearInterval(heroColorTimer);
       heroColorTimer = setInterval(refreshHeroColors, 30 * 60 * 1000);
     }
