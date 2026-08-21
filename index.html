@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#0B7A3E" />
+  <meta name="theme-color" content="#0f172a" />
   <title>Home of Quality — Store</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://js.paystack.co/v1/inline.js"></script>
@@ -15,46 +15,52 @@
       --yellow: #F5C518;
       --yellow-dark: #E0B000;
       --orange: #FF6A00;
-      --bg: linear-gradient(180deg, #e8f5ee 0%, #f3e8ff 35%, #fce7f3 70%, #f4f4f4 100%);
-      --card: rgba(255,255,255,0.82);
-      --text: #1A1A1A;
-      --muted: #6B6B6B;
-      --border: rgba(255,255,255,0.6);
+      --text: #0f172a;
+      --muted: #64748b;
       --red: #E53935;
-      --dark: #111111;
-      --blue: #1565C0;
-      --glass: rgba(255,255,255,0.55);
-      --glass-border: rgba(255,255,255,0.7);
+      --dark: #0f172a;
+      --blue: #2563eb;
+      --glass: rgba(255,255,255,0.38);
+      --glass-strong: rgba(255,255,255,0.55);
+      --glass-border: rgba(255,255,255,0.55);
+      --glass-shadow: 0 8px 32px rgba(15,23,42,0.08), inset 0 1px 0 rgba(255,255,255,0.6);
+      --radius: 22px;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: #f0f4f8;
-      background-image: linear-gradient(160deg, #d1fae5 0%, #e0e7ff 40%, #fce7f3 75%, #f8fafc 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #0f172a;
+      background-image:
+        radial-gradient(ellipse 120% 80% at 10% -10%, #34d399 0%, transparent 50%),
+        radial-gradient(ellipse 100% 70% at 90% 10%, #818cf8 0%, transparent 45%),
+        radial-gradient(ellipse 90% 60% at 50% 100%, #f472b6 0%, transparent 50%),
+        linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
       background-attachment: fixed;
       color: var(--text);
       line-height: 1.45;
-      padding-bottom: 72px;
+      padding-bottom: 80px;
       -webkit-font-smoothing: antialiased;
       min-height: 100vh;
     }
     .topbar {
       position: sticky; top: 0; z-index: 60;
-      background: rgba(255,255,255,0.75);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(255,255,255,0.5);
-      padding: 10px 12px;
+      background: rgba(255,255,255,0.22);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      border-bottom: 1px solid rgba(255,255,255,0.28);
+      box-shadow: 0 4px 30px rgba(0,0,0,0.06);
+      padding: 12px 14px;
       display: flex; align-items: center; gap: 10px;
     }
     .search-wrap {
       flex: 1; display: flex; align-items: center;
-      background: rgba(255,255,255,0.7);
-      backdrop-filter: blur(8px);
-      border-radius: 24px;
-      padding: 0 14px; height: 42px;
-      border: 1px solid rgba(255,255,255,0.8);
-      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+      background: rgba(255,255,255,0.28);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 999px;
+      padding: 0 16px; height: 44px;
+      border: 1px solid rgba(255,255,255,0.4);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 2px 12px rgba(0,0,0,0.04);
     }
     .search-wrap input {
       flex: 1; border: none; background: transparent;
@@ -226,18 +232,19 @@
     @media (min-width: 600px) { .products { grid-template-columns: repeat(3, 1fr); } }
     @media (min-width: 900px) { .products { grid-template-columns: repeat(4, 1fr); } }
     .product-card {
-      background: rgba(255,255,255,0.72);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-radius: 18px; overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.75);
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      background: rgba(255,255,255,0.32);
+      backdrop-filter: blur(24px) saturate(160%);
+      -webkit-backdrop-filter: blur(24px) saturate(160%);
+      border-radius: var(--radius); overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.45);
+      box-shadow: var(--glass-shadow);
       display: flex; flex-direction: column; position: relative;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
     }
-    .product-card:active { transform: scale(0.98); }
+    .product-card:active { transform: scale(0.97); }
     .product-img-wrap {
-      position: relative; width: 100%; height: 148px; background: linear-gradient(145deg, #f0fdf4, #f5f3ff);
+      position: relative; width: 100%; height: 148px;
+      background: rgba(255,255,255,0.15);
       display: flex; align-items: center; justify-content: center;
     }
     .product-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
@@ -302,26 +309,51 @@
     }
     .nav-item .icon { font-size: 1.3rem; line-height: 1; }
     .nav-item.active { color: var(--green); }
-    .page { display: none; min-height: calc(100vh - 64px); }
+    .page { display: none; min-height: calc(100vh - 80px); }
     .page.active { display: block; }
     .account-header {
-      background: linear-gradient(135deg, var(--green), var(--green-dark));
-      color: #fff; padding: 28px 18px 24px;
+      background: rgba(255,255,255,0.18);
+      backdrop-filter: blur(30px) saturate(180%);
+      -webkit-backdrop-filter: blur(30px) saturate(180%);
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 28px;
+      margin: 14px 12px 0;
+      color: #fff;
+      padding: 28px 20px 26px;
+      box-shadow: var(--glass-shadow);
+      text-align: center;
     }
-    .account-header h2 { font-size: 1.3rem; margin-bottom: 4px; }
-    .account-header p { opacity: 0.9; font-size: 0.9rem; }
-    .account-list { background: #fff; margin-top: -12px; border-radius: 16px 16px 0 0; padding: 8px 0; }
+    .account-header h2 { font-size: 1.4rem; margin-bottom: 4px; font-weight: 800; letter-spacing: -0.3px; }
+    .account-header p { opacity: 0.92; font-size: 0.9rem; }
+    .account-list {
+      background: rgba(255,255,255,0.28);
+      backdrop-filter: blur(28px) saturate(170%);
+      -webkit-backdrop-filter: blur(28px) saturate(170%);
+      border: 1px solid rgba(255,255,255,0.4);
+      border-radius: 24px;
+      margin: 16px 12px 24px;
+      padding: 6px 0;
+      box-shadow: var(--glass-shadow);
+      overflow: hidden;
+    }
     .account-item {
       display: flex; align-items: center; gap: 14px;
-      padding: 15px 18px; border-bottom: 1px solid var(--border); cursor: pointer;
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.22);
+      cursor: pointer;
+      transition: background 0.15s;
     }
+    .account-item:active { background: rgba(255,255,255,0.2); }
     .account-item:last-child { border-bottom: none; }
     .account-item .ico {
-      width: 38px; height: 38px; border-radius: 10px; background: var(--green-light);
-      display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+      width: 42px; height: 42px; border-radius: 14px;
+      background: rgba(255,255,255,0.35);
+      border: 1px solid rgba(255,255,255,0.45);
+      display: flex; align-items: center; justify-content: center; font-size: 1.15rem;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);
     }
-    .account-item span { flex: 1; font-weight: 600; font-size: 0.95rem; }
-    .account-item .arrow { color: #ccc; }
+    .account-item span { flex: 1; font-weight: 650; font-size: 0.98rem; color: #0f172a; }
+    .account-item .arrow { color: rgba(15,23,42,0.35); font-size: 1.1rem; }
     .cat-page-list { padding: 12px; }
     .cat-page-item {
       background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 10px;
@@ -526,45 +558,98 @@
     .addr-map iframe { width: 100%; height: 100%; border: 0; }
 
     .promo-bar {
-      background: linear-gradient(90deg, #d1fae5, #fef3c7, #fce7f3);
-      color: #111; text-align: center;
-      padding: 9px 12px; font-size: 0.82rem; font-weight: 700;
-      border-bottom: 1px solid rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.22);
+      backdrop-filter: blur(20px) saturate(160%);
+      -webkit-backdrop-filter: blur(20px) saturate(160%);
+      color: #fff;
+      text-align: center;
+      padding: 10px 14px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border-bottom: 1px solid rgba(255,255,255,0.25);
+      letter-spacing: 0.2px;
     }
     .bottom-nav {
-      background: rgba(255,255,255,0.82) !important;
-      backdrop-filter: blur(18px) !important;
-      -webkit-backdrop-filter: blur(18px) !important;
-      border-top: 1px solid rgba(255,255,255,0.6) !important;
-      box-shadow: 0 -4px 24px rgba(0,0,0,0.06) !important;
+      background: rgba(255,255,255,0.28) !important;
+      backdrop-filter: blur(32px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(32px) saturate(180%) !important;
+      border-top: 1px solid rgba(255,255,255,0.35) !important;
+      box-shadow: 0 -8px 40px rgba(0,0,0,0.12) !important;
+      height: 72px !important;
     }
+    .nav-item { color: rgba(15,23,42,0.55) !important; }
+    .nav-item.active { color: #0B7A3E !important; }
     .quick-actions {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      padding: 0 12px 16px;
+      gap: 12px;
+      padding: 4px 12px 18px;
     }
     .quick-action {
-      background: rgba(255,255,255,0.7);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,255,255,0.8);
-      border-radius: 16px;
-      padding: 14px 8px;
+      background: rgba(255,255,255,0.3);
+      backdrop-filter: blur(22px) saturate(160%);
+      -webkit-backdrop-filter: blur(22px) saturate(160%);
+      border: 1px solid rgba(255,255,255,0.45);
+      border-radius: 20px;
+      padding: 16px 8px;
       text-align: center;
       cursor: pointer;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.05);
-      transition: transform 0.15s;
+      box-shadow: var(--glass-shadow);
+      transition: transform 0.18s, background 0.18s;
     }
-    .quick-action:active { transform: scale(0.96); }
+    .quick-action:active { transform: scale(0.95); background: rgba(255,255,255,0.42); }
     .quick-action .qa-icon {
-      font-size: 1.5rem;
-      margin-bottom: 4px;
+      font-size: 1.55rem;
+      margin-bottom: 6px;
     }
     .quick-action span {
       display: block;
       font-size: 0.78rem;
       font-weight: 700;
-      color: #333;
+      color: #0f172a;
+      letter-spacing: 0.2px;
+    }
+    .section-head h2 { color: #fff; text-shadow: 0 1px 8px rgba(0,0,0,0.15); }
+    .section-head span { color: rgba(255,255,255,0.85) !important; }
+    .modal {
+      background: rgba(255,255,255,0.72) !important;
+      backdrop-filter: blur(40px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
+      border: 1px solid rgba(255,255,255,0.55) !important;
+      border-radius: 28px !important;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.7) !important;
+    }
+    .cat-chip {
+      background: rgba(255,255,255,0.28) !important;
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.4) !important;
+      color: #0f172a !important;
+    }
+    .cat-chip.active {
+      background: rgba(11,122,62,0.85) !important;
+      border-color: rgba(255,255,255,0.5) !important;
+      color: #fff !important;
+    }
+    .product-name, .product-price { color: #0f172a; }
+    .product-cat { color: #475569; }
+    .add-btn {
+      background: rgba(15,23,42,0.88) !important;
+      backdrop-filter: blur(8px);
+      border-radius: 14px !important;
+    }
+    .flash {
+      background: rgba(255,255,255,0.28) !important;
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.4) !important;
+      border-radius: 20px !important;
+      overflow: hidden;
+      margin: 0 12px 14px;
+    }
+    .menu-btn, .top-cart, .top-icon {
+      background: rgba(255,255,255,0.28) !important;
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.4) !important;
+      color: #0f172a;
     }
   </style>
 </head>
@@ -714,43 +799,43 @@
       <button id="account-login-btn" class="btn btn-yellow" style="padding:10px 20px;border-radius:8px;font-weight:700;" onclick="openAuth('login')">Login</button>
     </div>
 
-    <!-- Logged-in overview cards (Jumia style) -->
+    <!-- Logged-in overview cards - Liquid Glass -->
     <div id="account-overview" style="display:none;padding:0 12px 12px;">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px;">
-          <div style="font-size:0.7rem;font-weight:700;color:#888;margin-bottom:8px;letter-spacing:0.4px;">ACCOUNT DETAILS</div>
-          <div id="ov-name" style="font-weight:800;font-size:0.95rem;">—</div>
-          <div id="ov-email" style="font-size:0.8rem;color:#666;margin-top:2px;">—</div>
-          <div id="ov-phone" style="font-size:0.8rem;color:#666;margin-top:2px;">—</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+        <div style="background:rgba(255,255,255,0.3);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.45);border-radius:20px;padding:16px;box-shadow:0 8px 32px rgba(0,0,0,0.06);">
+          <div style="font-size:0.68rem;font-weight:700;color:#475569;margin-bottom:8px;letter-spacing:0.5px;">ACCOUNT DETAILS</div>
+          <div id="ov-name" style="font-weight:800;font-size:0.95rem;color:#0f172a;">—</div>
+          <div id="ov-email" style="font-size:0.8rem;color:#64748b;margin-top:2px;">—</div>
+          <div id="ov-phone" style="font-size:0.8rem;color:#64748b;margin-top:2px;">—</div>
         </div>
-        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px;">
+        <div style="background:rgba(255,255,255,0.3);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.45);border-radius:20px;padding:16px;box-shadow:0 8px 32px rgba(0,0,0,0.06);">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-            <div style="font-size:0.7rem;font-weight:700;color:#888;letter-spacing:0.4px;">ADDRESS BOOK</div>
-            <button onclick="openAddressBook()" style="background:none;border:none;color:var(--green);font-size:0.85rem;font-weight:700;cursor:pointer;">Edit</button>
+            <div style="font-size:0.68rem;font-weight:700;color:#475569;letter-spacing:0.5px;">ADDRESS BOOK</div>
+            <button onclick="openAddressBook()" style="background:none;border:none;color:#0B7A3E;font-size:0.85rem;font-weight:700;cursor:pointer;">Edit</button>
           </div>
-          <div id="ov-address" style="font-size:0.8rem;color:#444;line-height:1.35;">No address saved yet</div>
+          <div id="ov-address" style="font-size:0.8rem;color:#334155;line-height:1.35;">No address saved yet</div>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px;">
-          <div style="font-size:0.7rem;font-weight:700;color:#888;margin-bottom:8px;letter-spacing:0.4px;">STORE CREDIT</div>
-          <div style="font-weight:700;color:var(--green);">GH₵ 0</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div style="background:rgba(255,255,255,0.3);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.45);border-radius:20px;padding:16px;box-shadow:0 8px 32px rgba(0,0,0,0.06);">
+          <div style="font-size:0.68rem;font-weight:700;color:#475569;margin-bottom:8px;letter-spacing:0.5px;">STORE CREDIT</div>
+          <div style="font-weight:700;color:#0B7A3E;">GH₵ 0</div>
         </div>
-        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px;">
-          <div style="font-size:0.7rem;font-weight:700;color:#888;margin-bottom:8px;letter-spacing:0.4px;">NEWSLETTER</div>
-          <div style="font-size:0.8rem;color:#555;">Get offers via WhatsApp</div>
-          <button onclick="toast('Newsletter preferences saved')" style="margin-top:6px;background:none;border:none;color:var(--green);font-size:0.8rem;font-weight:700;cursor:pointer;padding:0;">Edit preferences</button>
+        <div style="background:rgba(255,255,255,0.3);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.45);border-radius:20px;padding:16px;box-shadow:0 8px 32px rgba(0,0,0,0.06);">
+          <div style="font-size:0.68rem;font-weight:700;color:#475569;margin-bottom:8px;letter-spacing:0.5px;">NEWSLETTER</div>
+          <div style="font-size:0.8rem;color:#334155;">Get offers via WhatsApp</div>
+          <button onclick="toast('Newsletter preferences saved')" style="margin-top:6px;background:none;border:none;color:#0B7A3E;font-size:0.8rem;font-weight:700;cursor:pointer;padding:0;">Edit preferences</button>
         </div>
       </div>
     </div>
 
-    <div style="display:flex;gap:10px;padding:0 16px 14px;">
-      <button class="btn btn-green" style="flex:1;padding:12px;border-radius:10px;" onclick="openWhatsApp('Hello Home of Quality, I need live support')">💬 Live Chat</button>
-      <button class="btn" style="flex:1;padding:12px;border-radius:10px;background:#fff;border:1.5px solid #25D366;color:#128C7E;font-weight:700;" onclick="openWhatsApp('Hello Home of Quality')">WhatsApp</button>
+    <div style="display:flex;gap:12px;padding:0 12px 16px;">
+      <button class="btn btn-green" style="flex:1;padding:13px;border-radius:16px;font-weight:700;" onclick="openWhatsApp('Hello Home of Quality, I need live support')">💬 Live Chat</button>
+      <button class="btn" style="flex:1;padding:13px;border-radius:16px;background:rgba(255,255,255,0.35);backdrop-filter:blur(12px);border:1.5px solid rgba(37,211,102,0.5);color:#128C7E;font-weight:700;" onclick="openWhatsApp('Hello Home of Quality')">WhatsApp</button>
     </div>
 
     <div class="account-list" style="margin-top:0;">
-      <div style="padding:10px 18px 4px;font-size:0.75rem;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">My Account</div>
+      <div style="padding:12px 18px 6px;font-size:0.72rem;color:#475569;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;">My Account</div>
       <div class="account-item" onclick="goPage('orders')">
         <div class="ico">📦</div>
         <span>Orders</span>
