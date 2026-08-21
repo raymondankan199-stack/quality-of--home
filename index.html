@@ -1181,21 +1181,15 @@
 
     const CATEGORIES = [
       { id: 'all', name: 'All', icon: '🛒' },
-      { id: 'Grocery', name: 'Supermarket', icon: '🍎' },
-      { id: 'Phones', name: 'Phones & Tablets', icon: '📱' },
-      { id: 'Beauty', name: 'Health & Beauty', icon: '💄' },
-      { id: 'Home', name: 'Home & Office', icon: '🏠' },
       { id: 'Appliances', name: 'Appliances', icon: '🧺' },
+      { id: 'Phones', name: 'Phones & Tablets', icon: '📱' },
       { id: 'Electronics', name: 'Electronics', icon: '📺' },
-      { id: 'Laptops', name: 'Computing', icon: '💻' },
-      { id: 'Fashion', name: 'Fashion', icon: '👕' },
-      { id: 'Sports', name: 'Sporting Goods', icon: '🏋️' },
-      { id: 'Baby', name: 'Baby Products', icon: '👶' },
-      { id: 'Gaming', name: 'Gaming', icon: '🎮' },
-      { id: 'Accessories', name: 'Accessories', icon: '🎧' },
       { id: 'Furniture', name: 'Furniture', icon: '🪑' },
+      { id: 'Home', name: 'Home & Office', icon: '🏠' },
       { id: 'Kitchen', name: 'Kitchen', icon: '🍳' },
-      { id: 'Other', name: 'Other Categories', icon: '⋯' }
+      { id: 'Accessories', name: 'Accessories', icon: '🎧' },
+      { id: 'Laptops', name: 'Computing', icon: '💻' },
+      { id: 'Other', name: 'Other', icon: '⋯' }
     ];
 
     const STATUS_LABELS = {
@@ -1276,19 +1270,25 @@
         return;
       }
       try {
+        // Load ALL products from Supabase (no status filter so nothing is hidden)
         let { data, error } = await supabaseClient
-          .from('products').select('*').eq('status', 'active').order('id', { ascending: false });
-        if (error || !data || !data.length) {
-          const res2 = await supabaseClient.from('products').select('*').order('id', { ascending: false });
-          if (!error) error = res2.error;
-          data = res2.data;
-        }
+          .from('products')
+          .select('*')
+          .order('id', { ascending: false })
+          .limit(1000);
         if (error) throw error;
-        products = data || [];
+        // Prefer active products first, but still show everything
+        products = (data || []).slice().sort((a, b) => {
+          const aActive = (a.status || '').toLowerCase() === 'active' ? 0 : 1;
+          const bActive = (b.status || '').toLowerCase() === 'active' ? 0 : 1;
+          if (aActive !== bActive) return aActive - bActive;
+          return (b.id || 0) - (a.id || 0);
+        });
         renderCategories();
         renderProducts();
         renderFlash();
       } catch (e) {
+        console.error('loadProducts error:', e);
         container.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><h3>Error loading</h3><p>Please try again later</p></div>';
       }
     }
