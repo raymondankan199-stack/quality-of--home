@@ -461,33 +461,75 @@
     .overlay.open { display: block; }
     .drawer {
       position: fixed; top: 0; right: 0;
-      width: 100%; max-width: 400px; height: 100%;
-      background: #fff; z-index: 90;
-      transform: translateX(100%); transition: transform 0.28s ease;
+      width: 100%; max-width: 420px; height: 100%;
+      background: rgba(255,255,255,0.55);
+      backdrop-filter: blur(40px) saturate(180%);
+      -webkit-backdrop-filter: blur(40px) saturate(180%);
+      border-left: 1px solid rgba(255,255,255,0.45);
+      z-index: 90;
+      transform: translateX(100%); transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
       display: flex; flex-direction: column;
+      box-shadow: -12px 0 48px rgba(0,0,0,0.18);
     }
     .drawer.open { transform: translateX(0); }
     .drawer-header {
-      padding: 16px; border-bottom: 1px solid var(--border);
+      padding: 18px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.35);
       display: flex; justify-content: space-between; align-items: center;
-      font-weight: 800; font-size: 1.05rem;
+      font-weight: 800; font-size: 1.1rem; color: #0f172a;
+      background: rgba(255,255,255,0.25);
     }
     .drawer-close {
-      width: 34px; height: 34px; border-radius: 50%;
-      border: 1px solid var(--border); background: #fff;
-      font-size: 1.1rem; cursor: pointer;
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.4);
+      backdrop-filter: blur(8px);
+      font-size: 1.1rem; cursor: pointer; color: #0f172a;
       display: flex; align-items: center; justify-content: center;
     }
     .drawer-body { flex: 1; overflow-y: auto; padding: 16px; }
-    .drawer-footer { padding: 16px; border-top: 1px solid var(--border); }
+    .drawer-footer {
+      padding: 16px;
+      border-top: 1px solid rgba(255,255,255,0.35);
+      background: rgba(255,255,255,0.3);
+      backdrop-filter: blur(16px);
+    }
     .cart-item {
-      display: flex; gap: 12px; margin-bottom: 16px; align-items: center;
+      display: flex; gap: 12px; margin-bottom: 12px; align-items: center;
+      background: rgba(255,255,255,0.4);
+      border: 1px solid rgba(255,255,255,0.5);
+      border-radius: 16px; padding: 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.04);
     }
     .cart-item .img {
-      width: 60px; height: 60px; border-radius: 10px; background: #eee;
+      width: 64px; height: 64px; border-radius: 14px;
+      background: rgba(255,255,255,0.5);
       object-fit: cover; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+      overflow: hidden;
     }
     .cart-item-info { flex: 1; }
+    .cart-item-name { font-weight: 700; font-size: 0.9rem; color: #0f172a; margin-bottom: 2px; }
+    .cart-item-price { font-weight: 800; color: #0B7A3E; font-size: 0.95rem; }
+    .overlay {
+      background: rgba(15,23,42,0.4) !important;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    .privacy-modal .modal {
+      max-height: 85vh;
+    }
+    .privacy-section {
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(15,23,42,0.08);
+    }
+    .privacy-section:last-child { border-bottom: none; margin-bottom: 0; }
+    .privacy-section h3 {
+      font-size: 0.92rem; font-weight: 800; color: #0f172a; margin-bottom: 6px;
+    }
+    .privacy-section p {
+      font-size: 0.86rem; color: #475569; line-height: 1.5;
+    }
     .cart-item-name { font-weight: 600; font-size: 0.9rem; }
     .cart-item-price { color: var(--green); font-weight: 700; font-size: 0.9rem; }
     .qty-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
@@ -1046,6 +1088,48 @@
     <div class="chat-input-row">
       <input type="text" id="chat-input" placeholder="Ask me anything..." autocomplete="off" />
       <button type="button" id="chat-send" onclick="sendChatMessage()">➤</button>
+    </div>
+  </div>
+
+  <!-- Privacy Policy Modal -->
+  <div class="modal-overlay privacy-modal" id="privacy-modal">
+    <div class="modal" style="max-width:440px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <h2 style="margin:0;">Privacy & Settings</h2>
+        <button onclick="closePrivacy()" style="border:none;background:rgba(15,23,42,0.08);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1.1rem;">✕</button>
+      </div>
+      <p class="sub" style="margin-bottom:18px;">Home of Quality · Transparent & secure</p>
+      <div style="max-height:55vh;overflow-y:auto;padding-right:4px;">
+        <div class="privacy-section">
+          <h3>1. Information we collect</h3>
+          <p>Name, phone number, email, delivery address, and order history — only what we need to serve you.</p>
+        </div>
+        <div class="privacy-section">
+          <h3>2. How we use it</h3>
+          <p>To process orders, arrange delivery, and contact you about your purchases via WhatsApp or phone.</p>
+        </div>
+        <div class="privacy-section">
+          <h3>3. Payments</h3>
+          <p>Card and mobile money payments are handled securely by <strong>Paystack</strong>. We do not store your full card details.</p>
+        </div>
+        <div class="privacy-section">
+          <h3>4. Sharing</h3>
+          <p>We do not sell your personal data. We only share what is needed with delivery partners to fulfil your order.</p>
+        </div>
+        <div class="privacy-section">
+          <h3>5. Your choices</h3>
+          <p>Update your address in Account → Address Book, or request account closure anytime via WhatsApp support.</p>
+        </div>
+        <div class="privacy-section">
+          <h3>6. Contact</h3>
+          <p>Questions about privacy? Reach us on WhatsApp support from the Account page.</p>
+        </div>
+      </div>
+      <div style="margin-top:18px;display:flex;flex-direction:column;gap:8px;">
+        <button class="btn btn-green btn-full" onclick="closePrivacy()">Got it</button>
+        <button class="btn btn-ghost btn-full" onclick="closePrivacy(); openWhatsApp('Hello, I have a question about privacy / my data')">Contact Support</button>
+      </div>
+      <p style="text-align:center;font-size:0.72rem;color:#94a3b8;margin-top:12px;">Last updated: August 2026</p>
     </div>
   </div>
 
@@ -1769,11 +1853,11 @@
       const footer = document.getElementById('cart-footer');
       if (!cart.length) {
         body.innerHTML = `
-          <div class="center-empty">
-            <div class="empty-icon">🛒</div>
-            <h3>Your cart is empty</h3>
-            <p>Browse products and add items</p>
-            <button class="btn btn-green" onclick="closeCart();goPage('home')">Start Shopping</button>
+          <div class="center-empty" style="padding:40px 20px;">
+            <div class="empty-icon" style="background:rgba(255,255,255,0.45);border:1px solid rgba(255,255,255,0.55);box-shadow:0 8px 24px rgba(0,0,0,0.06);">🛒</div>
+            <h3 style="color:#0f172a;">Your cart is empty</h3>
+            <p style="color:#64748b;">Browse products and add items to get started</p>
+            <button class="btn btn-green" style="border-radius:14px;padding:12px 22px;" onclick="closeCart();goPage('home')">Start Shopping</button>
           </div>`;
         footer.style.display = 'none';
         return;
@@ -1798,11 +1882,11 @@
       const el = document.getElementById('cart-page-content');
       if (!cart.length) {
         el.innerHTML = `
-          <div class="center-empty">
-            <div class="empty-icon">🛒</div>
-            <h3>Your cart is empty!</h3>
-            <p>Browse our categories and discover the best deals</p>
-            <button class="btn btn-green" onclick="goPage('home')">Start Shopping</button>
+          <div class="center-empty" style="padding:48px 20px;">
+            <div class="empty-icon" style="background:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.5);">🛒</div>
+            <h3 style="color:#fff;text-shadow:0 1px 8px rgba(0,0,0,0.2);">Your cart is empty</h3>
+            <p style="color:rgba(255,255,255,0.85);">Browse our categories and discover the best deals</p>
+            <button class="btn btn-green" style="border-radius:14px;padding:12px 22px;" onclick="goPage('home')">Start Shopping</button>
           </div>`;
         return;
       }
@@ -1810,7 +1894,7 @@
       el.innerHTML = `
         <div style="padding:12px;">
           ${cart.map(i => `
-            <div class="cart-item" style="background:#fff;padding:12px;border-radius:12px;border:1px solid var(--border);margin-bottom:10px;">
+            <div class="cart-item" style="background:rgba(255,255,255,0.35);backdrop-filter:blur(16px);padding:12px;border-radius:16px;border:1px solid rgba(255,255,255,0.5);margin-bottom:10px;box-shadow:0 4px 16px rgba(0,0,0,0.05);">
               <div class="img">${i.image ? `<img src="${i.image}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;" />` : '📦'}</div>
               <div class="cart-item-info">
                 <div class="cart-item-name">${i.name}</div>
@@ -1940,7 +2024,10 @@
       }
     }
     function showPrivacy() {
-      alert('Home of Quality — Privacy Policy\n\n1. Information we collect\nName, phone number, email, delivery address, and order history.\n\n2. How we use it\nTo process orders, arrange delivery, and contact you about your purchases via WhatsApp or phone.\n\n3. Payments\nCard and mobile money payments are handled securely by Paystack. We do not store your full card details.\n\n4. Sharing\nWe do not sell your personal data. We only share what is needed with delivery partners to fulfil your order.\n\n5. Your choices\nYou can update your address in Account → Address Book, or close your account anytime.\n\n6. Contact\nWhatsApp / Call: 0533318842\n\nLast updated: August 2026');
+      document.getElementById('privacy-modal').classList.add('open');
+    }
+    function closePrivacy() {
+      document.getElementById('privacy-modal').classList.remove('open');
     }
     function openAuth(mode) {
       authMode = mode || 'login';
